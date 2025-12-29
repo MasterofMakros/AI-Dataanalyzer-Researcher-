@@ -15,7 +15,7 @@ Danke fuer dein Interesse an Conductor! Dieses Dokument erklaert, wie du zum Pro
 
 ```bash
 # Repository klonen
-git clone https://github.com/YOUR_USERNAME/conductor.git
+git clone https://github.com/MasterofMakros/AI-Dataanalyzer-Researcher-.git
 cd conductor
 
 # Environment konfigurieren

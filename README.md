@@ -38,7 +38,7 @@ Conductor ist ein **vollstaendig lokales** System zur automatischen Organisation
 
 ```bash
 # Repository klonen
-git clone https://github.com/YOUR_USERNAME/conductor.git
+git clone https://github.com/MasterofMakros/AI-Dataanalyzer-Researcher-.git
 cd conductor
 
 # Environment konfigurieren
