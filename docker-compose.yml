@@ -1,0 +1,835 @@
+version: '3.8'
+
+# =============================================================================
+# CONDUCTOR FULL STACK - SECURITY-HARDENED
+# =============================================================================
+# Verwendet .env Datei für alle Secrets!
+# Kopiere .env.example → .env und passe die Werte an.
+# =============================================================================
+
+services:
+  # ===========================================================================
+  # INFRASTRUCTURE
+  # ===========================================================================
+
+  traefik:
+    image: traefik:v3.2
+    container_name: conductor-traefik
+    restart: unless-stopped
+    command:
+      - "--api.dashboard=true"
+      - "--api.insecure=false"                    # ✅ SECURITY FIX
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:8888"
+    ports:
+      - "8888:8888"
+      # Dashboard nur über Tailscale/VPN erreichbar (nicht exposed!)
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - conductor-net
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: conductor-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-n8n}
+      POSTGRES_USER: ${POSTGRES_USER:-n8n}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}  # ✅ REQUIRED
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - conductor-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-n8n}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+  redis:
+    image: redis:7.4-alpine
+    container_name: conductor-redis
+    restart: unless-stopped
+    command: 
+      - "redis-server"
+      - "--bind"
+      - "0.0.0.0"
+      - "--requirepass"
+      - "${REDIS_PASSWORD:?REDIS_PASSWORD must be set}"  # ✅ REQUIRED
+      - "--appendonly"
+      - "no"
+    volumes:
+      - redis_data:/data
+    networks:
+      - conductor-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+
+  # ===========================================================================
+  # N8N WORKFLOW ENGINE
+  # ===========================================================================
+
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: conductor-n8n
+    restart: unless-stopped
+    environment:
+      # Basic
+      - N8N_HOST=${N8N_HOST:-0.0.0.0}
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=${WEBHOOK_URL:-http://localhost:5678/}
+      - GENERIC_TIMEZONE=${GENERIC_TIMEZONE:-Europe/Berlin}
+      
+      # Database
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=postgres
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_DATABASE=${POSTGRES_DB:-n8n}
+      - DB_POSTGRESDB_USER=${POSTGRES_USER:-n8n}
+      - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD}
+      
+      # Security ✅
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY:?N8N_ENCRYPTION_KEY must be set}
+      - N8N_SECURE_COOKIE=false
+      
+      # Features
+      - N8N_AI_ENABLED=true
+      - N8N_COMMUNITY_NODES_ENABLED=true
+      
+      # Performance
+      - EXECUTIONS_MODE=regular
+      - EXECUTIONS_DATA_PRUNE=true
+      - EXECUTIONS_DATA_MAX_AGE=72
+      - NODE_OPTIONS=--max-old-space-size=512
+      - N8N_DIAGNOSTICS_ENABLED=false
+    ports:
+      - "5680:5678"
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - F:/:/mnt/data:ro  # Read-only Zugriff auf Datenpool
+    networks:
+      - conductor-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.n8n.rule=Host(`n8n.local`)"
+      - "traefik.http.services.n8n.loadbalancer.server.port=5678"
+    deploy:
+      resources:
+        limits:
+          memory: 768M
+
+  # ===========================================================================
+  # VECTOR DATABASE (RAG)
+  # ===========================================================================
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: conductor-qdrant
+    restart: unless-stopped
+    ports:
+      - "6335:6333"
+      - "6336:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      - conductor-net
+    environment:
+      - QDRANT__SERVICE__GRPC_PORT=6334
+      - QDRANT__SERVICE__API_KEY=${QDRANT_API_KEY:-}  # Optional
+      - QDRANT__LOG_LEVEL=INFO
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+
+  # ===========================================================================
+  # FULLTEXT SEARCH
+  # ===========================================================================
+
+  meilisearch:
+    image: getmeili/meilisearch:latest
+    container_name: conductor-meilisearch
+    restart: unless-stopped
+    ports:
+      - "7700:7700"
+    volumes:
+      - meilisearch_data:/meili_data
+    networks:
+      - conductor-net
+    environment:
+      - MEILI_MASTER_KEY=${MEILI_MASTER_KEY:?MEILI_MASTER_KEY must be set}  # ✅ REQUIRED
+      - MEILI_ENV=production
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  # ===========================================================================
+  # DOCUMENT PARSING
+  # ===========================================================================
+
+  tika:
+    image: apache/tika:latest
+    container_name: conductor-tika
+    restart: unless-stopped
+    ports:
+      - "9998:9998"
+    networks:
+      - conductor-net
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+
+  # ===========================================================================
+  # LOCAL LLM
+  # ===========================================================================
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: conductor-ollama
+    restart: unless-stopped
+    ports:
+      - "11435:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - conductor-net
+    # Für GPU: devices hinzufügen
+    # devices:
+    #   - /dev/dri:/dev/dri
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+
+  # ===========================================================================
+  # BINARY FILE PROCESSING (NEU für Linux-Portabilität)
+  # ===========================================================================
+
+  # Audio-Transkription via Whisper (faster-whisper, WER 6-7%)
+  # DEPRECATED: Wird durch whisperx ersetzt (siehe unten)
+  whisper:
+    image: fedirz/faster-whisper-server:latest-cuda
+    container_name: conductor-whisper
+    restart: unless-stopped
+    ports:
+      - "9001:8000"
+    environment:
+      - WHISPER__MODEL=Systran/faster-whisper-base
+      - WHISPER__DEVICE=cpu
+      - WHISPER__COMPUTE_TYPE=float32
+    volumes:
+      - whisper_models:/root/.cache/huggingface
+    networks:
+      - conductor-net
+    profiles:
+      - legacy  # Nur mit --profile legacy starten
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+
+  # ===========================================================================
+  # WHISPERX (EMPFOHLEN - Word-Level Timestamps + Speaker Diarization)
+  # ===========================================================================
+  # Benchmark: 70x Realtime, Word-Level Timestamps, Speaker Diarization
+  # Aktivieren mit: USE_WHISPERX=true in feature_flags.py
+  # Für Diarization: HF_TOKEN in .env setzen (huggingface.co Token)
+  whisperx:
+    build:
+      context: ./docker/whisperx-api
+      dockerfile: Dockerfile
+    image: conductor-whisperx:latest
+    container_name: conductor-whisperx
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+    environment:
+      - WHISPER_MODEL=${WHISPER_MODEL:-large-v3}
+      - WHISPER_DEVICE=cuda
+      - WHISPER_COMPUTE_TYPE=float16
+      - WHISPER_BATCH_SIZE=16
+      - HF_TOKEN=${HF_TOKEN:-}  # Für Speaker Diarization
+    volumes:
+      - whisper_models:/root/.cache/huggingface
+      - F:/:/mnt/data:ro
+    networks:
+      - conductor-net
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/health"]
+      interval: 30s
+      timeout: 30s
+      start_period: 120s
+      retries: 3
+
+  # FFmpeg-basierte Video/Audio API
+  ffmpeg-api:
+    image: jrottenberg/ffmpeg:7-ubuntu
+    container_name: conductor-ffmpeg
+    restart: unless-stopped
+    entrypoint: ["tail", "-f", "/dev/null"]  # Hält Container am Laufen
+    volumes:
+      - F:/:/mnt/data:ro
+      - ffmpeg_temp:/tmp/ffmpeg
+    networks:
+      - conductor-net
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+
+  # OCR für Bilder - Tesseract (schnell, 87% Genauigkeit)
+  # DEPRECATED: Wird durch surya-ocr ersetzt (97.7% Accuracy)
+  tesseract-ocr:
+    image: jitesoft/tesseract-ocr:latest
+    container_name: conductor-tesseract
+    restart: unless-stopped
+    entrypoint: ["tail", "-f", "/dev/null"]
+    volumes:
+      - F:/:/mnt/data:ro
+    networks:
+      - conductor-net
+    profiles:
+      - legacy  # Nur mit --profile legacy starten
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  # ===========================================================================
+  # SURYA OCR (EMPFOHLEN - 97.7% Accuracy + Layout-Analyse)
+  # ===========================================================================
+  # Benchmark: 97.7% Accuracy auf Invoices (vs. Tesseract 87%)
+  # Features: 90+ Sprachen, Layout-Erkennung, Tabellen-Detection
+  # Aktivieren mit: USE_SURYA_OCR=true in feature_flags.py
+  surya-ocr:
+    build:
+      context: ./docker/surya-ocr
+      dockerfile: Dockerfile
+    image: conductor-surya-ocr:latest
+    container_name: conductor-surya-ocr
+    restart: unless-stopped
+    ports:
+      - "9999:8000"
+    environment:
+      - SURYA_DEVICE=cuda
+      - SURYA_BATCH_SIZE=4
+      - SURYA_LANGS=de,en
+    volumes:
+      - huggingface_cache:/root/.cache/huggingface
+      - F:/:/mnt/data:ro
+    networks:
+      - conductor-net
+    deploy:
+      resources:
+        limits:
+          memory: 6G
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 30s
+      start_period: 180s
+      retries: 3
+
+  # Parser Service - Python-basierte Datei-Parser (100% Docker)
+  parser-service:
+    build:
+      context: ./docker/parser-service
+      dockerfile: Dockerfile
+    image: conductor-parser:latest
+    container_name: conductor-parser
+    restart: unless-stopped
+    ports:
+      - "8002:8000"
+    volumes:
+      - F:/:/mnt/data:ro
+    networks:
+      - conductor-net
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # 7-Zip - Archive Processing (RAR, 7z, TAR, GZ ohne Entpacken)
+  sevenzip:
+    image: crazymax/7zip:latest
+    container_name: conductor-7zip
+    restart: unless-stopped
+    entrypoint: ["tail", "-f", "/dev/null"]
+    volumes:
+      - F:/:/mnt/data:ro
+    networks:
+      - conductor-net
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  # ===========================================================================
+  # DOCUMENT PROCESSOR (EMPFOHLEN - Unified Docling + Surya + GLiNER)
+  # ===========================================================================
+  # Benchmark-basierte Konsolidierung:
+  # - Docling: 97.9% Table Accuracy (vs Tika 75%)
+  # - Surya OCR: 97.7% Accuracy (vs Tesseract 87%)
+  # - GLiNER: Zero-shot NER/PII Detection
+  #
+  # Ersetzt: neural-worker (CPU) + surya-ocr (separate)
+  # Port: 8005 (gleich wie neural-worker für Kompatibilität)
+  document-processor:
+    build:
+      context: ./docker/document-processor
+      dockerfile: Dockerfile
+    image: conductor-document-processor:latest
+    container_name: conductor-document-processor
+    restart: unless-stopped
+    ports:
+      - "8005:8000"
+    volumes:
+      - F:/:/mnt/data:ro
+      - huggingface_cache:/root/.cache/huggingface
+      - lancedb_data:/data/lancedb
+    networks:
+      - conductor-net
+    environment:
+      - PROCESSOR_DEVICE=cuda
+      - GLINER_MODEL=urchade/gliner_medium-v2.1
+      - EMBED_MODEL=intfloat/multilingual-e5-large
+      - SURYA_BATCH_SIZE=4
+      - SURYA_LANGS=de,en
+      - LANCEDB_PATH=/data/lancedb
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 30s
+      start_period: 300s
+      retries: 3
+    profiles:
+      - gpu
+
+  # ===========================================================================
+  # DOCUMENT PROCESSOR CPU (Alternative ohne GPU)
+  # ===========================================================================
+  # Für Systeme ohne NVIDIA GPU
+  # Langsamer, aber funktional identisch
+  # Aktivieren mit: docker compose --profile cpu up -d
+  document-processor-cpu:
+    build:
+      context: ./docker/document-processor
+      dockerfile: Dockerfile.cpu
+    image: conductor-document-processor:cpu
+    container_name: conductor-document-processor
+    restart: unless-stopped
+    ports:
+      - "8005:8000"
+    volumes:
+      - F:/:/mnt/data:ro
+      - huggingface_cache:/root/.cache/huggingface
+      - lancedb_data:/data/lancedb
+    networks:
+      - conductor-net
+    environment:
+      - PROCESSOR_DEVICE=cpu
+      - GLINER_MODEL=urchade/gliner_small-v2.1
+      - EMBED_MODEL=intfloat/multilingual-e5-base
+      - SURYA_BATCH_SIZE=1
+      - SURYA_LANGS=de,en
+      - LANCEDB_PATH=/data/lancedb
+      - OMP_NUM_THREADS=4
+    deploy:
+      resources:
+        limits:
+          memory: 6G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 30s
+      start_period: 600s
+      retries: 3
+    profiles:
+      - cpu
+
+  # ===========================================================================
+  # NEURAL WORKER (LEGACY - wird durch document-processor ersetzt)
+  # ===========================================================================
+  # DEPRECATED: Verwende document-processor stattdessen
+  # Nur für Kompatibilität mit --profile legacy
+  neural-worker:
+    build:
+      context: ./docker/neural-worker
+      dockerfile: Dockerfile
+    image: conductor-neural-worker:latest
+    container_name: conductor-neural-worker
+    restart: unless-stopped
+    ports:
+      - "8006:8000"  # Anderer Port um Konflikt zu vermeiden
+    volumes:
+      - F:/:/mnt/data:ro
+      - huggingface_cache:/root/.cache/huggingface
+      - lancedb_data:/lancedb_storage
+    networks:
+      - conductor-net
+    environment:
+      - GLINER_MODEL=urchade/gliner_medium-v2.1
+      - LANCEDB_PATH=/lancedb_storage
+    profiles:
+      - legacy  # Nur mit --profile legacy starten
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+
+  # ===========================================================================
+  # INTELLIGENCE PIPELINE
+  # ===========================================================================
+
+  # Universal Router - Magic Byte Detection → Queue Assignment
+  # Port: 8030
+  universal-router:
+    build:
+      context: ./docker/universal-router
+      dockerfile: Dockerfile
+    image: conductor-universal-router:latest
+    container_name: conductor-universal-router
+    restart: unless-stopped
+    ports:
+      - "8030:8030"
+    volumes:
+      - F:/:/mnt/data:ro
+    networks:
+      - conductor-net
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    depends_on:
+      - redis
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8030/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Orchestrator - Priority Queues & Job Distribution
+  # Port: 8020
+  orchestrator:
+    build:
+      context: ./docker/orchestrator
+      dockerfile: Dockerfile
+    image: conductor-orchestrator:latest
+    container_name: conductor-orchestrator
+    restart: unless-stopped
+    ports:
+      - "8020:8020"
+    volumes:
+      - F:/:/mnt/data:ro
+    networks:
+      - conductor-net
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    depends_on:
+      - redis
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8020/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Extraction Workers - Verarbeiten Jobs aus den Queues
+  # Skalierbar via: docker compose up --scale extraction-worker=4
+  extraction-worker:
+    build:
+      context: ./docker/workers
+      dockerfile: Dockerfile
+    image: conductor-extraction-worker:latest
+    restart: unless-stopped
+    volumes:
+      - F:/:/mnt/data:ro
+    networks:
+      - conductor-net
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - DOCUMENT_PROCESSOR_URL=http://document-processor:8000
+      - TIKA_URL=http://tika:9998
+      - WHISPERX_URL=http://whisperx:9000
+      - PARSER_URL=http://parser-service:8000
+      - WORKER_TYPE=documents
+      - CONSUMER_GROUP=extraction-workers
+    depends_on:
+      - redis
+      - document-processor
+      - tika
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  # ===========================================================================
+  # CONDUCTOR API (Central Intelligence Service)
+  # ===========================================================================
+  # Zentraler API-Endpunkt mit:
+  # - Meilisearch Suche (inkl. Pattern-of-Life)
+  # - Tika HTML->Markdown Extraktion
+  # - Context Headers für RAG
+  # - Feedback Tracking für Klassifikations-Korrekturen
+  # ===========================================================================
+  conductor-api:
+    build:
+      context: ./docker/conductor-api
+      dockerfile: Dockerfile
+    image: conductor-api:latest
+    container_name: conductor-api
+    restart: unless-stopped
+    ports:
+      - "8010:8000"
+    volumes:
+      - F:/:/mnt/data:ro
+      - conductor_api_data:/data
+    networks:
+      - conductor-net
+    environment:
+      - MEILISEARCH_URL=http://meilisearch:7700
+      - MEILI_MASTER_KEY=${MEILI_MASTER_KEY}
+      - TIKA_URL=http://tika:9998/tika
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - QDRANT_URL=http://qdrant:6333
+      - OLLAMA_URL=http://ollama:11434
+      - DATA_DIR=/data
+    depends_on:
+      - meilisearch
+      - tika
+      - redis
+      - qdrant
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api.rule=Host(`api.local`)"
+      - "traefik.http.services.api.loadbalancer.server.port=8000"
+
+  # ===========================================================================
+  # NEURAL SEARCH API (RAG + LLM Synthesis)
+  # ===========================================================================
+
+  neural-search-api:
+    build:
+      context: ./docker/neural-search-api
+      dockerfile: Dockerfile
+    image: neural-search-api:latest
+    container_name: conductor-neural-search
+    restart: unless-stopped
+    ports:
+      - "8040:8040"
+    networks:
+      - conductor-net
+    environment:
+      - MEILISEARCH_URL=http://meilisearch:7700
+      - MEILI_MASTER_KEY=${MEILI_MASTER_KEY}
+      - OLLAMA_URL=http://ollama:11434
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-llama3.2}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - QDRANT_URL=http://qdrant:6333
+    depends_on:
+      - meilisearch
+      - redis
+      - ollama
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8040/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.neural.rule=Host(`neural.local`)"
+      - "traefik.http.services.neural.loadbalancer.server.port=8040"
+
+  # ===========================================================================
+  # MISSION CONTROL UI (Neural Search Frontend)
+  # ===========================================================================
+
+  mission-control:
+    build:
+      context: .
+      dockerfile: docker/mission-control/Dockerfile
+    image: mission-control:latest
+    container_name: conductor-ui
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    networks:
+      - conductor-net
+    depends_on:
+      - conductor-api
+      - neural-search-api
+      - universal-router
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:80/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ui.rule=Host(`conductor.local`)"
+      - "traefik.http.services.ui.loadbalancer.server.port=80"
+
+  # ===========================================================================
+  # NEXTCLOUD (File Sync)
+  # ===========================================================================
+
+  nextcloud:
+    image: nextcloud:30-apache
+    container_name: conductor-nextcloud
+    restart: unless-stopped
+    environment:
+      - MYSQL_HOST=nextcloud-db
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=${NC_DB_USER:-nextcloud}
+      - MYSQL_PASSWORD=${NC_DB_PASSWORD:?NC_DB_PASSWORD must be set}  # ✅ REQUIRED
+      - NEXTCLOUD_ADMIN_USER=${NC_ADMIN_USER:-admin}
+      - NEXTCLOUD_ADMIN_PASSWORD=${NC_ADMIN_PASSWORD:?NC_ADMIN_PASSWORD must be set}  # ✅ REQUIRED
+      - NEXTCLOUD_TRUSTED_DOMAINS=localhost nextcloud.local 192.168.1.*
+      - OVERWRITEPROTOCOL=http
+    volumes:
+      - nextcloud_data:/var/www/html
+      - F:/:/mnt/datapool  # External Storage
+    ports:
+      - "8081:80"
+    networks:
+      - conductor-net
+    depends_on:
+      - nextcloud-db
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.nextcloud.rule=Host(`cloud.local`)"
+      - "traefik.http.services.nextcloud.loadbalancer.server.port=80"
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  nextcloud-db:
+    image: mariadb:11
+    container_name: conductor-nextcloud-db
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=${NC_DB_ROOT_PASSWORD:?NC_DB_ROOT_PASSWORD must be set}  # ✅ REQUIRED
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=${NC_DB_USER:-nextcloud}
+      - MYSQL_PASSWORD=${NC_DB_PASSWORD}
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    networks:
+      - conductor-net
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+# =============================================================================
+# NETWORKS & VOLUMES
+# =============================================================================
+
+networks:
+  conductor-net:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+  n8n_data:
+  qdrant_data:
+  meilisearch_data:
+  ollama_data:
+  nextcloud_data:
+  mariadb_data:
+  # Binary Processing
+  whisper_models:
+  ffmpeg_temp:
+  paddleocr_models:
+  huggingface_cache:
+  lancedb_data:
+  # Conductor API
+  conductor_api_data:
+

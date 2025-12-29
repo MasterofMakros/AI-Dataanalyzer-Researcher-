@@ -1,0 +1,577 @@
+version: '3.8'
+
+# =============================================================================
+# NEURAL VAULT - INTELLIGENCE-GRADE PROCESSING STACK
+# =============================================================================
+#
+# Assembly-Line Architektur mit:
+# - Priority Queues (Redis Streams)
+# - Dual-Path Processing (Fast/Deep)
+# - Horizontale Skalierung (Replicas)
+# - Dead Letter Queues (Fehlerbehandlung)
+#
+# Usage:
+#   docker compose -f docker-compose.intelligence.yml up -d
+#   docker compose -f docker-compose.intelligence.yml logs -f orchestrator
+#   docker compose -f docker-compose.intelligence.yml scale worker-documents=4
+#
+# =============================================================================
+
+x-common-env: &common-env
+  REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+  REDIS_PASSWORD: ${REDIS_PASSWORD}
+  LOG_FORMAT: json
+  LOG_LEVEL: INFO
+
+x-worker-deploy: &worker-deploy
+  restart: unless-stopped
+  deploy:
+    restart_policy:
+      condition: on-failure
+      delay: 5s
+      max_attempts: 3
+
+x-data-volume: &data-volume
+  - F:/:/mnt/data:ro
+  - /var/run/docker.sock:/var/run/docker.sock
+
+services:
+
+  # ===========================================================================
+  # MESSAGE BROKER (Redis Streams)
+  # ===========================================================================
+
+  redis:
+    image: redis:7.4-alpine
+    container_name: conductor-redis
+    restart: unless-stopped
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD}
+      --maxmemory 2gb
+      --maxmemory-policy allkeys-lru
+      --appendonly yes
+      --tcp-backlog 511
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - conductor-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+
+  # ===========================================================================
+  # UNIVERSAL ROUTER (Magic Byte Detection + 200+ Formate)
+  # ===========================================================================
+
+  universal-router:
+    build:
+      context: ./docker/universal-router
+      dockerfile: Dockerfile
+    image: conductor-router:latest
+    container_name: conductor-router
+    restart: unless-stopped
+    ports:
+      - "8030:8030"
+    environment:
+      <<: *common-env
+    volumes:
+      - F:/:/mnt/data:ro
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - conductor-net
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8030/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ===========================================================================
+  # ORCHESTRATOR (Job Distribution + Triage)
+  # ===========================================================================
+
+  orchestrator:
+    build:
+      context: ./docker/orchestrator
+      dockerfile: Dockerfile
+    image: conductor-orchestrator:latest
+    container_name: conductor-orchestrator
+    restart: unless-stopped
+    ports:
+      - "8020:8020"
+    environment:
+      <<: *common-env
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - conductor-net
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8020/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ===========================================================================
+  # EXTRACTION WORKERS - Document Processing
+  # ===========================================================================
+
+  worker-documents:
+    build:
+      context: ./docker/workers
+      dockerfile: Dockerfile
+    image: conductor-worker:latest
+    <<: *worker-deploy
+    environment:
+      <<: *common-env
+      WORKER_TYPE: documents
+      TIKA_URL: http://tika:9998
+    volumes: *data-volume
+    depends_on:
+      - redis
+      - tika
+    networks:
+      - conductor-net
+    deploy:
+      replicas: 3
+      resources:
+        limits:
+          memory: 512M
+
+  # ===========================================================================
+  # EXTRACTION WORKERS - Audio Processing
+  # ===========================================================================
+
+  worker-audio:
+    build:
+      context: ./docker/workers
+      dockerfile: Dockerfile
+    image: conductor-worker:latest
+    <<: *worker-deploy
+    environment:
+      <<: *common-env
+      WORKER_TYPE: audio
+      WHISPER_URL: http://whisper-accurate:8000
+      WHISPER_FAST_URL: http://whisper-fast:8000
+    volumes: *data-volume
+    depends_on:
+      - redis
+      - whisper-fast
+    networks:
+      - conductor-net
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          memory: 1G
+
+  # ===========================================================================
+  # EXTRACTION WORKERS - Video Processing
+  # ===========================================================================
+
+  worker-video:
+    build:
+      context: ./docker/workers
+      dockerfile: Dockerfile
+    image: conductor-worker:latest
+    <<: *worker-deploy
+    environment:
+      <<: *common-env
+      WORKER_TYPE: video
+      WHISPER_URL: http://whisper-accurate:8000
+      WHISPER_FAST_URL: http://whisper-fast:8000
+    volumes: *data-volume
+    depends_on:
+      - redis
+      - ffmpeg
+      - whisper-fast
+    networks:
+      - conductor-net
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          memory: 2G
+
+  # ===========================================================================
+  # EXTRACTION WORKERS - Image/OCR Processing
+  # ===========================================================================
+
+  worker-images:
+    build:
+      context: ./docker/workers
+      dockerfile: Dockerfile
+    image: conductor-worker:latest
+    <<: *worker-deploy
+    environment:
+      <<: *common-env
+      WORKER_TYPE: images
+    volumes: *data-volume
+    depends_on:
+      - redis
+      - tesseract
+    networks:
+      - conductor-net
+    deploy:
+      replicas: 3
+      resources:
+        limits:
+          memory: 512M
+
+  # ===========================================================================
+  # EXTRACTION WORKERS - Email Processing
+  # ===========================================================================
+
+  worker-email:
+    build:
+      context: ./docker/workers
+      dockerfile: Dockerfile
+    image: conductor-worker:latest
+    <<: *worker-deploy
+    environment:
+      <<: *common-env
+      WORKER_TYPE: email
+      PARSER_URL: http://parser-service:8000
+    volumes: *data-volume
+    depends_on:
+      - redis
+      - parser-service
+    networks:
+      - conductor-net
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          memory: 256M
+
+  # ===========================================================================
+  # EXTRACTION WORKERS - Archive Processing
+  # ===========================================================================
+
+  worker-archive:
+    build:
+      context: ./docker/workers
+      dockerfile: Dockerfile
+    image: conductor-worker:latest
+    <<: *worker-deploy
+    environment:
+      <<: *common-env
+      WORKER_TYPE: archive
+    volumes: *data-volume
+    depends_on:
+      - redis
+      - sevenzip
+    networks:
+      - conductor-net
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          memory: 512M
+
+  # ===========================================================================
+  # PROCESSING SERVICES - Tika (Documents)
+  # ===========================================================================
+
+  tika:
+    image: apache/tika:latest
+    container_name: conductor-tika
+    restart: unless-stopped
+    networks:
+      - conductor-net
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          memory: 1G
+
+  # ===========================================================================
+  # PROCESSING SERVICES - Whisper (Audio)
+  # ===========================================================================
+
+  # Fast Path: base model, CPU
+  whisper-fast:
+    image: fedirz/faster-whisper-server:latest
+    container_name: conductor-whisper-fast
+    restart: unless-stopped
+    environment:
+      - WHISPER__MODEL=Systran/faster-whisper-base
+      - WHISPER__DEVICE=cpu
+      - WHISPER__COMPUTE_TYPE=float32
+    volumes:
+      - whisper_models:/root/.cache/huggingface
+    networks:
+      - conductor-net
+    deploy:
+      replicas: 3
+      resources:
+        limits:
+          memory: 2G
+
+  # Deep Path: large-v3 model, GPU
+  whisper-accurate:
+    image: fedirz/faster-whisper-server:latest-cuda
+    container_name: conductor-whisper-accurate
+    restart: unless-stopped
+    environment:
+      - WHISPER__MODEL=Systran/faster-whisper-large-v3
+      - WHISPER__DEVICE=cuda
+      - WHISPER__COMPUTE_TYPE=float16
+    volumes:
+      - whisper_models:/root/.cache/huggingface
+    networks:
+      - conductor-net
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  # ===========================================================================
+  # PROCESSING SERVICES - FFmpeg (Video)
+  # ===========================================================================
+
+  ffmpeg:
+    image: jrottenberg/ffmpeg:7-ubuntu
+    container_name: conductor-ffmpeg
+    restart: unless-stopped
+    entrypoint: ["tail", "-f", "/dev/null"]
+    volumes:
+      - F:/:/mnt/data:ro
+      - ffmpeg_temp:/tmp/ffmpeg
+    networks:
+      - conductor-net
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+
+  # ===========================================================================
+  # PROCESSING SERVICES - Tesseract (OCR)
+  # ===========================================================================
+
+  tesseract:
+    image: jitesoft/tesseract-ocr:latest
+    container_name: conductor-tesseract
+    restart: unless-stopped
+    entrypoint: ["tail", "-f", "/dev/null"]
+    volumes:
+      - F:/:/mnt/data:ro
+    networks:
+      - conductor-net
+    deploy:
+      replicas: 3
+      resources:
+        limits:
+          memory: 512M
+
+  # ===========================================================================
+  # PROCESSING SERVICES - Parser (Email, Spezialformate)
+  # ===========================================================================
+
+  parser-service:
+    build:
+      context: ./docker/parser-service
+      dockerfile: Dockerfile
+    image: conductor-parser:latest
+    container_name: conductor-parser
+    restart: unless-stopped
+    volumes:
+      - F:/:/mnt/data:ro
+    networks:
+      - conductor-net
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          memory: 1G
+
+  # ===========================================================================
+  # PROCESSING SERVICES - 7-Zip (Archives)
+  # ===========================================================================
+
+  sevenzip:
+    image: crazymax/7zip:latest
+    container_name: conductor-7zip
+    restart: unless-stopped
+    entrypoint: ["tail", "-f", "/dev/null"]
+    volumes:
+      - F:/:/mnt/data:ro
+    networks:
+      - conductor-net
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  # ===========================================================================
+  # SEARCH & INDEX
+  # ===========================================================================
+
+  meilisearch:
+    image: getmeili/meilisearch:latest
+    container_name: conductor-meilisearch
+    restart: unless-stopped
+    ports:
+      - "7700:7700"
+    volumes:
+      - meilisearch_data:/meili_data
+    networks:
+      - conductor-net
+    environment:
+      - MEILI_MASTER_KEY=${MEILI_MASTER_KEY}
+      - MEILI_ENV=production
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: conductor-qdrant
+    restart: unless-stopped
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      - conductor-net
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+
+  # ===========================================================================
+  # API GATEWAY
+  # ===========================================================================
+
+  conductor-api:
+    build:
+      context: ./docker/conductor-api
+      dockerfile: Dockerfile
+    image: conductor-api:latest
+    container_name: conductor-api
+    restart: unless-stopped
+    ports:
+      - "8010:8000"
+    volumes:
+      - F:/:/mnt/data:ro
+      - conductor_api_data:/data
+    networks:
+      - conductor-net
+    environment:
+      <<: *common-env
+      MEILISEARCH_URL: http://meilisearch:7700
+      MEILI_MASTER_KEY: ${MEILI_MASTER_KEY}
+      TIKA_URL: http://tika:9998/tika
+      QDRANT_URL: http://qdrant:6333
+      ORCHESTRATOR_URL: http://orchestrator:8020
+    depends_on:
+      - redis
+      - meilisearch
+      - qdrant
+      - orchestrator
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ===========================================================================
+  # ENRICHMENT - NER (GLiNER)
+  # ===========================================================================
+
+  enrich-ner:
+    build:
+      context: ./docker/neural-worker
+      dockerfile: Dockerfile
+    image: conductor-neural-worker:latest
+    container_name: conductor-enrich-ner
+    restart: unless-stopped
+    environment:
+      <<: *common-env
+      GLINER_MODEL: urchade/gliner_medium-v2.1
+      INPUT_QUEUE: enrich:ner
+      OUTPUT_QUEUE: index:fulltext
+    volumes:
+      - huggingface_cache:/root/.cache/huggingface
+    networks:
+      - conductor-net
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          memory: 4G
+
+  # ===========================================================================
+  # LLM (Ollama)
+  # ===========================================================================
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: conductor-ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - conductor-net
+    deploy:
+      resources:
+        limits:
+          memory: 16G
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+# =============================================================================
+# NETWORKS
+# =============================================================================
+
+networks:
+  conductor-net:
+    driver: bridge
+
+# =============================================================================
+# VOLUMES
+# =============================================================================
+
+volumes:
+  redis_data:
+  meilisearch_data:
+  qdrant_data:
+  ollama_data:
+  whisper_models:
+  ffmpeg_temp:
+  huggingface_cache:
+  conductor_api_data:

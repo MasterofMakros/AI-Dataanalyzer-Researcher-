@@ -7,7 +7,8 @@ This file tracks all feature tracks and their status.
 |:---|:---|:---|:---|
 | TRACK-001 | Data Pool Migration D: → F: | ✅ Complete | 2025-12-21 |
 | TRACK-002 | Intelligent Subdirectory Creation | ✅ Complete | 2025-12-21 |
-| TRACK-003 | RAG System Integration | 🔲 Planned | - |
+| TRACK-003 | RAG System Integration (Hybrid Pi/API) | 🔄 In Progress | 2025-12-21 |
+| TRACK-004 | Smart Media Transcription | 🔄 In Progress | 2025-12-21 |
 
 ## Completed Tracks
 - `TRACK-001`: Successfully migrated structured pools with Git logging

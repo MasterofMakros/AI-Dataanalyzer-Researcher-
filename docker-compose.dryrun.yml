@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  # 1. State Store
+  redis:
+    image: redis:7.2-alpine
+    container_name: dryrun-redis
+    hostname: redis
+    command: ["redis-server", "--appendonly", "no"]
+
+  # 2. Control Plane
+  conductor-api:
+    build: 
+      context: ./backend_api
+    container_name: dryrun-api
+    hostname: conductor-api
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+
+  # 3. Compute Node (Simulation)
+  worker-node:
+    build:
+      context: ./worker_node
+    container_name: dryrun-worker
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - CONDUCTOR_API_URL=http://conductor-api:8000
+    depends_on:
+      - redis
+      - conductor-api

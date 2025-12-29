@@ -1,0 +1,74 @@
+# Neural Vault Document Processor (CPU Only)
+# ==========================================
+# CPU-only version for systems without NVIDIA GPU
+#
+# Benchmark Basis:
+# - Docling: 97.9% Table Accuracy (vs Tika 75%)
+# - Surya OCR: 97.7% Accuracy (vs Tesseract 87%) - slower on CPU
+# - GLiNER: Zero-shot NER/PII Detection
+#
+# Build:
+#   docker build -f Dockerfile.cpu -t conductor-document-processor:cpu .
+#
+# Run:
+#   docker run -p 8005:8000 conductor-document-processor:cpu
+
+FROM python:3.11-slim-bookworm
+
+# Prevent interactive prompts
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# System dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    git \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create app directory
+WORKDIR /app
+
+# Install Python dependencies (CPU versions)
+COPY requirements.txt .
+COPY requirements-cpu.txt .
+
+# Install CPU-only PyTorch first, then other dependencies
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu && \
+    pip install --no-cache-dir -r requirements-cpu.txt
+
+# Copy application
+COPY main.py .
+
+# Environment defaults - CPU mode
+ENV PROCESSOR_DEVICE=cpu
+ENV GLINER_MODEL=urchade/gliner_small-v2.1
+ENV EMBED_MODEL=intfloat/multilingual-e5-base
+ENV SURYA_BATCH_SIZE=1
+ENV SURYA_LANGS=de,en
+ENV LANCEDB_PATH=/data/lancedb
+
+# Cache directories for models
+ENV HF_HOME=/root/.cache/huggingface
+ENV TORCH_HOME=/root/.cache/torch
+
+# Reduce memory usage
+ENV PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:128
+ENV OMP_NUM_THREADS=4
+
+# Health check (longer start period for CPU model loading)
+HEALTHCHECK --interval=30s --timeout=30s --start-period=600s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# Expose port
+EXPOSE 8000
+
+# Run server
+CMD ["python3", "main.py"]

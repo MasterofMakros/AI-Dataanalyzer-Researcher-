@@ -1,0 +1,16 @@
+# Neural Vault Parser Service - Dependencies
+fastapi>=0.115.0
+uvicorn>=0.30.0
+python-multipart>=0.0.9
+
+# File Parsers
+bencode2
+eml-parser
+OpenEXR
+trimesh
+extract-msg
+numpy>=1.24.0
+
+# Archive Parsers (RAR/7z ohne Docker-in-Docker)
+py7zr>=0.22.0
+rarfile>=4.2

@@ -1,0 +1,269 @@
+version: '3.8'
+
+# =============================================================================
+# CONDUCTOR N8N STACK
+# Hybrid AI Orchestration with n8n, Nextcloud, Qdrant, and Ollama
+# Deploy on Raspberry Pi 5 (8GB RAM recommended)
+# =============================================================================
+
+services:
+  # ===========================================================================
+  # INFRASTRUCTURE LAYER
+  # ===========================================================================
+
+  # Reverse Proxy with automatic HTTPS
+  traefik:
+    image: traefik:v3.2
+    container_name: conductor-traefik
+    restart: unless-stopped
+    command:
+      - "--api.dashboard=true"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - conductor-net
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+
+  # PostgreSQL for n8n persistent storage
+  postgres:
+    image: postgres:16-alpine
+    container_name: conductor-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: n8n
+      POSTGRES_USER: n8n
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-n8n_secret}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - conductor-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U n8n"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+  # Redis for job queue and caching
+  redis:
+    image: redis:7.4-alpine
+    container_name: conductor-redis
+    restart: unless-stopped
+    command: ["redis-server", "--bind", "0.0.0.0", "--requirepass", "${REDIS_PASSWORD:-redis_secret}", "--appendonly", "no", "--save", "900", "1"]
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - conductor-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-redis_secret}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+
+  # ===========================================================================
+  # N8N WORKFLOW ENGINE
+  # ===========================================================================
+
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: conductor-n8n
+    restart: unless-stopped
+    environment:
+      # Basic Config
+      - N8N_HOST=${N8N_HOST:-0.0.0.0}
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=${WEBHOOK_URL:-http://localhost:5678/}
+      - GENERIC_TIMEZONE=${GENERIC_TIMEZONE:-Europe/Berlin}
+      
+      # Database
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=postgres
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_DATABASE=n8n
+      - DB_POSTGRESDB_USER=n8n
+      - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD:-n8n_secret}
+      
+      # Security
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY:-change_me_immediately}
+      - N8N_SECURE_COOKIE=false
+      
+      # Features
+      - N8N_AI_ENABLED=true
+      - N8N_COMMUNITY_NODES_ENABLED=true
+      - N8N_TEMPLATES_ENABLED=false
+      
+      # Performance: Disable queue mode for single instance
+      - EXECUTIONS_MODE=regular
+      
+      # Performance: Reduce execution history overhead
+      - EXECUTIONS_DATA_PRUNE=true
+      - EXECUTIONS_DATA_MAX_AGE=72
+      - EXECUTIONS_DATA_SAVE_ON_ERROR=all
+      - EXECUTIONS_DATA_SAVE_ON_SUCCESS=none
+      - EXECUTIONS_DATA_SAVE_ON_PROGRESS=false
+      - EXECUTIONS_DATA_SAVE_MANUAL_EXECUTIONS=true
+      
+      # Performance: Node.js memory optimization
+      - NODE_OPTIONS=--max-old-space-size=512
+      
+      # Performance: Disable telemetry
+      - N8N_DIAGNOSTICS_ENABLED=false
+      - N8N_VERSION_NOTIFICATIONS_ENABLED=false
+      
+      # Performance: Editor settings
+      - N8N_EDITOR_BASE_URL=http://192.168.1.254:5678
+      - N8N_PERSONALIZATION_ENABLED=false
+    ports:
+      - "5678:5678"
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - /mnt/data:/mnt/data:ro
+    networks:
+      - conductor-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.n8n.rule=PathPrefix(`/n8n`) || Host(`n8n.local`)"
+      - "traefik.http.services.n8n.loadbalancer.server.port=5678"
+    deploy:
+      resources:
+        limits:
+          memory: 768M
+
+  # ===========================================================================
+  # VECTOR DATABASE (RAG)
+  # ===========================================================================
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: conductor-qdrant
+    restart: unless-stopped
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      - conductor-net
+    environment:
+      - QDRANT__SERVICE__GRPC_PORT=6334
+      - QDRANT__LOG_LEVEL=INFO
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.qdrant.rule=PathPrefix(`/qdrant`)"
+      - "traefik.http.services.qdrant.loadbalancer.server.port=6333"
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  # ===========================================================================
+  # NEXTCLOUD (File Storage & Sync)
+  # ===========================================================================
+
+  nextcloud:
+    image: nextcloud:30-apache
+    container_name: conductor-nextcloud
+    restart: unless-stopped
+    environment:
+      - MYSQL_HOST=nextcloud-db
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_PASSWORD=${NC_DB_PASSWORD:-nextcloud_secret}
+      - NEXTCLOUD_ADMIN_USER=admin
+      - NEXTCLOUD_ADMIN_PASSWORD=${NC_ADMIN_PASSWORD:-admin_changeme}
+      - NEXTCLOUD_TRUSTED_DOMAINS=192.168.1.254 localhost nextcloud.local
+      - OVERWRITEPROTOCOL=http
+    volumes:
+      - nextcloud_data:/var/www/html
+      - /mnt/data:/mnt/data
+    ports:
+      - "8081:80"
+    networks:
+      - conductor-net
+    depends_on:
+      - nextcloud-db
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.nextcloud.rule=Host(`cloud.local`) || PathPrefix(`/nextcloud`)"
+      - "traefik.http.routers.nextcloud.priority=1"
+      - "traefik.http.services.nextcloud.loadbalancer.server.port=80"
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  nextcloud-db:
+    image: mariadb:11
+    container_name: conductor-nextcloud-db
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=${NC_DB_ROOT_PASSWORD:-root_secret}
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_PASSWORD=${NC_DB_PASSWORD:-nextcloud_secret}
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    networks:
+      - conductor-net
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+  # ===========================================================================
+  # MONITORING (Optional)
+  # ===========================================================================
+
+  # Uncomment to enable Grafana dashboard
+  # grafana:
+  #   image: grafana/grafana:latest
+  #   container_name: conductor-grafana
+  #   restart: unless-stopped
+  #   environment:
+  #     - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+  #   ports:
+  #     - "3000:3000"
+  #   volumes:
+  #     - grafana_data:/var/lib/grafana
+  #   networks:
+  #     - conductor-net
+
+# =============================================================================
+# NETWORKS & VOLUMES
+# =============================================================================
+
+networks:
+  conductor-net:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+  n8n_data:
+  qdrant_data:
+  nextcloud_data:
+  mariadb_data:
+  # grafana_data:

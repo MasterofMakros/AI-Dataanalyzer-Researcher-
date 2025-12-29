@@ -1,0 +1,21 @@
+﻿{
+    "Stats":  {
+                  "TotalBytes":  222986854964,
+                  "CopiedBytes":  139821492151,
+                  "CopiedFiles":  32733,
+                  "ConflictFiles":  209,
+                  "SymlinksSkipped":  1,
+                  "ErrorFiles":  17718,
+                  "StartTime":  {
+                                    "value":  "\/Date(1766345011638)\/",
+                                    "DisplayHint":  2,
+                                    "DateTime":  "Sonntag, 21. Dezember 2025 20:23:31"
+                                },
+                  "EmptyFolders":  79248,
+                  "SkippedFiles":  67,
+                  "TotalFiles":  951385
+              },
+    "Folder":  "D:\\Backup",
+    "LogDir":  "F:\\conductor\\scripts\\archive\\migration_logs\\safe_copy_v3_20251221_202331",
+    "Index":  44000
+}

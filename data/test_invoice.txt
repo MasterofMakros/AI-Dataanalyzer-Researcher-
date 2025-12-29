@@ -1,0 +1,4 @@
+Test Content for Classification
+This document contains financial data about invoice #12345.
+Total Amount: 500 EUR.
+Date: 2025-01-01.

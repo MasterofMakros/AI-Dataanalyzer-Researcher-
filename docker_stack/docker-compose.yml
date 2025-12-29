@@ -1,0 +1,123 @@
+version: '3.8'
+
+services:
+  # ---------------------------------------------------------------------------
+  # CORE INFRASTRUCTURE
+  # ---------------------------------------------------------------------------
+  
+  # Reverse Proxy & SSL Termination
+  traefik:
+    image: traefik:v2.10
+    container_name: conductor-traefik
+    restart: always
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+      - "8080:8080" # Dashboard
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+  # State Management & Job Queue
+  redis:
+    image: redis:7.2-alpine
+    container_name: conductor-redis
+    restart: always
+    command: ["redis-server", "--appendonly", "no", "--save", "900", "1", "--save", "300", "10"]
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379" # Exposed for Worker Node (Low latency access)
+    labels:
+      - "traefik.enable=false" # Internal only (exposed via port mapping for Tailscale)
+
+  # ---------------------------------------------------------------------------
+  # APPLICATION LAYER
+  # ---------------------------------------------------------------------------
+
+  # Conductor API (The Brain) - Python/FastAPI
+  # Will be built from F:\conductor\backend_api
+  conductor-api:
+    build: 
+      context: ./backend_api
+      dockerfile: Dockerfile
+    container_name: conductor-api
+    restart: always
+    ports:
+      - "8000:8000"  # Direct access fallback
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api.rule=PathPrefix(`/api`)"
+      - "traefik.http.services.api.loadbalancer.server.port=8000"
+    depends_on:
+      - redis
+
+  # Mission Control (The UI) - Nginx static
+  # Will be built from F:\conductor\mission_control
+  mission-control:
+    build:
+      context: ./mission_control
+      dockerfile: Dockerfile
+    container_name: conductor-ui
+    restart: always
+    ports:
+      - "3000:80"  # Direct access fallback
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ui.rule=PathPrefix(`/dashboard`)"
+      - "traefik.http.services.ui.loadbalancer.server.port=80"
+
+  # ---------------------------------------------------------------------------
+  # FILE SYNC & MOBILE ACCESS
+  # ---------------------------------------------------------------------------
+
+  # Nextcloud - Personal Cloud Storage
+  nextcloud:
+    image: nextcloud:stable
+    container_name: conductor-nextcloud
+    restart: always
+    ports:
+      - "8081:80"  # Direct access fallback
+    environment:
+      - MYSQL_HOST=nextcloud-db
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_PASSWORD=nextcloud_secret
+      - NEXTCLOUD_ADMIN_USER=admin
+      - NEXTCLOUD_ADMIN_PASSWORD=admin123
+      - NEXTCLOUD_TRUSTED_DOMAINS=192.168.1.254 DockerServices DockerServices.local
+    volumes:
+      - nextcloud_data:/var/www/html
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.nextcloud.rule=PathPrefix(`/`)"
+      - "traefik.http.routers.nextcloud.priority=1"
+      - "traefik.http.services.nextcloud.loadbalancer.server.port=80"
+    depends_on:
+      - nextcloud-db
+
+  # MariaDB for Nextcloud
+  nextcloud-db:
+    image: mariadb:10.11
+    container_name: conductor-nextcloud-db
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=root_secret
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_PASSWORD=nextcloud_secret
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    labels:
+      - "traefik.enable=false"
+
+volumes:
+  redis_data:
+  nextcloud_data:
+  mariadb_data:
