@@ -1,61 +1,95 @@
-# Migration Live Dashboard
-# Reads logs from latest smart_copy_v4 session to visualize progress
+# Master Migration Dashboard v6 - Docker Style
+# Features: Data Rate, Per-Job Progress Bars, Overall Status
 
-$LogBase = "F:\conductor\scripts\archive\migration_logs"
-$LatestDir = Get-ChildItem $LogBase | Where-Object { $_.Name -like "safe_copy_v4_*" } | Sort-Object CreationTime -Descending | Select-Object -First 1
+$LogDir = "F:\conductor\scripts\archive\migration_logs"
 
-if (-not $LatestDir) {
-    Write-Host "No active v4 migration found!" -ForegroundColor Red
-    exit
+# Adjusted Expected Sizes (GB) based on Verification
+$ExpectedSizes = @{
+    "merge_mediathek" = 3000
+    "merge_backup"    = 960
+    "merge_synology"  = 2500
 }
 
-$SuccessLog = "$($LatestDir.FullName)\success.log"
-$ErrorLog = "$($LatestDir.FullName)\errors.csv"
-
-Write-Host "Monitoring: $($LatestDir.Name)" -ForegroundColor Cyan
-Start-Sleep -Seconds 2
-
-$StartTime = Get-Date
-
-# Estimation (Total files on D: approx - based on previous scan)
-$TotalEstimated = 150000 
-# Note: Accurate total is hard without pre-scan, using estimate based on known large folders.
-# If v4 script outputs "Total" in logs, we could parse that, but v4 prints to console which we can't read easily from outside.
-
-while ($true) {
-    if (Test-Path $SuccessLog) {
-        $SuccessCount = (Get-Content $SuccessLog -ErrorAction SilentlyContinue).Count
-        $ErrorCount = if (Test-Path $ErrorLog) { (Get-Content $ErrorLog -ErrorAction SilentlyContinue).Count - 1 } else { 0 }
-        
-        # Calculate Speed
-        $Now = Get-Date
-        $Elapsed = ($Now - $StartTime).TotalSeconds
-        $Speed = if ($Elapsed -gt 0) { [math]::Round($SuccessCount / $Elapsed, 1) } else { 0 }
-        
-        # Current File (Last line)
-        $LastFile = Get-Content $SuccessLog -Tail 1 -ErrorAction SilentlyContinue
-        
-        # Percentage (Capped at 99% if we exceed estimate)
-        $Percent = [math]::Min([math]::Round(($SuccessCount / $TotalEstimated) * 100), 99)
-        
-        # ETA
-        $Remaining = $TotalEstimated - $SuccessCount
-        $ETASeconds = if ($Speed -gt 0) { $Remaining / $Speed } else { 0 }
-
-        # Dashboard UI
-        Clear-Host
-        Write-Host "=== MIGRATION LIVE DASHBOARD ===" -ForegroundColor Magenta
-        Write-Host "Time Running:   $([math]::Round($Elapsed/60, 1)) min"
-        Write-Host "Speed:          $Speed files/sec"
-        Write-Host "Progress:       $Percent % (Est.)"
-        Write-Host "Copied:         $SuccessCount / $TotalEstimated (Est)"
-        Write-Host "Errors:         $ErrorCount" -ForegroundColor $(if ($ErrorCount -gt 0) { "Red" } else { "Green" })
-        Write-Host ""
-        Write-Host "Current File:   $LastFile" -ForegroundColor Yellow
-        
-        # Visual Bar
-        Write-Progress -Activity "Migrating Data..." -Status "$Percent% Complete ($Speed f/s)" -PercentComplete $Percent -CurrentOperation "Copying: $LastFile" -SecondsRemaining $ETASeconds
+function Get-LogStats($LogPath, $ExpectedGB) {
+    $result = @{ Name = $null; CopiedGB = 0; Files = 0; Speed = "0.0 MB/s"; Percent = 0; ETA = "?"; IsActive = $false; Bar = "" }
+    if (-not (Test-Path $LogPath)) { return $result }
+    
+    $result.Name = [System.IO.Path]::GetFileNameWithoutExtension($LogPath) -replace "merge_", "" -replace "synology_", "Syn:"
+    $item = Get-Item $LogPath
+    $result.IsActive = ((Get-Date) - $item.LastWriteTime).TotalSeconds -lt 60
+    
+    $content = Get-Content $LogPath -Raw -ErrorAction SilentlyContinue
+    $result.Files = if ($content) { ([regex]::Matches($content, "Neue Datei")).Count } else { 0 }
+    
+    # Heuristic: 20MB avg (Mediathek) vs 5MB (others)
+    $multiplier = if ($result.Name -match "mediathek") { 0.02 } else { 0.005 }
+    $result.CopiedGB = [math]::Round($result.Files * $multiplier, 2)
+    
+    if ($ExpectedGB -gt 0) {
+        $result.Percent = [math]::Min([math]::Round(($result.CopiedGB / $ExpectedGB) * 100), 100)
+    }
+    else {
+        $result.Percent = 0
     }
     
-    Start-Sleep -Seconds 1
+    # Speed Calc
+    $logAge = (Get-Date) - $item.CreationTime
+    if ($logAge.TotalSeconds -gt 0 -and $result.CopiedGB -gt 0) {
+        $speedMBs = [math]::Round(($result.CopiedGB * 1024) / $logAge.TotalSeconds, 1)
+        $result.Speed = "$speedMBs MB/s"
+        if ($speedMBs -gt 0 -and $result.Percent -lt 100) {
+            $remGB = $ExpectedGB - $result.CopiedGB
+            $etaMin = [math]::Round(($remGB * 1024) / $speedMBs / 60, 0)
+            $result.ETA = "${etaMin}m"
+        }
+    }
+    
+    # Progress Bar [####......]
+    $barLen = 20
+    $filled = [math]::Round(($result.Percent / 100) * $barLen)
+    $filled = [math]::Min($filled, $barLen)
+    $empty = $barLen - $filled
+    $result.Bar = "[" + ("#" * $filled) + ("-" * $empty) + "]"
+    
+    return $result
+}
+
+while ($true) {
+    Clear-Host
+    Write-Host "===================== MIGRATION PROGRESS =====================" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "NAME                           PROGRESS               RATE      ETA    FILES" -ForegroundColor DarkGray
+    Write-Host "----------------------------------------------------------------------------" -ForegroundColor DarkGray
+    
+    $activeLogs = Get-ChildItem "$LogDir\merge_*.log" | Sort-Object LastWriteTime -Descending
+    $totalGB = 0
+    $totalFiles = 0
+    
+    foreach ($log in $activeLogs) {
+        $nameBase = $log.BaseName -replace "merge_", ""
+        $expected = if ($ExpectedSizes.ContainsKey("merge_$nameBase")) { $ExpectedSizes["merge_$nameBase"] } else { 200 }
+        
+        $stats = Get-LogStats $log.FullName $expected
+        $totalGB += $stats.CopiedGB
+        $totalFiles += $stats.Files
+        
+        $col = if ($stats.IsActive) { "Cyan" } else { "Green" }
+        
+        $line = "{0,-30} {1,-22} {2,-9} {3,-6} {4}" -f 
+        $stats.Name.Substring(0, [math]::Min(30, $stats.Name.Length)), 
+        "$($stats.Bar) $($stats.Percent)%", 
+        $stats.Speed, 
+        $stats.ETA,
+        $stats.Files
+            
+        Write-Host $line -ForegroundColor $col
+    }
+    
+    Write-Host ""
+    Write-Host "----------------------------------------------------------------------------" -ForegroundColor DarkGray
+    Write-Host "TOTAL: ~ $([math]::Round($totalGB,2)) GB  |  $totalFiles Files Transferred" -ForegroundColor White
+    Write-Host "STATUS: $(if (@(Get-Process | Where-Object ProcessName -match "robocopy").Count -gt 0) { "RUNNING..." } else { "IDLE / COMPLETE" })" -ForegroundColor Yellow
+    Write-Host ""
+    
+    Start-Sleep -Seconds 2
 }
