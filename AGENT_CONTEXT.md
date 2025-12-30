@@ -51,6 +51,7 @@ docker compose up -d
 
 ## Letzte Aenderungen
 
+- 2025-12-30: Docker Fixes (HEALTHCHECK syntax, extraction-worker profile)
 - 2025-12-29: GitHub Standards hinzugefuegt
 - 2025-12-29: Projekt-Bereinigung
 - 2025-12-29: Neural Search API implementiert

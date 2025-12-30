@@ -81,7 +81,6 @@ build/
 # Große Dateien (sollten nicht im Repo sein)
 # -----------------------------------------------------------------------------
 *.csv
-!f_drive_index.csv
 *.json.gz
 *.tar.gz
 *.zip
@@ -107,6 +106,7 @@ data/postgres/
 data/n8n/
 data/nextcloud/
 data/ollama/
+data/topic_model/
 
 # -----------------------------------------------------------------------------
 # Coverage und Test Reports

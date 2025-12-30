@@ -626,6 +626,8 @@ services:
       resources:
         limits:
           memory: 512M
+    profiles:
+      - gpu
 
   # ===========================================================================
   # CONDUCTOR API (Central Intelligence Service)
