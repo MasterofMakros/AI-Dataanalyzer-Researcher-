@@ -177,3 +177,9 @@ Diese wurden getestet und verworfen – nie wieder anfassen:
 ---
 
 *Dieses Dokument ist unveränderlich. Neue Einträge können hinzugefügt, aber bestehende NIEMALS entfernt werden.*
+
+### ⚠️ Cross-Encoder Reranking (ADR-015) - AMENDED 2026-01-06
+**Status:** Conditionally Allowed (<100ms)
+
+- ✅ TinyBERT-L-6 (~50ms)
+- ❌ bert-base (>500ms)
