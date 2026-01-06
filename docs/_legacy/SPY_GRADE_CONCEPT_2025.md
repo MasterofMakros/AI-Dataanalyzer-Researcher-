@@ -772,3 +772,5 @@ volumes:
 ---
 
 *Analyse basiert auf öffentlich verfügbaren Informationen über Intelligence Processing Architectures*
+
+>  **ARCHIVED CONCEPT DOCUMENT** - Not implemented. See ARCHITECTURE.md
