@@ -144,12 +144,12 @@ services:
   # ===========================================================================
 
   qdrant:
-    image: qdrant/qdrant:latest
+    image: qdrant/qdrant:v1.15.5
     container_name: conductor-qdrant
     restart: unless-stopped
     ports:
-      - "6335:6333"
-      - "6336:6334"
+      - "127.0.0.1:6335:6333"
+      - "127.0.0.1:6336:6334"
     volumes:
       - qdrant_data:/qdrant/storage
     networks:
@@ -168,11 +168,11 @@ services:
   # ===========================================================================
 
   meilisearch:
-    image: getmeili/meilisearch:latest
+    image: getmeili/meilisearch:v1.23.0
     container_name: conductor-meilisearch
     restart: unless-stopped
     ports:
-      - "7700:7700"
+      - "127.0.0.1:7700:7700"
     volumes:
       - meilisearch_data:/meili_data
     networks:

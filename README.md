@@ -100,7 +100,7 @@ Nach dem Start sind folgende Services verfuegbar:
 |----------|--------------|
 | [ARCHITECTURE.md](ARCHITECTURE.md) | System-Architektur |
 | [PROJECT_OVERVIEW_2025.md](PROJECT_OVERVIEW_2025.md) | Projekt-Uebersicht |
-| ~~docs/NEURAL_SEARCH_IMPLEMENTATION.md~~ | Archived -> docs/_legacy/NEURAL_SEARCH_OUTDATED.md |
+
 | [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md) | Aktueller Status |
 
 ### Architektur-Entscheidungen (ADRs)
