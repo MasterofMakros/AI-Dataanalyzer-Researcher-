@@ -133,60 +133,60 @@ OLE2_FORMATS = {
 # =============================================================================
 
 PROCESSOR_QUEUES = {
-    # Documents
-    "pdf": "extract:documents:pdf",
-    "docx": "extract:documents:office",
-    "xlsx": "extract:documents:office",
-    "pptx": "extract:documents:office",
-    "doc": "extract:documents:office",
-    "xls": "extract:documents:office",
-    "ppt": "extract:documents:office",
-    "odt": "extract:documents:office",
-    "ods": "extract:documents:office",
-    "odp": "extract:documents:office",
-    "rtf": "extract:documents:text",
-    "txt": "extract:documents:text",
-    "html": "extract:documents:html",
-    "xml": "extract:documents:text",
-    "json": "extract:documents:text",
-    "csv": "extract:documents:text",
-    "md": "extract:documents:text",
+    # Documents → extract:documents (matches DocumentWorker.input_queue)
+    "pdf": "extract:documents",
+    "docx": "extract:documents",
+    "xlsx": "extract:documents",
+    "pptx": "extract:documents",
+    "doc": "extract:documents",
+    "xls": "extract:documents",
+    "ppt": "extract:documents",
+    "odt": "extract:documents",
+    "ods": "extract:documents",
+    "odp": "extract:documents",
+    "rtf": "extract:documents",
+    "txt": "extract:documents",
+    "html": "extract:documents",
+    "xml": "extract:documents",
+    "json": "extract:documents",
+    "csv": "extract:documents",
+    "md": "extract:documents",
 
     # E-Books
-    "epub": "extract:ebooks",
-    "mobi": "extract:ebooks",
-    "azw": "extract:ebooks",
-    "azw3": "extract:ebooks",
+    "epub": "extract:documents",
+    "mobi": "extract:documents",
+    "azw": "extract:documents",
+    "azw3": "extract:documents",
 
-    # Images
-    "jpg": "extract:images:ocr",
-    "jpeg": "extract:images:ocr",
-    "png": "extract:images:ocr",
-    "gif": "extract:images:metadata",
-    "bmp": "extract:images:ocr",
-    "tiff": "extract:images:ocr",
-    "tif": "extract:images:ocr",
-    "webp": "extract:images:ocr",
-    "heic": "extract:images:ocr",
-    "psd": "extract:images:metadata",
-    "raw": "extract:images:metadata",
-    "cr2": "extract:images:metadata",
-    "nef": "extract:images:metadata",
-    "dng": "extract:images:metadata",
-    "svg": "extract:images:vector",
+    # Images → extract:images (matches ImageWorker.input_queue)
+    "jpg": "extract:images",
+    "jpeg": "extract:images",
+    "png": "extract:images",
+    "gif": "extract:images",
+    "bmp": "extract:images",
+    "tiff": "extract:images",
+    "tif": "extract:images",
+    "webp": "extract:images",
+    "heic": "extract:images",
+    "psd": "extract:images",
+    "raw": "extract:images",
+    "cr2": "extract:images",
+    "nef": "extract:images",
+    "dng": "extract:images",
+    "svg": "extract:images",
 
-    # Audio
-    "mp3": "extract:audio:transcribe",
-    "wav": "extract:audio:transcribe",
-    "flac": "extract:audio:transcribe",
-    "m4a": "extract:audio:transcribe",
-    "aac": "extract:audio:transcribe",
-    "ogg": "extract:audio:transcribe",
-    "wma": "extract:audio:transcribe",
-    "mid": "extract:audio:metadata",
-    "midi": "extract:audio:metadata",
+    # Audio → extract:audio (matches AudioWorker.input_queue)
+    "mp3": "extract:audio",
+    "wav": "extract:audio",
+    "flac": "extract:audio",
+    "m4a": "extract:audio",
+    "aac": "extract:audio",
+    "ogg": "extract:audio",
+    "wma": "extract:audio",
+    "mid": "extract:audio",
+    "midi": "extract:audio",
 
-    # Video
+    # Video → extract:video (matches VideoWorker.input_queue)
     "mp4": "extract:video",
     "mkv": "extract:video",
     "avi": "extract:video",
@@ -197,13 +197,13 @@ PROCESSOR_QUEUES = {
     "mpg": "extract:video",
     "mpeg": "extract:video",
 
-    # Email
+    # Email → extract:email (matches EmailWorker.input_queue)
     "eml": "extract:email",
     "msg": "extract:email",
     "mbox": "extract:email",
-    "pst": "extract:email:archive",
+    "pst": "extract:email",
 
-    # Archives
+    # Archives → extract:archive (matches ArchiveWorker.input_queue)
     "zip": "extract:archive",
     "rar": "extract:archive",
     "7z": "extract:archive",
@@ -211,66 +211,6 @@ PROCESSOR_QUEUES = {
     "gz": "extract:archive",
     "bz2": "extract:archive",
     "xz": "extract:archive",
-    "iso": "extract:archive:disk",
-
-    # Code
-    "py": "extract:code",
-    "js": "extract:code",
-    "ts": "extract:code",
-    "java": "extract:code",
-    "c": "extract:code",
-    "cpp": "extract:code",
-    "cs": "extract:code",
-    "go": "extract:code",
-    "rs": "extract:code",
-    "rb": "extract:code",
-    "php": "extract:code",
-    "sql": "extract:code",
-    "sh": "extract:code",
-
-    # Database
-    "sqlite": "extract:database",
-    "sqlite3": "extract:database",
-    "db": "extract:database",
-    "mdb": "extract:database",
-    "accdb": "extract:database",
-
-    # 3D Models
-    "obj": "extract:3d",
-    "stl": "extract:3d",
-    "fbx": "extract:3d",
-    "gltf": "extract:3d",
-    "glb": "extract:3d",
-    "blend": "extract:3d",
-
-    # CAD
-    "dwg": "extract:cad",
-    "dxf": "extract:cad",
-    "step": "extract:cad",
-    "stp": "extract:cad",
-
-    # GIS
-    "geojson": "extract:gis",
-    "kml": "extract:gis",
-    "gpx": "extract:gis",
-    "shp": "extract:gis",
-
-    # Scientific
-    "mat": "extract:scientific",
-    "nc": "extract:scientific",
-    "hdf5": "extract:scientific",
-    "h5": "extract:scientific",
-    "parquet": "extract:scientific",
-    "npy": "extract:scientific",
-
-    # Subtitles
-    "srt": "extract:subtitle",
-    "ass": "extract:subtitle",
-    "vtt": "extract:subtitle",
-
-    # Fonts
-    "ttf": "extract:font",
-    "otf": "extract:font",
     "woff": "extract:font",
     "woff2": "extract:font",
 
@@ -657,10 +597,98 @@ class BatchRouteRequest(BaseModel):
 @app.on_event("startup")
 async def startup():
     await router.connect()
+    
+    # Create consumer group for intake streams
+    intake_streams = ["intake:priority", "intake:normal", "intake:bulk"]
+    consumer_group = "router-consumers"
+    
+    for stream in intake_streams:
+        try:
+            await router.redis.xgroup_create(stream, consumer_group, id="0", mkstream=True)
+            logger.info(f"Created consumer group '{consumer_group}' for stream '{stream}'")
+        except Exception as e:
+            if "BUSYGROUP" in str(e):
+                logger.info(f"Consumer group '{consumer_group}' already exists for '{stream}'")
+            else:
+                logger.error(f"Error creating consumer group: {e}")
+    
+    # Start background consumer task
+    app.state.consumer_task = asyncio.create_task(
+        consume_intake_queues(router, intake_streams, consumer_group)
+    )
+    logger.info("Started intake consumer background task")
+
+
+async def consume_intake_queues(router_instance, streams: list, group: str):
+    """Background task that consumes from intake streams and routes to extraction queues."""
+    import socket
+    consumer_name = f"router-{socket.gethostname()}-{os.getpid()}"
+    
+    logger.info(f"Consumer '{consumer_name}' starting for streams: {streams}")
+    
+    while True:
+        try:
+            # Read from all intake streams
+            messages = await router_instance.redis.xreadgroup(
+                groupname=group,
+                consumername=consumer_name,
+                streams={s: ">" for s in streams},
+                count=10,
+                block=5000  # Block for 5 seconds
+            )
+            
+            if not messages:
+                continue
+                
+            for stream_name, stream_messages in messages:
+                for message_id, message_data in stream_messages:
+                    try:
+                        # Parse the job data
+                        raw_data = message_data.get("data") or message_data.get("job")
+                        if not raw_data:
+                            logger.warning(f"Empty message data: {message_data}")
+                            await router_instance.redis.xack(stream_name, group, message_id)
+                            continue
+                        
+                        job = json.loads(raw_data) if isinstance(raw_data, str) else raw_data
+                        filepath = job.get("path") or job.get("filepath")
+                        
+                        if not filepath:
+                            logger.warning(f"No filepath in job: {job}")
+                            await router_instance.redis.xack(stream_name, group, message_id)
+                            continue
+                        
+                        # Route the file to the correct extraction queue
+                        decision = await router_instance.route(filepath)
+                        await router_instance.enqueue(decision)
+                        
+                        # Acknowledge the message
+                        await router_instance.redis.xack(stream_name, group, message_id)
+                        logger.info(f"Routed job from {stream_name}: {filepath} → {decision.target_queue}")
+                        
+                    except Exception as e:
+                        logger.error(f"Error processing message {message_id}: {e}")
+                        # Don't ack - message will be reprocessed
+                        
+        except asyncio.CancelledError:
+            logger.info("Consumer task cancelled, shutting down...")
+            break
+        except Exception as e:
+            logger.error(f"Consumer loop error: {e}")
+            await asyncio.sleep(1)  # Backoff on error
 
 
 @app.on_event("shutdown")
 async def shutdown():
+    # Cancel consumer task
+    if hasattr(app.state, 'consumer_task'):
+        app.state.consumer_task.cancel()
+        try:
+            await app.state.consumer_task
+        except asyncio.CancelledError:
+            pass
+        logger.info("Consumer task stopped")
+    
     await router.disconnect()
 
 
