@@ -59,10 +59,11 @@ Nach dem Start sind folgende Services verfuegbar:
 | Service | URL | Beschreibung |
 |---------|-----|--------------|
 | Mission Control | http://localhost:3000 | Web UI (Neural Search) |
-| Conductor API | http://localhost:8000 | REST API |
+| Conductor API | http://localhost:8010 | REST API |
+| Neural Search API | http://localhost:8040 | RAG + LLM Backend |
 | Meilisearch | http://localhost:7700 | Volltext-Suche |
-| Qdrant | http://localhost:6333 | Vektor-Datenbank |
-| Ollama | http://localhost:11434 | LLM Backend |
+| Qdrant | http://localhost:6335 | Vektor-Datenbank |
+| Ollama | http://localhost:11435 | LLM Backend |
 
 ---
 
@@ -79,7 +80,7 @@ Nach dem Start sind folgende Services verfuegbar:
               ▼           ▼           ▼
 ┌─────────────────┐ ┌───────────┐ ┌──────────────┐
 │ Neural Search   │ │ Conductor │ │ Orchestrator │
-│ API :8040       │ │ API :8000 │ │ :8020        │
+│ API :8040       │ │ API :8010 │ │ :8020        │
 │ (RAG + LLM)     │ │           │ │              │
 └────────┬────────┘ └─────┬─────┘ └──────┬───────┘
          │                │              │
@@ -88,7 +89,7 @@ Nach dem Start sind folgende Services verfuegbar:
 ┌───────┐ ┌──────┐ ┌────────┐ ┌──────┐ ┌──────────┐
 │Meili  │ │Ollama│ │Qdrant  │ │Redis │ │Document  │
 │search │ │      │ │        │ │      │ │Processor │
-│:7700  │ │:11434│ │:6333   │ │:6379 │ │:8005     │
+│:7700  │ │:11435│ │:6335   │ │:6379 │ │:8005     │
 └───────┘ └──────┘ └────────┘ └──────┘ └──────────┘
 ```
 
