@@ -27,6 +27,36 @@ Conductor ist ein **vollstaendig lokales** System zur automatischen Organisation
 
 ---
 
+## 🚀 Schnelleinstieg ("One-Shot" Install)
+
+Das System ist so konzipiert, dass es mit einem einzigen Befehl installiert werden kann.
+
+### Voraussetzungen
+- **Docker & Docker Compose** installiert
+- **NVIDIA GPU** (empfohlen für volle Performance) oder CPU-Modus
+- **Git**
+
+### Installation
+
+```powershell
+# 1. Repository klonen
+git clone https://github.com/MasterofMakros/AI-Dataanalyzer-Researcher-.git
+cd AI-Dataanalyzer-Researcher
+
+# 2. Environment konfigurieren
+Copy-Item .env.example .env
+# WICHTIG: Öffnen Sie .env und setzen Sie einen sicheren MEILI_MASTER_KEY (min. 16 Zeichen)!
+# z.B. openssl rand -base64 32
+
+# 3. Pipeline starten (Intelligence-Grade)
+docker compose --profile intelligence up -d
+```
+
+### Überprüfung
+- **Mission Control UI:** [http://localhost:5173](http://localhost:5173)
+- **API Health:** [http://localhost:8010/health](http://localhost:8010/health)
+- **Orchestrator Stats:** [http://localhost:8020/stats](http://localhost:8020/stats)
+
 ## Schnellstart
 
 ### Voraussetzungen

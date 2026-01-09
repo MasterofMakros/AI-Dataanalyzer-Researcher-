@@ -26,6 +26,13 @@ from fastapi import FastAPI, File, UploadFile, HTTPException, Query, Form
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 import torch
+# Monkey patch torch.load to default weights_only=False due to pyannote/whisperx dependency issues with newer torch
+_original_load = torch.load
+def _unsafe_load(*args, **kwargs):
+    if 'weights_only' not in kwargs:
+        kwargs['weights_only'] = False
+    return _original_load(*args, **kwargs)
+torch.load = _unsafe_load
 
 # Logging
 logging.basicConfig(level=logging.INFO)

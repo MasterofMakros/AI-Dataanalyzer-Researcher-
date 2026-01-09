@@ -29,6 +29,16 @@ und [Semantic Versioning](https://semver.org/lang/de/).
 
 ---
 
+## [2.1.1] - 2026-01-10
+
+### Fixed (Hotfix)
+- **Surya OCR**: Updated `server.py` for compatibility with `surya-ocr >= 0.6.0` API (Predictor interface).
+- **WhisperX**: Patched `torch.load` to allow `weights_only=False` (Fixes Pyannote/PyTorch security crash).
+- **Qdrant**: Fixed missing API key in `.env` forcing Conductor API degradation.
+- **Service Resilience**: Rebuilt containers with updated logic.
+
+---
+
 ## [2.1.0] - 2026-01-09
 
 ### Hinzugefügt

@@ -20,12 +20,12 @@
 | Startup Scripts | ✅ 100% | PowerShell + Bash Scripts |
 | Dokumentation | ✅ 100% | Technische Docs aktualisiert |
 
-### Offene Punkte (3%)
+### Offene Punkte (2%)
 
 | Punkt | Priorität | Aufwand |
 |-------|-----------|---------|
-| GPU Workers Build | Low | 30 min |
-| End-to-End Test | Low | 1h |
+| End-to-End Test | High | 30 min |
+| One-Shot Install Verification | High | 15 min |
 
 ---
 
