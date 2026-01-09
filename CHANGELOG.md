@@ -29,6 +29,27 @@ und [Semantic Versioning](https://semver.org/lang/de/).
 
 ---
 
+## [2.1.0] - 2026-01-09
+
+### Hinzugefügt
+- **Intelligence-Grade Pipeline** - Priority Scoring, Dual-Path Processing (Fast/Deep)
+- **Tiered Workers** - 4 spezialisierte Worker-Typen (documents, audio, images, video)
+- **Audit Trail Schema** - Chain of Custody Tracking in PostgreSQL (`scripts/schema_audit_trail.sql`)
+- **Dead Letter Queue** - Automatische Fehlerbehandlung mit DLQ
+
+### Geändert
+- **CUDA Image Fix** - `nvidia/cuda:12.1-cudnn8` → `nvidia/cuda:12.1.1-cudnn8` (3 Dockerfiles)
+- **MEILI_MASTER_KEY** - Muss nun mindestens 16 Zeichen haben
+- **docker-compose.yml** - Neues Profil `--profile intelligence` für Worker-Pool
+- **README.md** - Korrigierte Installation (Pfad, Profile, Key-Hinweis)
+
+### Dokumentation
+- DOCKER_ARCHITECTURE.md aktualisiert (16+ Container)
+- .env.example mit klaren Hinweisen für sichere Keys
+- PROJECT_STATUS.md aktualisiert
+
+---
+
 ## [2.0.0] - 2025-12-28
 
 ### Hinzugefügt

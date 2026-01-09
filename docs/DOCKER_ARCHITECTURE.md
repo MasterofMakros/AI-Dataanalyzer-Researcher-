@@ -1,13 +1,13 @@
 # Docker Architecture
 
 > Neural Vault Docker-basierte Architektur
-> Stand: 28.12.2025
+> Stand: 09.01.2026
 
 ---
 
 ## Service-Übersicht
 
-Neural Vault besteht aus **14 Docker-Containern**, die über ein internes Netzwerk kommunizieren:
+Neural Vault besteht aus **16+ Docker-Containern**, die über ein internes Netzwerk kommunizieren:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐

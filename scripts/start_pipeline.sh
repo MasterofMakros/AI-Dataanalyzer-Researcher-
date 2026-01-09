@@ -282,6 +282,22 @@ init_redis_streams() {
     print_success "Redis Streams initialized"
 }
 
+init_search_index() {
+    print_header "Initializing Meilisearch Index"
+
+    wait_for_service "http://localhost:7700/health" "Meilisearch" 60
+    if [ $? -eq 0 ]; then
+        echo "Configuring index settings..."
+        if python3 scripts/setup_meilisearch_index.py; then
+             print_success "Meilisearch index configured successfully"
+        else
+             print_error "Failed to configure Meilisearch index"
+        fi
+    else
+        print_error "Skipping index setup (Meilisearch not ready)"
+    fi
+}
+
 
 init_data() {
     print_header "Initializing Data & Models"
@@ -351,11 +367,13 @@ check_docker
 case $MODE in
     minimal)
         start_minimal
+        init_search_index
         ;;
     gpu)
         HAS_GPU=1
         check_gpu || print_warning "GPU mode requested but no GPU found"
         start_core
+        init_search_index
         start_pipeline
         init_redis_streams
         start_workers
@@ -366,6 +384,7 @@ case $MODE in
         check_gpu && HAS_GPU=1
 
         start_core
+        init_search_index
         start_pipeline
         init_redis_streams
         start_workers

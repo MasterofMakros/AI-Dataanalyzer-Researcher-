@@ -1,4 +1,4 @@
-version: '3.8'
+# Compose file - version field removed (deprecated in Compose V2+)
 
 # =============================================================================
 # CONDUCTOR FULL STACK - SECURITY-HARDENED
@@ -597,8 +597,129 @@ services:
       timeout: 10s
       retries: 3
 
-  # Extraction Workers - Verarbeiten Jobs aus den Queues
-  # Skalierbar via: docker compose up --scale extraction-worker=4
+  # ===========================================================================
+  # TIERED EXTRACTION WORKERS (Intelligence-Grade)
+  # ===========================================================================
+  # Horizontally scalable workers per file type
+  # Scale with: docker compose up --scale worker-documents=8
+
+  # Documents (PDF, DOCX, XLSX, TXT, HTML)
+  worker-documents:
+    build:
+      context: ./docker/workers
+      dockerfile: Dockerfile
+    image: conductor-extraction-worker:latest
+    restart: unless-stopped
+    volumes:
+      - F:/:/mnt/data:ro
+    networks:
+      - conductor-net
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - DOCUMENT_PROCESSOR_URL=http://document-processor:8000
+      - TIKA_URL=http://tika:9998
+      - WORKER_TYPE=documents
+      - INPUT_QUEUE=extract:documents
+      - CONSUMER_GROUP=workers-documents
+    depends_on:
+      - redis
+      - tika
+    deploy:
+      replicas: 4
+      resources:
+        limits:
+          memory: 512M
+    profiles:
+      - intelligence
+
+  # Audio (MP3, WAV, M4A, FLAC)
+  worker-audio:
+    build:
+      context: ./docker/workers
+      dockerfile: Dockerfile
+    image: conductor-extraction-worker:latest
+    restart: unless-stopped
+    volumes:
+      - F:/:/mnt/data:ro
+    networks:
+      - conductor-net
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - WHISPERX_URL=http://whisperx:9000
+      - WORKER_TYPE=audio
+      - INPUT_QUEUE=extract:audio
+      - CONSUMER_GROUP=workers-audio
+    depends_on:
+      - redis
+      - whisperx
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          memory: 1G
+    profiles:
+      - intelligence
+
+  # Images (JPG, PNG, TIFF) - OCR
+  worker-images:
+    build:
+      context: ./docker/workers
+      dockerfile: Dockerfile
+    image: conductor-extraction-worker:latest
+    restart: unless-stopped
+    volumes:
+      - F:/:/mnt/data:ro
+    networks:
+      - conductor-net
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - DOCUMENT_PROCESSOR_URL=http://document-processor:8000
+      - WORKER_TYPE=images
+      - INPUT_QUEUE=extract:images
+      - CONSUMER_GROUP=workers-images
+    depends_on:
+      - redis
+    deploy:
+      replicas: 3
+      resources:
+        limits:
+          memory: 1G
+    profiles:
+      - intelligence
+
+  # Video (MP4, MKV, AVI)
+  worker-video:
+    build:
+      context: ./docker/workers
+      dockerfile: Dockerfile
+    image: conductor-extraction-worker:latest
+    restart: unless-stopped
+    volumes:
+      - F:/:/mnt/data:ro
+    networks:
+      - conductor-net
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - WHISPERX_URL=http://whisperx:9000
+      - WORKER_TYPE=video
+      - INPUT_QUEUE=extract:video
+      - CONSUMER_GROUP=workers-video
+    depends_on:
+      - redis
+      - whisperx
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: 2G
+    profiles:
+      - intelligence
+
+  # Legacy single worker (for backwards compatibility)
   extraction-worker:
     build:
       context: ./docker/workers
@@ -615,12 +736,10 @@ services:
       - DOCUMENT_PROCESSOR_URL=http://document-processor:8000
       - TIKA_URL=http://tika:9998
       - WHISPERX_URL=http://whisperx:9000
-      - PARSER_URL=http://parser-service:8000
       - WORKER_TYPE=documents
       - CONSUMER_GROUP=extraction-workers
     depends_on:
       - redis
-      - document-processor
       - tika
     deploy:
       resources:

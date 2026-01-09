@@ -21,6 +21,8 @@ Conductor ist ein **vollstaendig lokales** System zur automatischen Organisation
 - **Multi-Modal Processing** - PDF, Audio, Video, Bilder, E-Mails
 - **Automatische Klassifizierung** - KI-basierte Dokumentenkategorisierung
 - **Volltext & Vektor-Suche** - Meilisearch + Qdrant Hybrid-Suche
+- **Intelligence-Grade Pipeline** - Priority Queues, Dual-Path Processing, Dead Letter Queue
+- **Audit Trail** - Lueckenlose Chain of Custody fuer alle Dokumente
 - **100% Lokal** - Alle Daten bleiben auf deiner Hardware
 
 ---
@@ -39,17 +41,24 @@ Conductor ist ein **vollstaendig lokales** System zur automatischen Organisation
 ```bash
 # Repository klonen
 git clone https://github.com/MasterofMakros/AI-Dataanalyzer-Researcher-.git
-cd conductor
+cd AI-Dataanalyzer-Researcher
 
 # Environment konfigurieren
 cp .env.example .env
-# .env anpassen (Pfade, API Keys)
+# .env anpassen (Pfade, Passwörter)
 
-# Container starten
+# WICHTIG: MEILI_MASTER_KEY muss mindestens 16 Zeichen haben!
+# Generiere einen sicheren Key:
+#   openssl rand -base64 32
+
+# Basis-Services starten
 docker compose up -d
 
-# Oder mit GPU-Support
-docker compose -f docker-compose.yml -f docker-compose.intelligence.yml up -d
+# Mit GPU-Profil (fuer OCR, Whisper)
+docker compose --profile gpu up -d
+
+# Intelligence-Grade (10 parallele Worker)
+docker compose --profile intelligence up -d
 ```
 
 ### Services
@@ -128,4 +137,4 @@ MIT License - siehe [LICENSE](LICENSE)
 
 ---
 
-*Letzte Aktualisierung: 2025-12-29*
+*Letzte Aktualisierung: 2026-01-09*

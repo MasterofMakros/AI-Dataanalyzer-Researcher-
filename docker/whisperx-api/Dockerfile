@@ -8,7 +8,7 @@
 # Run:
 #   docker run --gpus all -p 9000:9000 -e HF_TOKEN=xxx conductor-whisperx
 
-FROM nvidia/cuda:12.1-cudnn8-runtime-ubuntu22.04
+FROM nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04
 
 # Prevent interactive prompts
 ENV DEBIAN_FRONTEND=noninteractive

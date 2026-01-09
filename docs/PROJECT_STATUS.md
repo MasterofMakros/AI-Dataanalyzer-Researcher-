@@ -4,7 +4,7 @@
 
 ---
 
-## Projektstatus: 95% Komplett
+## Projektstatus: 97% Komplett
 
 ### Abgeschlossene Komponenten
 
@@ -14,16 +14,17 @@
 | Document Processing Pipeline | ✅ 100% | Universal Router → Orchestrator → Workers |
 | Neural Search API | ✅ 100% | RAG + LLM Synthese mit SSE Streaming |
 | Mission Control UI | ✅ 100% | React Frontend mit 4 Tabs |
+| Intelligence Pipeline | ✅ 100% | Priority Scoring, Dual-Path, DLQ |
+| Tiered Workers | ✅ 100% | 4 Worker-Typen (documents, audio, images, video) |
+| Audit Trail | ✅ 100% | Chain of Custody in PostgreSQL |
 | Startup Scripts | ✅ 100% | PowerShell + Bash Scripts |
-| Dokumentation | ✅ 100% | Technische Docs erstellt |
+| Dokumentation | ✅ 100% | Technische Docs aktualisiert |
 
-### Offene Punkte (5%)
+### Offene Punkte (3%)
 
 | Punkt | Priorität | Aufwand |
 |-------|-----------|---------|
-| Docker Build Test | Medium | 30 min |
-| Meilisearch Initial Index | Medium | 15 min |
-| Ollama Model Pull | Low | 10 min |
+| GPU Workers Build | Low | 30 min |
 | End-to-End Test | Low | 1h |
 
 ---

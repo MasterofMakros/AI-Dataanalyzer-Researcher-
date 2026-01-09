@@ -185,6 +185,27 @@ function Stop-AllServices {
     Write-Success "All services stopped"
 }
 
+function Initialize-SearchIndex {
+    Write-Header "Initializing Meilisearch Index"
+
+    Wait-ForService "http://localhost:7700/health" "Meilisearch" 60
+    if ($?) {
+        Write-Host "Configuring index settings..."
+        try {
+            $process = Start-Process -FilePath "python" -ArgumentList "scripts/setup_meilisearch_index.py" -NoNewWindow -PassThru -Wait
+            if ($process.ExitCode -eq 0) {
+                Write-Success "Meilisearch index configured successfully"
+            } else {
+                Write-Error "Failed to configure Meilisearch index (Exit Code: $($process.ExitCode))"
+            }
+        } catch {
+            Write-Error "Failed to run setup script: $_"
+        }
+    } else {
+        Write-Error "Skipping index setup (Meilisearch not ready)"
+    }
+}
+
 function Initialize-RedisStreams {
     Write-Header "Initializing Redis Streams"
 
@@ -258,6 +279,7 @@ elseif ($GPU) {
     $hasGPU = Test-GPU
 
     Start-CoreServices
+    Initialize-SearchIndex
     Start-PipelineServices -UseGPU $hasGPU
     Initialize-RedisStreams
     Start-Workers -Count $Scale
@@ -271,6 +293,7 @@ else {
     $hasGPU = Test-GPU
 
     Start-CoreServices
+    Initialize-SearchIndex
     Start-PipelineServices -UseGPU $hasGPU
     Initialize-RedisStreams
     Start-Workers -Count $Scale
