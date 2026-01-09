@@ -10,8 +10,10 @@ python-multipart==0.0.18
 ffmpeg-python==0.2.0
 
 # ML/AI (WhisperX installed via git in Dockerfile)
-torch>=2.0.0
-torchaudio>=2.0.0
+# ML/AI (WhisperX installed via git in Dockerfile)
+# PIN PyTorch to avoid "weights_only=True" pickle error in 2.6+
+torch==2.4.1
+torchaudio==2.4.1 --index-url https://download.pytorch.org/whl/cu121
 
 # Speaker Diarization
 pyannote.audio>=3.1.0

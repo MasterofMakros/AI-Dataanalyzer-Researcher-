@@ -903,7 +903,12 @@ async def health_check():
 
     # Check Qdrant
     try:
-        response = requests.get(f"{QDRANT_URL}/collections", timeout=5)
+        headers = {}
+        QDRANT_API_KEY = os.getenv("QDRANT_API_KEY", "")
+        if QDRANT_API_KEY:
+            headers["api-key"] = QDRANT_API_KEY
+            
+        response = requests.get(f"{QDRANT_URL}/collections", headers=headers, timeout=5)
         services["qdrant"] = response.status_code == 200
     except Exception:
         pass
