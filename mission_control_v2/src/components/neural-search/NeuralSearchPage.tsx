@@ -1,33 +1,32 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import {
-  SearchProgress as SearchProgressType,
-  SearchResponse,
-  Source,
-  Citation,
-  FollowUpQuestion,
-  PipelineStatus,
+  type SearchProgress as SearchProgressType,
+  type SearchResponse,
+  type Source,
+  type FollowUpQuestion,
+  type PipelineStatus,
 } from '@/types/neural-search';
 import { SearchProgress } from './SearchProgress';
 import { StreamingResponse } from './StreamingResponse';
 import { SourceCard } from './SourceCard';
 import { FollowUpSuggestions } from './FollowUpSuggestions';
 import { PipelineStatusHeader } from './PipelineStatusHeader';
+import { SendIcon, LoadingIcon, BrainIcon } from './NeuralSearchIcons';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
-// Default pipeline status when API is unavailable
-const DEFAULT_PIPELINE_STATUS: PipelineStatus = {
-  gpuStatus: 'offline',
-  gpuModel: 'Unknown',
-  vramUsage: 0,
-  workersActive: 0,
-  workersTotal: 3,
-  queueDepth: 0,
-  indexedDocuments: 0,
-  lastSync: new Date(),
-};
-
 export function NeuralSearchPage() {
+  const DEFAULT_PIPELINE_STATUS: PipelineStatus = {
+    gpuStatus: 'offline',
+    gpuModel: 'Unknown',
+    vramUsage: 0,
+    workersActive: 0,
+    workersTotal: 3,
+    queueDepth: 0,
+    indexedDocuments: 0,
+    lastSync: new Date(),
+  };
+
   const [query, setQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [searchProgress, setSearchProgress] = useState<SearchProgressType | null>(null);
@@ -35,7 +34,7 @@ export function NeuralSearchPage() {
   const [sources, setSources] = useState<Source[]>([]);
   const [followUps, setFollowUps] = useState<FollowUpQuestion[]>([]);
   const [selectedSourceId, setSelectedSourceId] = useState<string | null>(null);
-  const [hoveredCitation, setHoveredCitation] = useState<number | null>(null);
+  const [, setHoveredCitation] = useState<number | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [streamedAnswer, setStreamedAnswer] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
@@ -64,7 +63,7 @@ export function NeuralSearchPage() {
             lastSync: new Date(data.lastSync),
           });
         }
-      } catch (e) {
+      } catch {
         // Silently fail - use default status
       }
     };
@@ -149,7 +148,6 @@ export function NeuralSearchPage() {
 
         for (const line of lines) {
           if (line.startsWith('event:')) {
-            const eventType = line.substring(6).trim();
             continue;
           }
 
@@ -159,8 +157,6 @@ export function NeuralSearchPage() {
 
             try {
               const data = JSON.parse(dataStr);
-              const eventMatch = lines.find(l => l.startsWith('event:'));
-              const eventType = eventMatch ? eventMatch.substring(6).trim() : 'unknown';
 
               // Handle different event types
               if (data.step !== undefined) {
@@ -191,7 +187,7 @@ export function NeuralSearchPage() {
                 currentAnswer += token;
                 setStreamedAnswer(currentAnswer);
               }
-            } catch (parseErr) {
+            } catch {
               // Handle plain text tokens
               if (dataStr && !dataStr.startsWith('{') && !dataStr.startsWith('[')) {
                 setIsStreaming(true);
@@ -207,8 +203,9 @@ export function NeuralSearchPage() {
       setIsStreaming(false);
       setSearchProgress({ step: 'complete', progress: 100 });
 
-    } catch (err: any) {
-      if (err.name === 'AbortError') {
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Suche fehlgeschlagen';
+      if (err instanceof Error && err.name === 'AbortError') {
         // Search was cancelled
         setIsSearching(false);
         setSearchProgress(null);
@@ -216,7 +213,7 @@ export function NeuralSearchPage() {
       }
 
       console.error('Search error:', err);
-      setError(err.message || 'Suche fehlgeschlagen');
+      setError(errorMessage);
       setIsSearching(false);
       setSearchProgress(null);
 
@@ -402,28 +399,3 @@ export function NeuralSearchPage() {
   );
 }
 
-// Icons
-function SendIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-    </svg>
-  );
-}
-
-function LoadingIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24">
-      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-    </svg>
-  );
-}
-
-function BrainIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="currentColor" viewBox="0 0 24 24">
-      <path d="M12 2a9 9 0 0 0-9 9c0 4.17 2.84 7.67 6.69 8.69L12 22l2.31-2.31C18.16 18.67 21 15.17 21 11a9 9 0 0 0-9-9zm0 16c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z" />
-    </svg>
-  );
-}

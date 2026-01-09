@@ -1,4 +1,4 @@
-import { FollowUpQuestion } from '@/types/neural-search';
+import { type FollowUpQuestion } from '@/types/neural-search';
 
 interface FollowUpSuggestionsProps {
   questions: FollowUpQuestion[];

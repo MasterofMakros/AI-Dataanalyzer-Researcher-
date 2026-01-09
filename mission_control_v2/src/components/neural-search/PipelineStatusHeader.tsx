@@ -1,4 +1,4 @@
-import { PipelineStatus } from '@/types/neural-search';
+import { type PipelineStatus } from '@/types/neural-search';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -57,9 +57,8 @@ export function PipelineStatusHeader({ status, currentTime }: PipelineStatusHead
           <Tooltip>
             <TooltipTrigger asChild>
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800/50 border border-slate-700/50">
-                <span className={`w-2 h-2 rounded-full ${
-                  status.workersActive === status.workersTotal ? 'bg-emerald-500' : 'bg-amber-500'
-                }`} />
+                <span className={`w-2 h-2 rounded-full ${status.workersActive === status.workersTotal ? 'bg-emerald-500' : 'bg-amber-500'
+                  }`} />
                 <span className="text-xs font-medium text-slate-300">Workers</span>
                 <span className="text-xs text-slate-400">
                   {status.workersActive}/{status.workersTotal}
@@ -79,11 +78,10 @@ export function PipelineStatusHeader({ status, currentTime }: PipelineStatusHead
                 <span className="text-xs font-medium text-slate-300">Queue</span>
                 <Badge
                   variant="outline"
-                  className={`text-[10px] px-1.5 py-0 ${
-                    status.queueDepth > 50
+                  className={`text-[10px] px-1.5 py-0 ${status.queueDepth > 50
                       ? 'border-amber-600 text-amber-400'
                       : 'border-slate-600 text-slate-400'
-                  }`}
+                    }`}
                 >
                   {status.queueDepth}
                 </Badge>

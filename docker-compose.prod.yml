@@ -121,7 +121,7 @@ services:
       - NODE_OPTIONS=--max-old-space-size=512
       - N8N_DIAGNOSTICS_ENABLED=false
     ports:
-      - "5680:5678"
+      - "127.0.0.1:5680:5678"
     volumes:
       - n8n_data:/home/node/.n8n
       - F:/:/mnt/data:ro  # Read-only Zugriff auf Datenpool
@@ -194,7 +194,7 @@ services:
     container_name: conductor-tika
     restart: unless-stopped
     ports:
-      - "9998:9998"
+      - "127.0.0.1:9998:9998"
     networks:
       - conductor-net
     deploy:
@@ -265,7 +265,7 @@ services:
     container_name: conductor-whisperx
     restart: unless-stopped
     ports:
-      - "9000:9000"
+      - "127.0.0.1:9000:9000"
     environment:
       - WHISPER_MODEL=${WHISPER_MODEL:-large-v3}
       - WHISPER_DEVICE=cuda
@@ -341,7 +341,7 @@ services:
     container_name: conductor-surya-ocr
     restart: unless-stopped
     ports:
-      - "9999:8000"
+      - "127.0.0.1:9999:8000"
     environment:
       - SURYA_DEVICE=cuda
       - SURYA_BATCH_SIZE=4
@@ -368,28 +368,28 @@ services:
       retries: 3
 
   # Parser Service - Python-basierte Datei-Parser (100% Docker)
-  parser-service:
-    build:
-      context: ./docker/parser-service
-      dockerfile: Dockerfile
-    image: conductor-parser:latest
-    container_name: conductor-parser
-    restart: unless-stopped
-    ports:
-      - "8002:8000"
-    volumes:
-      - F:/:/mnt/data:ro
-    networks:
-      - conductor-net
-    deploy:
-      resources:
-        limits:
-          memory: 1G
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+  # parser-service:
+  #   build:
+  #     context: ./docker/parser-service
+  #     dockerfile: Dockerfile
+  #   image: conductor-parser:latest
+  #   container_name: conductor-parser
+  #   restart: unless-stopped
+  #   ports:
+  #     - "127.0.0.1:8002:8000"
+  #   volumes:
+  #     - F:/:/mnt/data:ro
+  #   networks:
+  #     - conductor-net
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         memory: 1G
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
 
   # 7-Zip - Archive Processing (RAR, 7z, TAR, GZ ohne Entpacken)
   sevenzip:
@@ -424,7 +424,7 @@ services:
     container_name: conductor-document-processor
     restart: unless-stopped
     ports:
-      - "8005:8000"
+      - "127.0.0.1:8005:8000"
     volumes:
       - F:/:/mnt/data:ro
       - huggingface_cache:/root/.cache/huggingface
@@ -470,7 +470,7 @@ services:
     container_name: conductor-document-processor
     restart: unless-stopped
     ports:
-      - "8005:8000"
+      - "127.0.0.1:8005:8000"
     volumes:
       - F:/:/mnt/data:ro
       - huggingface_cache:/root/.cache/huggingface
@@ -511,7 +511,7 @@ services:
     container_name: conductor-neural-worker
     restart: unless-stopped
     ports:
-      - "8006:8000"  # Anderer Port um Konflikt zu vermeiden
+      - "127.0.0.1:8006:8000"  # Anderer Port um Konflikt zu vermeiden
     volumes:
       - F:/:/mnt/data:ro
       - huggingface_cache:/root/.cache/huggingface
@@ -646,7 +646,7 @@ services:
     container_name: conductor-api
     restart: unless-stopped
     ports:
-      - "8010:8000"
+      - "127.0.0.1:8010:8000"
     volumes:
       - F:/:/mnt/data:ro
       - conductor_api_data:/data
@@ -693,7 +693,7 @@ services:
     container_name: conductor-neural-search
     restart: unless-stopped
     ports:
-      - "8040:8040"
+      - "127.0.0.1:8040:8040"
     networks:
       - conductor-net
     environment:
@@ -735,7 +735,7 @@ services:
     container_name: conductor-ui
     restart: unless-stopped
     ports:
-      - "3000:80"
+      - "127.0.0.1:3000:80"
     networks:
       - conductor-net
     depends_on:
@@ -777,7 +777,7 @@ services:
       - nextcloud_data:/var/www/html
       - F:/:/mnt/datapool  # External Storage
     ports:
-      - "8081:80"
+      - "127.0.0.1:8081:80"
     networks:
       - conductor-net
     depends_on:

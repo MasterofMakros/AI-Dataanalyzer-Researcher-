@@ -115,6 +115,24 @@ check_gpu() {
     return 1
 }
 
+check_env() {
+    if [[ ! -f "$PROJECT_ROOT/.env" ]]; then
+        print_warning ".env file not found!"
+        if [[ -f "$PROJECT_ROOT/.env.example" ]]; then
+            echo -n "Creating .env from .env.example... "
+            cp "$PROJECT_ROOT/.env.example" "$PROJECT_ROOT/.env"
+            print_success "Created .env"
+            print_warning "PLEASE EDIT .env TO CONFIGURE SECRETS BEFORE PRODUCTION USE!"
+            sleep 3
+        else
+            print_error ".env.example not found. Cannot configure environment."
+            exit 1
+        fi
+    else
+        print_success "Environment configured (.env found)"
+    fi
+}
+
 wait_for_service() {
     local url=$1
     local name=$2
@@ -264,12 +282,70 @@ init_redis_streams() {
     print_success "Redis Streams initialized"
 }
 
+
+init_data() {
+    print_header "Initializing Data & Models"
+
+    # 1. Pull Ollama Model
+    if docker compose ps | grep -q "conductor-ollama"; then
+        echo -n "Pulling Ollama model (llama3.2)... "
+        docker exec conductor-ollama ollama pull llama3.2 > /dev/null 2>&1
+        print_success "Model pulled"
+    else
+        print_warning "Ollama container not running. Skipping model pull."
+    fi
+
+    # 2. Create Meilisearch Index
+    if docker compose ps | grep -q "conductor-meilisearch"; then
+        echo -n "Creating Meilisearch index 'conductor_docs'... "
+        # Get Master Key from .env
+        local meili_key=$(grep MEILI_MASTER_KEY "$PROJECT_ROOT/.env" | cut -d '=' -f2)
+        if [[ -z "$meili_key" ]]; then
+             meili_key="masterKey" # Fallback/Error
+        fi
+        
+        curl -s -X POST "http://localhost:7700/indexes" \
+            -H "Authorization: Bearer $meili_key" \
+            -H "Content-Type: application/json" \
+            --data '{ "uid": "conductor_docs", "primaryKey": "id" }' > /dev/null
+        print_success "Index created"
+        
+        # Update settings (Filterable attributes)
+        curl -s -X PATCH "http://localhost:7700/indexes/conductor_docs/settings" \
+            -H "Authorization: Bearer $meili_key" \
+            -H "Content-Type: application/json" \
+            --data '{ "filterableAttributes": ["file_type", "tags", "created_at"] }' > /dev/null
+        print_success "Index settings updated"
+    else
+         print_warning "Meilisearch container not running. Skipping index creation."
+    fi
+}
+
 # Main
 print_header "Neural Vault Pipeline"
+
+# Handle --init flag specifically
+if [[ "$1" == "--init" ]]; then
+    check_env
+    check_docker
+    check_gpu && HAS_GPU=1 || HAS_GPU=0
+    
+    print_header "Running Full Initialization"
+    start_core
+    start_pipeline
+    init_redis_streams
+    init_data
+    
+    echo ""
+    print_success "Initialization Complete. System is ready."
+    exit 0
+fi
+
 echo "Mode: $MODE"
 echo "Workers: $SCALE_WORKERS"
 echo ""
 
+check_env
 check_docker
 
 case $MODE in

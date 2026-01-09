@@ -1,4 +1,4 @@
-import { SearchProgress as SearchProgressType, SearchStep } from '@/types/neural-search';
+import { type SearchProgress as SearchProgressType, type SearchStep } from '@/types/neural-search';
 import { Badge } from '@/components/ui/badge';
 
 interface SearchProgressProps {
@@ -51,9 +51,8 @@ export function SearchProgress({ progress }: SearchProgressProps) {
           return (
             <div
               key={step.key}
-              className={`flex items-center gap-3 transition-all duration-300 ${
-                isPending ? 'opacity-40' : ''
-              }`}
+              className={`flex items-center gap-3 transition-all duration-300 ${isPending ? 'opacity-40' : ''
+                }`}
             >
               {/* Status Icon */}
               <div className="w-5 h-5 flex items-center justify-center">
@@ -71,10 +70,9 @@ export function SearchProgress({ progress }: SearchProgressProps) {
               </div>
 
               {/* Label */}
-              <span className={`text-sm ${
-                isActive ? 'text-teal-400 font-medium' :
-                isComplete ? 'text-slate-400' : 'text-slate-500'
-              }`}>
+              <span className={`text-sm ${isActive ? 'text-teal-400 font-medium' :
+                  isComplete ? 'text-slate-400' : 'text-slate-500'
+                }`}>
                 {isActive ? step.labelActive : step.label}
               </span>
 

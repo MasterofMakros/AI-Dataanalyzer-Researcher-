@@ -10,7 +10,7 @@ from gamemode import check_gamemode
 # Configuration
 REDIS_HOST = "192.168.1.254"
 REDIS_PORT = 6379
-REDIS_PASSWORD = "redis_secret"  # TODO: Load from env
+REDIS_PASSWORD = os.getenv("REDIS_PASSWORD", "redis_secret")  # Loaded from env
 QUEUE_NAME = "ai_jobs"
 DOCKER_COMPOSE_FILE = "docker-compose.gpu.yml"
 PROJECT_NAME = "conductor-gpu"

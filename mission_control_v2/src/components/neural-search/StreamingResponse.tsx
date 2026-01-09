@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Source, Citation } from '@/types/neural-search';
+import { type Source, type Citation } from '@/types/neural-search';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
@@ -168,13 +168,12 @@ export function StreamingResponse({
                     <span className="text-lg">{sourceTypeIcons[source.type] || '📄'}</span>
                     <Badge
                       variant="outline"
-                      className={`text-[9px] px-1 py-0 ${
-                        source.confidence >= 95
+                      className={`text-[9px] px-1 py-0 ${source.confidence >= 95
                           ? 'border-emerald-700 text-emerald-400'
                           : source.confidence >= 90
-                          ? 'border-teal-700 text-teal-400'
-                          : 'border-amber-700 text-amber-400'
-                      }`}
+                            ? 'border-teal-700 text-teal-400'
+                            : 'border-amber-700 text-amber-400'
+                        }`}
                     >
                       {source.confidence}%
                     </Badge>

@@ -56,22 +56,23 @@ Neural Vault besteht aus **14 Docker-Containern**, die über ein internes Netzwe
 
 ## Container-Details
 
-| Service | Image | Port | Memory | Funktion |
-|:--------|:------|:-----|:-------|:---------|
-| **conductor-api** | conductor-api:latest | 8010 | 512M | Zentrale API |
-| traefik | traefik:v3.2 | 8888 | 128M | Reverse Proxy |
-| postgres | postgres:16-alpine | - | 256M | n8n Database |
-| redis | redis:7.4-alpine | 6379 | 128M | Cache + State |
-| n8n | n8nio/n8n:latest | 5680 | 768M | Workflow Engine |
-| qdrant | qdrant/qdrant:latest | 6335 | 1G | Vector DB |
-| meilisearch | getmeili/meilisearch:latest | 7700 | 512M | Fulltext Search |
-| ollama | ollama/ollama:latest | 11435 | 8G | Local LLM |
-| tika | apache/tika:latest | 9998 | 1G | Document Parser |
-| whisper | fedirz/faster-whisper-server | 9001 | 4G | Audio Transkription |
-| ffmpeg-api | jrottenberg/ffmpeg:7-ubuntu | - | 1G | Video Metadaten |
-| tesseract-ocr | jitesoft/tesseract-ocr:latest | - | 512M | OCR |
-| parser-service | conductor-parser:latest | 8002 | 1G | Spezialformate |
-| neural-worker | conductor-neural-worker:latest | 8005 | 4G | Docling + GLiNER |
+| Service | Image | External Port | Internal Port | Memory | Funktion |
+|:--------|:------|:--------------|:--------------|:-------|:---------|
+| **conductor-api** | conductor-api:latest | 8010 | 8000 | 512M | Zentrale API |
+| **conductor-ui** | mission-control:latest | 3000 | 80 | 128M | Mission Control UI |
+| **neural-search** | neural-search-api:latest | 8040 | 8040 | 512M | RAG & LLM API |
+| traefik | traefik:v3.2 | 8888 | 8888 | 128M | Reverse Proxy |
+| postgres | postgres:16-alpine | - | 5432 | 256M | n8n Database |
+| redis | redis:7.4-alpine | 6379 | 6379 | 128M | Cache + State |
+| n8n | n8nio/n8n:latest | 5680 | 5678 | 768M | Workflow Engine |
+| qdrant | qdrant/qdrant:latest | 6335 | 6333 | 1G | Vector DB (GRPC: 6336 -> 6334) |
+| meilisearch | getmeili/meilisearch:latest | 7700 | 7700 | 512M | Fulltext Search |
+| ollama | ollama/ollama:latest | 11435 | 11434 | 8G | Local LLM |
+| tika | apache/tika:latest | 9998 | 9998 | 1G | Document Parser |
+| whisperx | conductor-whisperx:latest | 9000 | 9000 | 8G | Audio Transkription |
+| ffmpeg-api | jrottenberg/ffmpeg:7-ubuntu | - | - | 1G | Video Metadaten |
+| surya-ocr | conductor-surya-ocr:latest | 9999 | 8000 | 6G | OCR (GPU) |
+| document-processor | conductor-document-processor:latest | 8005 | 8000 | 8G | Docling + GLiNER |
 
 **Gesamt-Memory:** ~23 GB (mit GPU-Offload auf Ollama weniger)
 

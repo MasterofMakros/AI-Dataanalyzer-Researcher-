@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Source, TranscriptLine } from '@/types/neural-search';
+import { type Source, type TranscriptLine } from '@/types/neural-search';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -11,7 +11,7 @@ interface SourceCardProps {
   onClose?: () => void;
 }
 
-export function SourceCard({ source, citationNumber, isExpanded = false, onClose }: SourceCardProps) {
+export function SourceCard({ source, citationNumber, onClose }: SourceCardProps) {
   const [isPlaying, setIsPlaying] = useState(false);
 
   const getConfidenceColor = (confidence: number) => {
@@ -143,11 +143,10 @@ function AudioPreview({
           {Array.from({ length: 50 }).map((_, i) => (
             <div
               key={i}
-              className={`w-1 rounded-full transition-all duration-150 ${
-                isPlaying ? 'bg-teal-500' : 'bg-slate-600'
-              }`}
+              className={`w-1 rounded-full transition-all duration-150 ${isPlaying ? 'bg-teal-500' : 'bg-slate-600'
+                }`}
               style={{
-                height: `${Math.random() * 100}%`,
+                height: `${20 + ((i * 7) % 70)}%`,
                 animationDelay: `${i * 50}ms`,
               }}
             />
@@ -212,9 +211,8 @@ function AudioPreview({
 function TranscriptLineComponent({ line }: { line: TranscriptLine }) {
   return (
     <div
-      className={`flex gap-2 text-xs ${
-        line.isHighlighted ? 'bg-teal-900/30 -mx-2 px-2 py-1 rounded border-l-2 border-teal-500' : ''
-      }`}
+      className={`flex gap-2 text-xs ${line.isHighlighted ? 'bg-teal-900/30 -mx-2 px-2 py-1 rounded border-l-2 border-teal-500' : ''
+        }`}
     >
       <span className="text-slate-500 font-mono w-12 flex-shrink-0">[{line.timestamp}]</span>
       <span className="text-slate-400 w-16 flex-shrink-0">👤 {line.speaker}:</span>
