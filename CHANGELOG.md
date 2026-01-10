@@ -29,6 +29,23 @@ und [Semantic Versioning](https://semver.org/lang/de/).
 
 ---
 
+## [2.1.6] - 2026-01-10
+
+### Fixed
+- **Surya OCR 0.17 API**: Complete rewrite for Surya 0.17+ compatibility.
+  - Fixed predictor initialization: FoundationPredictor → RecognitionPredictor chain
+  - Corrected API call: `rec(images, det_predictor=det)` replaces old detection-first pattern
+  - All image formats (JPG, PNG, TIFF) now process successfully
+
+## [2.1.5] - 2026-01-10
+
+### Fixed
+- **FFmpeg in Workers**: Replaced Docker-in-Docker with direct FFmpeg installation in worker containers.
+- **Cross-Platform Paths**: Added `_translate_path()` for Windows/Linux/macOS volume mount compatibility.
+- **VideoWorker**: Direct `ffmpeg`/`ffprobe` calls instead of `docker exec conductor-ffmpeg`.
+- **Service URLs**: Fixed `DOCUMENT_PROCESSOR_URL` to point to `surya-ocr:8000` in docker-compose.
+- **Worker Dependencies**: Added `surya-ocr` to `depends_on` for image workers.
+
 ## [2.1.4] - 2026-01-10
 
 ### Fixed (Hotfix)
