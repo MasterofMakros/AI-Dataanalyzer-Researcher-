@@ -255,9 +255,58 @@ class BaseExtractionWorker(ABC):
             await self.http_client.aclose()
         await self.queue_manager.disconnect()
 
+    def _translate_path(self, source_path: str) -> str:
+        """
+        Cross-platform path translation for Docker volume mounts.
+        
+        Auto-detects path format and translates to container paths:
+        - Windows: F:\\path\\file → /mnt/data/path/file (if HOST_MOUNT_PREFIX set)
+        - macOS:   /Users/... → /mnt/data/... (if mapped)
+        - Linux:   Already correct format, passed through
+        
+        Environment variables:
+        - HOST_MOUNT_PREFIX: The host path prefix to strip (e.g., 'F:' or '/Users/john')
+        - CONTAINER_MOUNT_PATH: The container mount point (default: '/mnt/data')
+        """
+        import re
+        
+        host_prefix = os.getenv('HOST_MOUNT_PREFIX', '')
+        container_path = os.getenv('CONTAINER_MOUNT_PATH', '/mnt/data')
+        
+        # Detect path format
+        # Windows absolute path: starts with drive letter (C:, D:, F:, etc.)
+        windows_match = re.match(r'^([A-Za-z]):[/\\]', source_path)
+        
+        if windows_match:
+            # Windows path detected - convert to Linux format
+            # F:\_Inbox\file.txt → /mnt/data/_Inbox/file.txt
+            drive = windows_match.group(1).upper()
+            # Strip drive letter and convert backslashes
+            linux_path = source_path[2:].replace('\\', '/')
+            
+            # Use host prefix if set, otherwise use default /mnt/data
+            if host_prefix and host_prefix.upper().startswith(drive + ':'):
+                # HOST_MOUNT_PREFIX matches the drive, use CONTAINER_MOUNT_PATH
+                return container_path + linux_path
+            else:
+                # Default: assume F:/ is mounted as /mnt/data
+                return '/mnt/data' + linux_path
+        
+        elif source_path.startswith('/') and not source_path.startswith('/mnt/'):
+            # Unix absolute path (Linux/macOS) - check if needs translation
+            if host_prefix and source_path.startswith(host_prefix):
+                # Translate host prefix to container mount
+                return container_path + source_path[len(host_prefix):]
+        
+        # Already a container path or relative path - pass through
+        return source_path
+
     async def _copy_to_local(self, source_path: str) -> Path:
         """Kopiert Datei in lokales temp-Verzeichnis."""
-        source = Path(source_path)
+        # Cross-platform path translation for Docker volume mounts
+        translated_path = self._translate_path(source_path)
+        
+        source = Path(translated_path)
         temp_dir = Path(tempfile.gettempdir()) / "extraction"
         temp_dir.mkdir(exist_ok=True)
 

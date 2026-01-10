@@ -538,11 +538,22 @@ class UniversalRouter:
 
     async def enqueue(self, decision: RoutingDecision) -> str:
         """Fügt Job in Queue ein."""
+        # Get file stats for Worker FileJob compatibility
+        try:
+            file_stat = Path(decision.filepath).stat()
+            file_size = file_stat.st_size
+            file_modified = datetime.fromtimestamp(file_stat.st_mtime).isoformat()
+        except Exception:
+            file_size = 0
+            file_modified = datetime.now().isoformat()
+        
         job_data = {
             "id": f"{datetime.now().timestamp():.6f}",
-            "filepath": decision.filepath,
+            "path": decision.filepath,  # Worker expects 'path' not 'filepath'
             "filename": decision.filename,
             "extension": decision.extension,
+            "size": file_size,  # Required by Worker FileJob
+            "modified": file_modified,  # Required by Worker FileJob
             "mime_type": decision.mime_type,
             "priority": decision.priority,
             "processing_path": decision.processing_path,
