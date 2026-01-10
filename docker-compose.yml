@@ -617,7 +617,7 @@ services:
     environment:
       - REDIS_URL=redis://redis:6379
       - REDIS_PASSWORD=${REDIS_PASSWORD}
-      - DOCUMENT_PROCESSOR_URL=http://document-processor:8000
+      - DOCUMENT_PROCESSOR_URL=http://surya-ocr:8000
       - TIKA_URL=http://tika:9998
       - WORKER_TYPE=documents
       - INPUT_QUEUE=extract:documents
@@ -676,7 +676,7 @@ services:
     environment:
       - REDIS_URL=redis://redis:6379
       - REDIS_PASSWORD=${REDIS_PASSWORD}
-      - DOCUMENT_PROCESSOR_URL=http://document-processor:8000
+      - DOCUMENT_PROCESSOR_URL=http://surya-ocr:8000
       - WORKER_TYPE=images
       - INPUT_QUEUE=extract:images
       - CONSUMER_GROUP=workers-images

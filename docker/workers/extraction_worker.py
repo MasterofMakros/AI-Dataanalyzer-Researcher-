@@ -523,7 +523,7 @@ class ImageWorker(BaseExtractionWorker):
         with open(local_path, "rb") as f:
             files = {"file": (job.filename, f)}
             response = await self.http_client.post(
-                f"{DOCUMENT_PROCESSOR_URL}/process/ocr",
+                f"{DOCUMENT_PROCESSOR_URL}/ocr",  # Surya uses /ocr endpoint
                 files=files,
                 params={"langs": "de,en"}
             )
