@@ -152,6 +152,30 @@ PROCESSOR_QUEUES = {
     "csv": "extract:documents",
     "md": "extract:documents",
 
+    # Code Files
+    "py": "extract:documents",
+    "js": "extract:documents",
+    "ts": "extract:documents",
+    "tsx": "extract:documents",
+    "jsx": "extract:documents",
+    "sh": "extract:documents",
+    "ps1": "extract:documents",
+    "sql": "extract:documents",
+    "css": "extract:documents",
+    "lua": "extract:documents",
+    
+    # Config Files
+    "yaml": "extract:documents",
+    "yml": "extract:documents",
+    "ini": "extract:documents",
+    "toml": "extract:documents",
+    "conf": "extract:documents",
+    
+    # Subtitles
+    "srt": "extract:documents",
+    "vtt": "extract:documents",
+    "sub": "extract:documents",
+
     # E-Books
     "epub": "extract:documents",
     "mobi": "extract:documents",
