@@ -571,19 +571,17 @@ class VideoWorker(BaseExtractionWorker):
     async def extract(self, job: FileJob, local_path: Path) -> ExtractionResult:
         import subprocess
 
-        # 1. Audio-Track extrahieren
+        # 1. Audio-Track extrahieren (FFmpeg now installed directly in container)
         audio_path = local_path.with_suffix(".wav")
 
         subprocess.run([
-            "docker", "exec", "conductor-ffmpeg",
-            "ffmpeg", "-i", str(local_path),
+            "ffmpeg", "-y", "-i", str(local_path),
             "-vn", "-acodec", "pcm_s16le", "-ar", "16000", "-ac", "1",
             str(audio_path)
         ], capture_output=True, timeout=300)
 
         # 2. Video-Metadaten extrahieren
         metadata_result = subprocess.run([
-            "docker", "exec", "conductor-ffmpeg",
             "ffprobe", "-v", "quiet", "-print_format", "json",
             "-show_format", "-show_streams", str(local_path)
         ], capture_output=True, text=True, timeout=60)

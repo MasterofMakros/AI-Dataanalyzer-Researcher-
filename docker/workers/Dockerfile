@@ -13,7 +13,9 @@ ENV WORKER_TYPE=documents
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
-    docker.io \
+    ffmpeg \
+    libsm6 \
+    libxext6 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app

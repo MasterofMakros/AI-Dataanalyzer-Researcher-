@@ -682,6 +682,7 @@ services:
       - CONSUMER_GROUP=workers-images
     depends_on:
       - redis
+      - surya-ocr
     deploy:
       replicas: 3
       resources:
