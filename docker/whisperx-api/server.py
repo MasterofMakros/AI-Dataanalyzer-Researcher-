@@ -22,6 +22,42 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 import torch
 
+# =============================================================================
+# PyTorch 2.6+/2.8 Compatibility Fix (from WhisperX PR #1313)
+# =============================================================================
+# Must be applied BEFORE any model loading occurs
+try:
+    from omegaconf import DictConfig, ListConfig
+    from omegaconf.base import ContainerMetadata, Metadata
+    from omegaconf.nodes import AnyNode, BooleanNode, FloatNode, IntegerNode, StringNode
+    from pyannote.audio.core.model import Introspection
+    from pyannote.audio.core.task import Problem, Resolution, Specifications
+    from torch.torch_version import TorchVersion
+    from collections import OrderedDict, defaultdict
+    import typing
+    
+    torch.serialization.add_safe_globals([
+        # OmegaConf types
+        DictConfig, ListConfig, ContainerMetadata, Metadata,
+        AnyNode, BooleanNode, FloatNode, IntegerNode, StringNode,
+        # Python builtins
+        typing.Any, list, dict, tuple, set, frozenset,
+        int, float, bool, str, bytes, OrderedDict, defaultdict,
+        # Pyannote + Torch types
+        TorchVersion, Introspection, Specifications, Problem, Resolution,
+    ])
+    print("✓ Added safe globals for PyTorch 2.8+ compatibility")
+except Exception as e:
+    print(f"⚠ Could not add all safe globals: {e}")
+    # Fallback: monkey patch to disable weights_only
+    _original_load = torch.load
+    def _patched_load(*args, **kwargs):
+        if 'weights_only' not in kwargs:
+            kwargs['weights_only'] = False
+        return _original_load(*args, **kwargs)
+    torch.load = _patched_load
+    print("✓ Applied torch.load fallback patch")
+
 # Logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("whisperx-api")
