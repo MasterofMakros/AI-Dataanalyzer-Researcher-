@@ -197,6 +197,7 @@ PROCESSOR_QUEUES = {
     "cr2": "extract:images",
     "nef": "extract:images",
     "dng": "extract:images",
+    "arw": "extract:images",
     "svg": "extract:images",
 
     # Audio → extract:audio (matches AudioWorker.input_queue)
@@ -235,8 +236,12 @@ PROCESSOR_QUEUES = {
     "gz": "extract:archive",
     "bz2": "extract:archive",
     "xz": "extract:archive",
-    "woff": "extract:font",
-    "woff2": "extract:font",
+    
+    # Fonts
+    "woff": "extract:documents",
+    "woff2": "extract:documents",
+    "ttf": "extract:documents",
+    "otf": "extract:documents",
 
     # Torrents
     "torrent": "extract:torrent",
