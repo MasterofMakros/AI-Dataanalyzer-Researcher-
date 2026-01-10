@@ -152,7 +152,7 @@ PROCESSOR_QUEUES = {
     "csv": "extract:documents",
     "md": "extract:documents",
 
-    # Code Files
+    # Code Files - Programming Languages
     "py": "extract:documents",
     "js": "extract:documents",
     "ts": "extract:documents",
@@ -163,6 +163,50 @@ PROCESSOR_QUEUES = {
     "sql": "extract:documents",
     "css": "extract:documents",
     "lua": "extract:documents",
+    "c": "extract:documents",
+    "cpp": "extract:documents",
+    "cc": "extract:documents",
+    "cxx": "extract:documents",
+    "h": "extract:documents",
+    "hpp": "extract:documents",
+    "java": "extract:documents",
+    "go": "extract:documents",
+    "rs": "extract:documents",
+    "rb": "extract:documents",
+    "php": "extract:documents",
+    "swift": "extract:documents",
+    "kt": "extract:documents",
+    "scala": "extract:documents",
+    "r": "extract:documents",
+    "pl": "extract:documents",
+    "pm": "extract:documents",
+    "asm": "extract:documents",
+    "bas": "extract:documents",
+    "vb": "extract:documents",
+    "cs": "extract:documents",
+    "fs": "extract:documents",
+    "hs": "extract:documents",
+    "elm": "extract:documents",
+    "clj": "extract:documents",
+    "ex": "extract:documents",
+    "exs": "extract:documents",
+    "erl": "extract:documents",
+    "dart": "extract:documents",
+    "vue": "extract:documents",
+    "svelte": "extract:documents",
+    "scss": "extract:documents",
+    "sass": "extract:documents",
+    "less": "extract:documents",
+    "styl": "extract:documents",
+    "coffee": "extract:documents",
+    "bat": "extract:documents",
+    "cmd": "extract:documents",
+    "awk": "extract:documents",
+    "sed": "extract:documents",
+    "makefile": "extract:documents",
+    "cmake": "extract:documents",
+    "gradle": "extract:documents",
+    "groovy": "extract:documents",
     
     # Config Files
     "yaml": "extract:documents",
@@ -199,6 +243,12 @@ PROCESSOR_QUEUES = {
     "dng": "extract:images",
     "arw": "extract:images",
     "svg": "extract:images",
+    "ico": "extract:images",
+    "cur": "extract:images",
+    "pcx": "extract:images",
+    "tga": "extract:images",
+    "exr": "extract:images",
+    "hdr": "extract:images",
 
     # Audio → extract:audio (matches AudioWorker.input_queue)
     "mp3": "extract:audio",
@@ -210,6 +260,12 @@ PROCESSOR_QUEUES = {
     "wma": "extract:audio",
     "mid": "extract:audio",
     "midi": "extract:audio",
+    "ape": "extract:audio",
+    "opus": "extract:audio",
+    "amr": "extract:audio",
+    "au": "extract:audio",
+    "aiff": "extract:audio",
+    "aif": "extract:audio",
 
     # Video → extract:video (matches VideoWorker.input_queue)
     "mp4": "extract:video",
@@ -221,12 +277,17 @@ PROCESSOR_QUEUES = {
     "flv": "extract:video",
     "mpg": "extract:video",
     "mpeg": "extract:video",
+    "m4v": "extract:video",
+    "3gp": "extract:video",
+    "rm": "extract:video",
+    "rmvb": "extract:video",
+    "vob": "extract:video",
+    "mts": "extract:video",
+    "m2ts": "extract:video",
+    "ts": "extract:video",
 
     # Email → extract:email (matches EmailWorker.input_queue)
     "eml": "extract:email",
-    "msg": "extract:email",
-    "mbox": "extract:email",
-    "pst": "extract:email",
 
     # Archives → extract:archive (matches ArchiveWorker.input_queue)
     "zip": "extract:archive",
@@ -236,12 +297,18 @@ PROCESSOR_QUEUES = {
     "gz": "extract:archive",
     "bz2": "extract:archive",
     "xz": "extract:archive",
+    "lz": "extract:archive",
+    "lzma": "extract:archive",
+    "cab": "extract:archive",
+    "iso": "extract:archive",
+    "dmg": "extract:archive",
     
     # Fonts
     "woff": "extract:documents",
     "woff2": "extract:documents",
     "ttf": "extract:documents",
     "otf": "extract:documents",
+    "eot": "extract:documents",
 
     # Torrents
     "torrent": "extract:torrent",
@@ -249,10 +316,24 @@ PROCESSOR_QUEUES = {
     # Apps
     "apk": "extract:app",
     "ipa": "extract:app",
+    "xapk": "extract:app",
+    "apkm": "extract:app",
 
     # Executables (metadata only)
     "exe": "extract:binary:metadata",
     "dll": "extract:binary:metadata",
+    "sys": "extract:binary:metadata",
+    "elf": "extract:binary:metadata",
+    "bin": "extract:binary:metadata",
+
+    # Documentation/Latex
+    "rst": "extract:documents",
+    "tex": "extract:documents",
+    "cls": "extract:documents",
+    "bib": "extract:documents",
+    "log": "extract:documents",
+    "diff": "extract:documents",
+    "patch": "extract:documents",
 
     # Encrypted (skip)
     "gpg": "skip",
