@@ -625,7 +625,7 @@ class VideoWorker(BaseExtractionWorker):
 # =============================================================================
 
 class EmailWorker(BaseExtractionWorker):
-    """Verarbeitet E-Mails via Parser Service."""
+    """Verarbeitet E-Mails direkt via Python email library."""
 
     def __init__(self):
         super().__init__(
@@ -636,31 +636,43 @@ class EmailWorker(BaseExtractionWorker):
         )
 
     async def extract(self, job: FileJob, local_path: Path) -> ExtractionResult:
+        import email
+        from email import policy
+        from email.parser import BytesParser
+        
+        # Parse EML file directly
         with open(local_path, "rb") as f:
-            files = {"file": (job.filename, f)}
-            response = await self.http_client.post(
-                f"{PARSER_URL}/parse/email",
-                files=files
-            )
-
-        if response.status_code != 200:
-            raise Exception(f"Parser error: {response.status_code}")
-
-        result = response.json()
-
-        # E-Mail-Struktur in Text konvertieren
+            msg = BytesParser(policy=policy.default).parse(f)
+        
+        # Extract email fields
+        subject = msg.get("subject", "")
+        sender = msg.get("from", "")
+        to = msg.get("to", "")
+        date = msg.get("date", "")
+        
+        # Extract body
+        body = ""
+        if msg.is_multipart():
+            for part in msg.walk():
+                if part.get_content_type() == "text/plain":
+                    body = part.get_content()
+                    break
+        else:
+            body = msg.get_content() if hasattr(msg, 'get_content') else msg.get_payload(decode=True).decode('utf-8', errors='ignore')
+        
+        # Build text representation
         text_parts = []
-        if result.get("subject"):
-            text_parts.append(f"Betreff: {result['subject']}")
-        if result.get("from"):
-            text_parts.append(f"Von: {result['from']}")
-        if result.get("to"):
-            text_parts.append(f"An: {result['to']}")
-        if result.get("date"):
-            text_parts.append(f"Datum: {result['date']}")
+        if subject:
+            text_parts.append(f"Betreff: {subject}")
+        if sender:
+            text_parts.append(f"Von: {sender}")
+        if to:
+            text_parts.append(f"An: {to}")
+        if date:
+            text_parts.append(f"Datum: {date}")
         text_parts.append("")
-        if result.get("body"):
-            text_parts.append(result["body"])
+        if body:
+            text_parts.append(body)
 
         text = "\n".join(text_parts)
 
@@ -670,16 +682,15 @@ class EmailWorker(BaseExtractionWorker):
             filename=job.filename,
             text=text,
             metadata={
-                "subject": result.get("subject"),
-                "from": result.get("from"),
-                "to": result.get("to"),
-                "date": result.get("date"),
-                "attachments": result.get("attachments", [])
+                "subject": subject,
+                "from": sender,
+                "to": to,
+                "date": date,
             },
             entities={
-                "emails": [result.get("from"), result.get("to")] if result.get("from") else []
+                "emails": [sender, to] if sender else []
             },
-            extraction_method="email-parser",
+            extraction_method="python-email",
             confidence=1.0
         )
 
@@ -689,7 +700,7 @@ class EmailWorker(BaseExtractionWorker):
 # =============================================================================
 
 class ArchiveWorker(BaseExtractionWorker):
-    """Verarbeitet Archive via 7-Zip (ohne Entpacken)."""
+    """Verarbeitet Archive direkt via Python zipfile/tarfile module."""
 
     def __init__(self):
         super().__init__(
@@ -700,28 +711,46 @@ class ArchiveWorker(BaseExtractionWorker):
         )
 
     async def extract(self, job: FileJob, local_path: Path) -> ExtractionResult:
-        import subprocess
-
-        # Archiv-Inhalt listen ohne zu entpacken
-        result = subprocess.run([
-            "docker", "exec", "conductor-7zip",
-            "7z", "l", str(local_path)
-        ], capture_output=True, text=True, timeout=60)
-
-        listing = result.stdout
-
-        # Dateiliste parsen
+        import zipfile
+        import tarfile
+        
         files = []
-        for line in listing.split("\n"):
-            if "..." in line or line.strip().startswith("Date"):
-                continue
-            parts = line.split()
-            if len(parts) >= 6:
-                filename = " ".join(parts[5:])
-                if filename and not filename.startswith("-"):
-                    files.append(filename)
+        archive_type = "unknown"
+        
+        # Try ZIP format
+        if zipfile.is_zipfile(local_path):
+            archive_type = "zip"
+            try:
+                with zipfile.ZipFile(local_path, 'r') as zf:
+                    for info in zf.infolist():
+                        if not info.is_dir():
+                            files.append(info.filename)
+            except Exception as e:
+                self.logger.warning(f"ZIP read error: {e}")
+        
+        # Try TAR format (tar, tar.gz, tar.bz2)
+        elif tarfile.is_tarfile(local_path):
+            archive_type = "tar"
+            try:
+                with tarfile.open(local_path, 'r:*') as tf:
+                    for member in tf.getmembers():
+                        if member.isfile():
+                            files.append(member.name)
+            except Exception as e:
+                self.logger.warning(f"TAR read error: {e}")
+        
+        # RAR and 7Z need external libraries - list as unsupported
+        else:
+            ext = local_path.suffix.lower()
+            if ext in ['.rar', '.7z']:
+                archive_type = ext[1:]
+                # Can't list contents without external lib, but acknowledge the file
+                files = [f"(Archiv-Inhalt nicht lesbar ohne {ext.upper()} Unterstützung)"]
+            else:
+                raise Exception(f"Unsupported archive format: {ext}")
 
         text = f"Archiv: {job.filename}\n"
+        text += f"Typ: {archive_type.upper()}\n"
         text += f"Enthält {len(files)} Dateien:\n"
         text += "\n".join(f"- {f}" for f in files[:100])
         if len(files) > 100:
@@ -733,10 +762,11 @@ class ArchiveWorker(BaseExtractionWorker):
             filename=job.filename,
             text=text,
             metadata={
+                "archive_type": archive_type,
                 "file_count": len(files),
                 "files": files[:100]
             },
-            extraction_method="7zip-listing",
+            extraction_method=f"python-{archive_type}",
             confidence=1.0
         )
 

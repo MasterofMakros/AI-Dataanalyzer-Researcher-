@@ -720,6 +720,60 @@ services:
     profiles:
       - intelligence
 
+  # Email (EML, MSG)
+  worker-email:
+    build:
+      context: ./docker/workers
+      dockerfile: Dockerfile
+    image: conductor-extraction-worker:latest
+    restart: unless-stopped
+    volumes:
+      - F:/:/mnt/data:ro
+    networks:
+      - conductor-net
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - WORKER_TYPE=email
+      - INPUT_QUEUE=extract:email
+      - CONSUMER_GROUP=workers-email
+    depends_on:
+      - redis
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: 512M
+    profiles:
+      - intelligence
+
+  # Archives (ZIP, RAR, 7Z, TAR.GZ)
+  worker-archive:
+    build:
+      context: ./docker/workers
+      dockerfile: Dockerfile
+    image: conductor-extraction-worker:latest
+    restart: unless-stopped
+    volumes:
+      - F:/:/mnt/data:ro
+    networks:
+      - conductor-net
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - WORKER_TYPE=archive
+      - INPUT_QUEUE=extract:archive
+      - CONSUMER_GROUP=workers-archive
+    depends_on:
+      - redis
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: 512M
+    profiles:
+      - intelligence
+
   # Legacy single worker (for backwards compatibility)
   extraction-worker:
     build:
