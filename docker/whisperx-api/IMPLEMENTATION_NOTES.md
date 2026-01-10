@@ -75,16 +75,28 @@ torch.serialization.add_safe_globals([
 
 ---
 
-## Lessons Learned
+## HuggingFace Token für Speaker Diarization
 
-1. **Always check upstream requirements**: WhisperX moved to PyTorch 2.8.0, not 2.4.1
-2. **Don't fight transitive dependencies**: Let pip/uv resolve the dependency graph
-3. **PyTorch security changes**: `weights_only=True` is the new default in 2.6+
-4. **ctranslate2 cuDNN**: Version 4.5.0+ required for cuDNN 9 (PyTorch 2.5+)
+WhisperX unterstützt **Speaker Diarization** (Sprecher-Erkennung), die automatisch erkennt, welcher Sprecher gerade spricht. Diese Funktion erfordert einen HuggingFace Token.
 
----
+### Was ist Speaker Diarization?
+- Erkennt automatisch verschiedene Sprecher in Audio/Video
+- Kennzeichnet Segmente mit Sprecher-IDs (SPEAKER_00, SPEAKER_01, etc.)
+- Ideal für Meetings, Interviews, Podcasts
 
-## References
+### Token einrichten:
+1. **Token erstellen**: https://huggingface.co/settings/tokens
+   - Token-Typ: "Read" reicht aus
+2. **Nutzungsbedingungen akzeptieren**: https://huggingface.co/pyannote/speaker-diarization-3.1
+3. **Token in `.env` eintragen**: `HF_TOKEN=hf_xxxxx...`
+4. **WhisperX neu starten**: `docker compose restart whisperx`
+
+### Funktionen ohne/mit Token:
+| Funktion | Ohne Token | Mit Token |
+|----------|------------|-----------|
+| Transkription | ✅ | ✅ |
+| Word-Level Timestamps | ✅ | ✅ |
+| Speaker Diarization | ❌ | ✅ |
 
 - WhisperX GitHub: https://github.com/m-bain/whisperX
 - PyTorch 2.6 Release Notes: https://pytorch.org/docs/stable/generated/torch.load.html
