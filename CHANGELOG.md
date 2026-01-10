@@ -29,13 +29,27 @@ und [Semantic Versioning](https://semver.org/lang/de/).
 
 ---
 
-## [2.1.1] - 2026-01-10
+## [2.1.4] - 2026-01-10
 
 ### Fixed (Hotfix)
-- **Surya OCR**: Updated `server.py` for compatibility with `surya-ocr >= 0.6.0` API (Predictor interface).
-- **WhisperX**: Patched `torch.load` to allow `weights_only=False` (Fixes Pyannote/PyTorch security crash).
-- **Qdrant**: Fixed missing API key in `.env` forcing Conductor API degradation.
-- **Service Resilience**: Rebuilt containers with updated logic.
+- **WhisperX**: Complete reimplementation from official repo (v3.7.4).
+  - Installed `whisperx` from PyPI (handles PyTorch 2.8 + pyannote deps correctly)
+  - Simplified Dockerfile using CUDA 12.4 base image
+  - Created `IMPLEMENTATION_NOTES.md` documenting all past errors and lessons learned
+- **Dependencies**: Now uses official WhisperX dependency chain (PyTorch 2.8, pyannote>=3.3.2)
+
+## [2.1.3] - 2026-01-10
+
+### Fixed (Hotfix)
+- **Universal Router**: Implemented missing background consumer loop in `router.py`. Jobs now correctly flow from `intake:*` to `extract:*`.
+- **Router Config**: Simplified `PROCESSOR_QUEUES` to match worker input queues (e.g., `extract:documents` instead of `extract:documents:text`).
+
+## [2.1.1] - 2026-01-10
+
+### Fixed
+- **Surya OCR**: Updated `server.py` for compatibility with `surya-ocr >= 0.6.0` API.
+- **Qdrant**: Fixed missing API key headers in Conductor API.
+- **Service Resilience**: Improved health check retry logic.
 
 ---
 
