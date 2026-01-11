@@ -111,6 +111,314 @@ class ExtractionResult:
 
 
 # =============================================================================
+# ERROR CLASSIFICATION SYSTEM
+# =============================================================================
+
+from enum import Enum
+import traceback
+import struct
+import zipfile
+import subprocess
+
+class ErrorSource(Enum):
+    """Fehlerquelle-Klassifikation."""
+    SOURCE_FILE = "source_file"      # Problem mit der Quelldatei
+    PROCESSING = "processing"         # Problem in der Verarbeitung
+    INFRASTRUCTURE = "infrastructure" # Problem mit Services/Infra
+    UNKNOWN = "unknown"
+
+
+class ErrorType(Enum):
+    """Detaillierter Fehlertyp."""
+    # Quelldatei-Fehler
+    FILE_CORRUPTED = "file_corrupted"
+    FILE_EMPTY = "file_empty"
+    FILE_ENCRYPTED = "file_encrypted"
+    FILE_FORMAT_MISMATCH = "file_format_mismatch"
+    FILE_UNSUPPORTED = "file_unsupported"
+    FILE_NOT_FOUND = "file_not_found"
+    FILE_PERMISSION_DENIED = "file_permission_denied"
+    
+    # Verarbeitungs-Fehler
+    EXTRACTION_FAILED = "extraction_failed"
+    OCR_FAILED = "ocr_failed"
+    TRANSCRIPTION_FAILED = "transcription_failed"
+    CONVERSION_FAILED = "conversion_failed"
+    PARSING_FAILED = "parsing_failed"
+    
+    # Infrastruktur-Fehler
+    SERVICE_UNAVAILABLE = "service_unavailable"
+    TIMEOUT = "timeout"
+    OUT_OF_MEMORY = "out_of_memory"
+    DEPENDENCY_MISSING = "dependency_missing"
+
+
+@dataclass
+class ClassifiedError:
+    """Klassifizierter Fehler mit Kontext."""
+    source: ErrorSource
+    error_type: ErrorType
+    message: str
+    details: Optional[Dict] = None
+    recoverable: bool = True
+    retry_recommended: bool = True
+
+    def to_dict(self) -> Dict:
+        return {
+            'error_source': self.source.value,
+            'error_type': self.error_type.value,
+            'message': self.message,
+            'details': self.details,
+            'recoverable': self.recoverable,
+            'retry_recommended': self.retry_recommended
+        }
+
+
+class SourceFileValidator:
+    """Validiert Quelldateien VOR der Verarbeitung."""
+    
+    # Bekannte Magic Bytes für Formate
+    MAGIC_BYTES = {
+        'pdf': b'%PDF',
+        'zip': b'PK\x03\x04',
+        'rar': b'Rar!\x1a\x07',
+        '7z': b"7z\xbc\xaf\x27\x1c",
+        'png': b'\x89PNG\r\n\x1a\n',
+        'jpg': b'\xff\xd8\xff',
+        'jpeg': b'\xff\xd8\xff',
+        'gif': b'GIF8',
+        'mp3': b'ID3',
+        'docx': b'PK\x03\x04',
+        'xlsx': b'PK\x03\x04',
+        'pptx': b'PK\x03\x04',
+    }
+    
+    def __init__(self):
+        self.logger = logging.getLogger("SourceFileValidator")
+    
+    def validate(self, file_path: str) -> Dict:
+        """
+        Führt alle Validierungen durch.
+        Returns: {valid: bool, errors: list, warnings: list, file_health: str}
+        """
+        path = Path(file_path)
+        result = {
+            'valid': True,
+            'errors': [],
+            'warnings': [],
+            'file_health': 'healthy'
+        }
+        
+        # 1. Existenz
+        if not path.exists():
+            result['valid'] = False
+            result['errors'].append('FILE_NOT_FOUND')
+            result['file_health'] = 'missing'
+            return result
+        
+        # 2. Größe
+        try:
+            size = path.stat().st_size
+        except Exception as e:
+            result['valid'] = False
+            result['errors'].append(f'STAT_ERROR: {str(e)}')
+            result['file_health'] = 'inaccessible'
+            return result
+            
+        if size == 0:
+            result['valid'] = False
+            result['errors'].append('EMPTY_FILE')
+            result['file_health'] = 'empty'
+            return result
+        
+        if size < 10:
+            result['warnings'].append('SUSPICIOUSLY_SMALL')
+        
+        # 3. Lesbarkeit
+        try:
+            with open(path, 'rb') as f:
+                header = f.read(1024)
+        except PermissionError:
+            result['valid'] = False
+            result['errors'].append('PERMISSION_DENIED')
+            result['file_health'] = 'inaccessible'
+            return result
+        except Exception as e:
+            result['valid'] = False
+            result['errors'].append(f'READ_ERROR: {str(e)}')
+            result['file_health'] = 'corrupted'
+            return result
+        
+        # 4. Magic Bytes Check
+        ext = path.suffix.lower().replace('.', '')
+        expected_magic = self.MAGIC_BYTES.get(ext)
+        if expected_magic and not header.startswith(expected_magic):
+            result['warnings'].append(f'MAGIC_MISMATCH: Expected {ext} header')
+            result['file_health'] = 'mislabeled'
+        
+        # 5. Format-spezifische Prüfungen
+        format_errors = self._check_format_integrity(path, ext, header)
+        if format_errors:
+            result['errors'].extend(format_errors)
+            result['valid'] = False
+            result['file_health'] = 'corrupted'
+        
+        return result
+    
+    def _check_format_integrity(self, path: Path, ext: str, header: bytes) -> List[str]:
+        """Format-spezifische Integritätsprüfungen."""
+        errors = []
+        
+        if ext == 'pdf':
+            # PDF muss mit %PDF beginnen
+            if not header.startswith(b'%PDF'):
+                errors.append('PDF_INVALID_HEADER')
+            # Prüfe auf Verschlüsselung
+            try:
+                with open(path, 'rb') as f:
+                    content = f.read()
+                    if b'/Encrypt' in content:
+                        errors.append('PDF_ENCRYPTED')
+                    if b'%%EOF' not in content[-1024:]:
+                        errors.append('PDF_TRUNCATED')
+            except:
+                pass
+        
+        elif ext in ['zip', 'docx', 'xlsx', 'pptx']:
+            try:
+                with zipfile.ZipFile(path, 'r') as zf:
+                    bad_file = zf.testzip()
+                    if bad_file:
+                        errors.append(f'ZIP_CRC_ERROR: {bad_file}')
+            except zipfile.BadZipFile:
+                errors.append('ZIP_CORRUPTED')
+            except Exception as e:
+                errors.append(f'ZIP_ERROR: {str(e)}')
+        
+        return errors
+
+
+class ErrorClassifier:
+    """Klassifiziert Fehler basierend auf Fehlermeldungen und Kontext."""
+    
+    # Muster für Quelldatei-Fehler
+    SOURCE_FILE_PATTERNS = {
+        ErrorType.FILE_CORRUPTED: [
+            'corrupt', 'damaged', 'invalid', 'malformed',
+            'unexpected end of file', 'truncated', 'bad crc',
+            'cannot identify image file', 'not a valid',
+            'moov atom not found', 'invalid data'
+        ],
+        ErrorType.FILE_EMPTY: [
+            'empty file', 'file is empty', 'no content', 
+            'zero bytes', 'nothing to extract'
+        ],
+        ErrorType.FILE_ENCRYPTED: [
+            'encrypted', 'password protected', 'password required',
+            'decryption failed'
+        ],
+        ErrorType.FILE_FORMAT_MISMATCH: [
+            'format not recognized', 'unsupported format',
+            'invalid header', 'magic number mismatch',
+            'not a pdf', 'not an image'
+        ],
+    }
+    
+    # Muster für Verarbeitungs-Fehler
+    PROCESSING_PATTERNS = {
+        ErrorType.OCR_FAILED: [
+            'ocr error', 'surya error', 'tesseract error',
+            'text recognition failed'
+        ],
+        ErrorType.TRANSCRIPTION_FAILED: [
+            'whisper error', 'transcription error',
+            'audio processing failed', 'no speech detected'
+        ],
+        ErrorType.CONVERSION_FAILED: [
+            'conversion failed', 'could not convert',
+            'pillow error', 'cairo error', 'ffmpeg error'
+        ],
+    }
+    
+    # Muster für Infrastruktur-Fehler
+    INFRA_PATTERNS = {
+        ErrorType.SERVICE_UNAVAILABLE: [
+            'connection refused', 'service unavailable',
+            '502', '503', '504', 'cannot connect',
+            'host unreachable', 'connection reset'
+        ],
+        ErrorType.TIMEOUT: [
+            'timeout', 'timed out', 'deadline exceeded',
+            'operation took too long'
+        ],
+        ErrorType.OUT_OF_MEMORY: [
+            'out of memory', 'memory error', 'oom',
+            'cannot allocate', 'mmap failed'
+        ],
+        ErrorType.DEPENDENCY_MISSING: [
+            'import error', 'module not found', 
+            'library not loaded', 'dll not found',
+            'no module named'
+        ],
+    }
+    
+    def __init__(self):
+        self.logger = logging.getLogger("ErrorClassifier")
+    
+    def classify(self, exception: Exception, context: Dict = None) -> ClassifiedError:
+        """Klassifiziert eine Exception."""
+        error_msg = str(exception).lower()
+        tb = traceback.format_exc().lower()
+        combined = f"{error_msg} {tb}"
+        
+        # 1. Prüfe auf Quelldatei-Fehler
+        for error_type, patterns in self.SOURCE_FILE_PATTERNS.items():
+            if any(p in combined for p in patterns):
+                return ClassifiedError(
+                    source=ErrorSource.SOURCE_FILE,
+                    error_type=error_type,
+                    message=str(exception),
+                    details=context,
+                    recoverable=False,
+                    retry_recommended=False
+                )
+        
+        # 2. Prüfe auf Infrastruktur-Fehler
+        for error_type, patterns in self.INFRA_PATTERNS.items():
+            if any(p in combined for p in patterns):
+                return ClassifiedError(
+                    source=ErrorSource.INFRASTRUCTURE,
+                    error_type=error_type,
+                    message=str(exception),
+                    details=context,
+                    recoverable=True,
+                    retry_recommended=True
+                )
+        
+        # 3. Prüfe auf Verarbeitungs-Fehler
+        for error_type, patterns in self.PROCESSING_PATTERNS.items():
+            if any(p in combined for p in patterns):
+                return ClassifiedError(
+                    source=ErrorSource.PROCESSING,
+                    error_type=error_type,
+                    message=str(exception),
+                    details=context,
+                    recoverable=True,
+                    retry_recommended=True
+                )
+        
+        # 4. Fallback: Unbekannter Fehler
+        return ClassifiedError(
+            source=ErrorSource.UNKNOWN,
+            error_type=ErrorType.EXTRACTION_FAILED,
+            message=str(exception),
+            details=context,
+            recoverable=True,
+            retry_recommended=True
+        )
+
+
+# =============================================================================
 # QUEUE MANAGER
 # =============================================================================
 
@@ -169,6 +477,23 @@ class QueueManager:
         job.retries += 1
         await self.enqueue(dlq, job.to_dict())
 
+    async def move_to_dlq_classified(self, dlq: str, job: FileJob, classified_error: ClassifiedError):
+        """Sendet Job mit klassifiziertem Fehler an DLQ."""
+        job.status = "failed"
+        job.error = classified_error.message
+        job.retries += 1
+        
+        # Erweiterte DLQ-Daten mit Klassifikation
+        dlq_data = {
+            **job.to_dict(),
+            'error_source': classified_error.source.value,
+            'error_type': classified_error.error_type.value,
+            'recoverable': classified_error.recoverable,
+            'retry_recommended': classified_error.retry_recommended,
+            'classification_details': classified_error.details
+        }
+        await self.enqueue(dlq, dlq_data)
+
 
 # =============================================================================
 # BASE WORKER
@@ -177,6 +502,8 @@ class QueueManager:
 class BaseExtractionWorker(ABC):
     """Basisklasse für alle Extraction Workers."""
 
+    MAX_RETRIES = 3  # Maximale Retry-Versuche
+    
     def __init__(
         self,
         input_queue: str,
@@ -192,6 +519,10 @@ class BaseExtractionWorker(ABC):
         self.http_client: Optional[httpx.AsyncClient] = None
         self.running = False
         self.logger = logging.getLogger(worker_name)
+        
+        # Error Classification System
+        self.file_validator = SourceFileValidator()
+        self.error_classifier = ErrorClassifier()
 
     async def start(self):
         await self.queue_manager.connect()
@@ -239,8 +570,34 @@ class BaseExtractionWorker(ABC):
                             await self._cleanup_local(local_path)
 
                     except Exception as e:
-                        self.logger.error(f"Error processing {job.filename}: {e}")
-                        await self.queue_manager.move_to_dlq(self.dlq, job, str(e))
+                        # Fehler klassifizieren
+                        classified = self.error_classifier.classify(
+                            exception=e,
+                            context={
+                                'file_path': job.path,
+                                'extension': job.extension,
+                                'worker': self.worker_name,
+                                'retries': job.retries
+                            }
+                        )
+                        
+                        self.logger.error(
+                            f"Error processing {job.filename}: "
+                            f"source={classified.source.value}, "
+                            f"type={classified.error_type.value}, "
+                            f"retry={classified.retry_recommended}"
+                        )
+                        
+                        # Entscheidung: Retry oder DLQ?
+                        if classified.retry_recommended and job.retries < self.MAX_RETRIES:
+                            # Re-queue für Retry
+                            self.logger.info(f"Scheduling retry {job.retries + 1}/{self.MAX_RETRIES} for {job.filename}")
+                            job.retries += 1
+                            await self.queue_manager.enqueue(self.input_queue, job.to_dict())
+                        else:
+                            # Ab in DLQ mit Klassifikation
+                            await self.queue_manager.move_to_dlq_classified(self.dlq, job, classified)
+                        
                         await self.queue_manager.ack(
                             self.input_queue, CONSUMER_GROUP, job.id
                         )
@@ -512,7 +869,32 @@ class ImageWorker(BaseExtractionWorker):
     async def extract(self, job: FileJob, local_path: Path) -> ExtractionResult:
         # Primary: Surya OCR via Document Processor (97.7% Accuracy)
         try:
-            return await self._extract_surya(job, local_path)
+            # Handle formats needing conversion (HEIC, SVG)
+            ext = job.extension.lower().replace(".", "")
+            ocr_path = local_path
+            
+            if ext in ["heic", "heif"]:
+                try:
+                    from pillow_heif import register_heif_opener
+                    from PIL import Image
+                    register_heif_opener()
+                    img = Image.open(local_path)
+                    ocr_path = local_path.with_suffix(".png")
+                    img.save(ocr_path, format="PNG")
+                    self.logger.info(f"Converted HEIC to PNG: {ocr_path}")
+                except ImportError:
+                    self.logger.warning("pillow-heif not installed, skipping conversion")
+            
+            elif ext == "svg":
+                try:
+                    import cairosvg
+                    ocr_path = local_path.with_suffix(".png")
+                    cairosvg.svg2png(url=str(local_path), write_to=str(ocr_path))
+                    self.logger.info(f"Converted SVG to PNG: {ocr_path}")
+                except ImportError:
+                    self.logger.warning("cairosvg not installed, skipping conversion")
+            
+            return await self._extract_surya(job, ocr_path)
         except Exception as e:
             self.logger.warning(f"Surya OCR failed: {e}")
             # No fallback - Tesseract deprecated
