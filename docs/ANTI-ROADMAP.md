@@ -159,7 +159,7 @@ Diese wurden getestet und verworfen – nie wieder anfassen:
 
 | Feature | ADR | Grund für Ablehnung |
 |:---|:---|:---|
-| Cross-Encoder Reranking | ADR-015 | Zu langsam, kein Nutzen |
+| Cross-Encoder Reranking | ADR-015 | Siehe Amendment unten (TinyBERT erlaubt) |
 | Ollama für Klassifikation | ADR-010 | GLiNER ist schneller |
 | Auto-Rename in Passive Zone | ADR-011 | User-Verwirrung |
 | Event-basiertes Ledger | ADR-009 | Zu fragil |
