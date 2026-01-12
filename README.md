@@ -149,13 +149,13 @@ Using an AI Agent? Use these Slash Commands to navigate the workflow.
 
 | Command | Phase | Action |
 | :--- | :--- | :--- |
-| `/core_piv_loop:prime` | **Prime** | Load context & rules (`AGENTS.md`) |
+| `/core_piv_loop:prime` | **Prime** | Load context & rules (`CLAUDE.md`) |
 | `/core_piv_loop:plan-feature` | **Plan** | Create implementation plan |
 | `/core_piv_loop:execute` | **Execute** | Implement approved plan |
 | `/validation:validate` | **Validate** | Run local validation suite |
 | `/github_bug_fix:rca` | **Fix** | Start Root Cause Analysis |
 
-For full details, see [AGENTS.md](AGENTS.md).
+For full details, see [CLAUDE.md](CLAUDE.md).
 
 ---
 

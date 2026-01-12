@@ -1,7 +1,7 @@
 # ADR-018: PDF Parsing - Apache Tika vs. Docling
 
-## Status
-**Proposed** - A/B-Test erforderlich (ABT-B04)
+**Status**
+Accepted (Hybrid PDF Parsing)
 
 ## Datum
 2025-12-28

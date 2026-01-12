@@ -1,7 +1,7 @@
 # ADR-019: Vector Database - Qdrant vs. LanceDB für Scale
 
-## Status
-**Proposed** - A/B-Test erforderlich (ABT-B05)
+**Status**
+Accepted (Qdrant-Only)
 
 ## Datum
 2025-12-28

@@ -1,7 +1,7 @@
 # ADR-015: Search Ranking - BM25 Only vs. BM25 + Cross-Encoder Reranking
 
-## Status
-**Proposed** - A/B-Test erforderlich (ABT-B01)
+**Status**
+Accepted (Cross-Encoder)
 
 ## Datum
 2025-12-28
