@@ -249,6 +249,7 @@ show_status() {
         "http://localhost:8010/health|Conductor API"
         "http://localhost:8040/health|Neural Search API"
         "http://localhost:3100|Perplexica UI"
+        "http://localhost:7700/health|Meilisearch"
         "http://localhost:9998|Tika"
         "http://localhost:8005/health|Document Processor"
         "http://localhost:8030/health|Universal Router"
