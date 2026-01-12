@@ -41,13 +41,18 @@ Conductor ist ein **vollständig lokales** System zur automatischen Organisation
 
 ### Installation
 
-```powershell
+```bash
 # 1. Repository klonen
 git clone https://github.com/MasterofMakros/AI-Dataanalyzer-Researcher-.git
 cd AI-Dataanalyzer-Researcher-
 
 # 2. Environment konfigurieren
+# Windows (PowerShell)
 Copy-Item .env.example .env
+
+# Linux/macOS
+cp .env.example .env
+
 # .env anpassen (Pfade, API Keys)
 
 # 3. Services starten
@@ -58,6 +63,16 @@ docker compose --profile gpu up -d
 
 # Intelligence-Grade (10 parallele Worker)
 docker compose --profile intelligence up -d
+```
+
+### Validation
+
+```bash
+# Windows
+./scripts/validate.ps1
+
+# Linux/macOS
+./scripts/validate.sh
 ```
 
 ### Überprüfung

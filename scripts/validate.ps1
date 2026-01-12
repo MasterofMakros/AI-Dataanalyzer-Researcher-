@@ -1,42 +1,97 @@
 # validate.ps1 - Full Validation Suite
-# Usage: ./scripts/validate.ps1 [-Quick]
+# Usage: ./scripts/validate.ps1 [-Quick] [-SkipDocker]
 
-param([switch]$Quick)
+param(
+    [switch]$Quick,
+    [switch]$SkipDocker
+)
 
 $ErrorActionPreference = "Stop"
+$script:failures = 0
 
-# 1. Run Doctor First
-Write-Host "`n=== 1. Doctor Check ===" -ForegroundColor Cyan
-./scripts/doctor.ps1
-if ($LASTEXITCODE -ne 0) { exit 1 }
+function Test-Step {
+    param([string]$Name, [scriptblock]$Action)
+    Write-Host "`n=== $Name ===" -ForegroundColor Cyan
+    try {
+        & $Action
+        Write-Host "OK: $Name" -ForegroundColor Green
+    } catch {
+        Write-Host "FAIL: $Name - $($_.Exception.Message)" -ForegroundColor Red
+        $script:failures++
+    }
+}
+
+# 1. Doctor Check
+Test-Step "Doctor Check" {
+    if (Test-Path "./scripts/doctor.ps1") {
+        ./scripts/doctor.ps1
+        if ($LASTEXITCODE -ne 0) { throw "Doctor failed" }
+    } else {
+        Write-Host "SKIP: doctor.ps1 not found" -ForegroundColor Yellow
+    }
+}
 
 # 2. Python Compile Check
-Write-Host "`n=== 2. Python Compile Check ===" -ForegroundColor Cyan
-try {
-    # Check syntax errors in all python files
-    python -m compileall . -q
-    if ($LASTEXITCODE -eq 0) {
-         Write-Host "OK: Python syntax valid" -ForegroundColor Green
-    }
-} catch {
-    Write-Host "WARNING: Python compile skipped (python not found or failed)" -ForegroundColor Yellow
+Test-Step "Python Compile Check" {
+    $result = python -m compileall . -q 2>&1
+    if ($LASTEXITCODE -ne 0) { throw "Python compile failed" }
 }
 
-# 3. Docker Health (if visible)
-Write-Host "`n=== 3. Docker Health ===" -ForegroundColor Cyan
-$containers = docker ps --format "{{.Status}}"
-if ($containers) {
-    Write-Host "OK: Containers are running." -ForegroundColor Green
-    # Optional: Curl health
-    try {
-        $res = Invoke-WebRequest -Uri "http://localhost:8010/health" -Method Head -ErrorAction SilentlyContinue
-        if ($res.StatusCode -eq 200) { Write-Host "OK: Conductor API healthy" -ForegroundColor Green }
-    } catch {
-        Write-Host "INFO: Conductor API not responsive (might be starting up or not exposed)" -ForegroundColor Gray
+# 3. Pytest (Backend Tests)
+if (-not $Quick) {
+    Test-Step "Backend Tests (pytest)" {
+        if (Test-Path "./tests") {
+            pytest tests/ --tb=short -q
+            if ($LASTEXITCODE -ne 0) { throw "pytest failed" }
+        } else {
+            Write-Host "SKIP: tests/ not found" -ForegroundColor Yellow
+        }
     }
+}
+
+# 4. Frontend Build Check
+if (-not $Quick) {
+    Test-Step "Frontend Build Check" {
+        if (Test-Path "./ui/perplexica/package.json") {
+            Push-Location ./ui/perplexica
+            npm run build --if-present 2>&1 | Out-Null
+            if ($LASTEXITCODE -ne 0) { throw "npm build failed" }
+            Pop-Location
+        } else {
+            Write-Host "SKIP: ui/perplexica not found" -ForegroundColor Yellow
+        }
+    }
+}
+
+# 5. Docker Compose Validation
+if (-not $SkipDocker) {
+    Test-Step "Docker Compose Config" {
+        docker compose config --quiet
+        if ($LASTEXITCODE -ne 0) { throw "docker compose config invalid" }
+    }
+}
+
+# 6. Smoke Test (if containers running)
+if (-not $SkipDocker) {
+    Test-Step "Smoke Test" {
+        $containers = docker ps --format "{{.Names}}" 2>$null
+        if ($containers) {
+            if (Test-Path "./scripts/smoke.ps1") {
+                ./scripts/smoke.ps1 -Quiet
+            }
+        } else {
+            Write-Host "SKIP: No containers running" -ForegroundColor Yellow
+        }
+    }
+}
+
+# Summary
+Write-Host "`n" + "=" * 50
+if ($script:failures -eq 0) {
+    Write-Host "✅ VALIDATION PASSED" -ForegroundColor Green
+    exit 0
 } else {
-    Write-Host "INFO: No containers running. Skipping runtime health checks." -ForegroundColor Gray
+    Write-Host "❌ VALIDATION FAILED ($script:failures issues)" -ForegroundColor Red
+    exit 1
 }
 
-Write-Host "`n=== Validation PASSED ===" -ForegroundColor Green
-exit 0

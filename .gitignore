@@ -159,3 +159,21 @@ ui/perplexica/node_modules/
 ui/perplexica/.next/
 ui/perplexica/uploads/
 ui/perplexica/data/
+
+# -----------------------------------------------------------------------------
+# Runtime Data (10TB+ Exclusions)
+# -----------------------------------------------------------------------------
+data/inbox/**
+data/staging/**
+data/processed/**
+data/index/**
+data/cache/**
+data/logs/**
+data/tmp/**
+!data/*/.gitkeep
+!data/samples/**
+**/embeddings/
+**/transcripts/
+**/thumbnails/
+**/*.vec
+**/*.npy
