@@ -11,8 +11,11 @@ from pathlib import Path
 from sentence_transformers import SentenceTransformer, util
 
 # Add project root to path
+# Add project root to path
 import sys
-sys.path.append("F:/conductor")
+from pathlib import Path
+ROOT_DIR = Path(__file__).parent.parent.resolve()
+sys.path.append(str(ROOT_DIR))
 from services.reranker import RerankingService
 
 # Setup Mock Data
