@@ -68,6 +68,7 @@ def test_schema_row_counts_and_preview(sample_key):
             path = create_sqlite_sample(tmp_path)
             expected_tables = {"customers": 3, "orders": 3}
         else:
+            pytest.importorskip("dbfread")
             path = create_dbf_sample(tmp_path)
             expected_tables = {"sample": 3}
 

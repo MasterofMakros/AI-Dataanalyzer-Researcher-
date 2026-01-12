@@ -14,9 +14,6 @@ from itertools import islice
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional
 
-from dbfread import DBF
-
-
 SUPPORTED_EXTENSIONS = {
     ".sqlite",
     ".sqlite3",
@@ -102,6 +99,8 @@ def sqlite_export(conn: sqlite3.Connection, table: str, limit: Optional[int]) ->
 
 
 def dbf_table_schema(dbf_path: Path) -> List[ColumnInfo]:
+    from dbfread import DBF
+
     table = DBF(str(dbf_path), load=False, ignore_missing_memofile=True)
     columns = []
     for field in table.fields:
@@ -110,16 +109,22 @@ def dbf_table_schema(dbf_path: Path) -> List[ColumnInfo]:
 
 
 def dbf_row_count(dbf_path: Path) -> int:
+    from dbfread import DBF
+
     table = DBF(str(dbf_path), load=False, ignore_missing_memofile=True)
     return len(table)
 
 
 def dbf_preview(dbf_path: Path, limit: int) -> List[Dict[str, object]]:
+    from dbfread import DBF
+
     table = DBF(str(dbf_path), load=False, ignore_missing_memofile=True)
     return [dict(record) for record in islice(table, limit)]
 
 
 def dbf_export(dbf_path: Path, limit: Optional[int]) -> List[Dict[str, object]]:
+    from dbfread import DBF
+
     table = DBF(str(dbf_path), load=False, ignore_missing_memofile=True)
     iterator: Iterable[Dict[str, object]]
     if limit is None:

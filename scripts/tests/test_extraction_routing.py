@@ -10,7 +10,11 @@ import io
 from pathlib import Path
 
 # Fix Windows Unicode output
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    except AttributeError:
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 # Projekt-Root
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
