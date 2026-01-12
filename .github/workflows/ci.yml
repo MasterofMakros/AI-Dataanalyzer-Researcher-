@@ -24,10 +24,13 @@ jobs:
       working-directory: ./ui/perplexica
       run: npm ci
 
-    # Perplexica might not have a separate lint step in package.json, checking build first
+    # Perplexica needs data/ dir with config.json and db.sqlite at build time
     - name: Create Runtime Directories
       working-directory: ./ui/perplexica
-      run: mkdir -p data
+      run: |
+        mkdir -p data
+        echo '{"version":1,"setupComplete":false,"preferences":{},"personalization":{},"modelProviders":[],"search":{"searxngURL":""}}' > data/config.json
+        touch data/db.sqlite
 
     - name: Build
       working-directory: ./ui/perplexica
