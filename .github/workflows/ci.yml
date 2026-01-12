@@ -25,6 +25,10 @@ jobs:
       run: npm ci
 
     # Perplexica might not have a separate lint step in package.json, checking build first
+    - name: Create Runtime Directories
+      working-directory: ./ui/perplexica
+      run: mkdir -p data
+
     - name: Build
       working-directory: ./ui/perplexica
       run: npm run build
