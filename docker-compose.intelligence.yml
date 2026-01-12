@@ -236,6 +236,55 @@ services:
         limits:
           memory: 512M
 
+  # ========================================================================
+  # METADATA EXTRACTOR (ExifTool)
+  # ========================================================================
+
+  metadata-extractor:
+    build:
+      context: ./infra/docker/metadata-extractor
+      dockerfile: Dockerfile
+    image: conductor-metadata-extractor:latest
+    container_name: conductor-metadata-extractor
+    restart: unless-stopped
+    ports:
+      - "8015:8000"
+    volumes:
+      - F:/:/mnt/data:ro
+    networks:
+      - conductor-net
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  worker-metadata:
+    build:
+      context: ./infra/docker/workers
+      dockerfile: Dockerfile
+    image: conductor-worker:latest
+    <<: *worker-deploy
+    environment:
+      <<: *common-env
+      WORKER_TYPE: metadata
+      METADATA_EXTRACTOR_URL: http://metadata-extractor:8000
+    volumes: *data-volume
+    depends_on:
+      - redis
+      - metadata-extractor
+    networks:
+      - conductor-net
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          memory: 512M
+
   # ===========================================================================
   # EXTRACTION WORKERS - Email Processing
   # ===========================================================================

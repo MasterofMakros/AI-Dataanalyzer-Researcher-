@@ -53,7 +53,8 @@ QUEUES = {
         "video": "extract:video",
         "images": "extract:images",
         "email": "extract:email",
-        "archive": "extract:archive"
+        "archive": "extract:archive",
+        "metadata": "extract:metadata"
     },
     "enrich": {
         "ner": "enrich:ner",
@@ -239,6 +240,19 @@ def get_queue_for_type(extension: str) -> str:
         "tiff": "extract:images",
         "bmp": "extract:images",
         "webp": "extract:images",
+        "raw": "extract:metadata",
+        "cr2": "extract:metadata",
+        "nef": "extract:metadata",
+        "dng": "extract:metadata",
+        "arw": "extract:metadata",
+        "orf": "extract:metadata",
+        "raf": "extract:metadata",
+        "rw2": "extract:metadata",
+        "pef": "extract:metadata",
+        "psd": "extract:metadata",
+        "xcf": "extract:metadata",
+        "ico": "extract:metadata",
+        "ai": "extract:metadata",
 
         # Email
         "eml": "extract:email",
@@ -250,6 +264,7 @@ def get_queue_for_type(extension: str) -> str:
         "7z": "extract:archive",
         "tar": "extract:archive",
         "gz": "extract:archive",
+        "exe": "extract:metadata",
     }
 
     return type_to_queue.get(ext, "extract:documents")

@@ -407,6 +407,30 @@ services:
         limits:
           memory: 512M
 
+  # Metadata Extractor (ExifTool für RAW/PSD/EXE/AI/XCF/ICO)
+  metadata-extractor:
+    build:
+      context: ./infra/docker/metadata-extractor
+      dockerfile: Dockerfile
+    image: conductor-metadata-extractor:latest
+    container_name: conductor-metadata-extractor
+    restart: unless-stopped
+    ports:
+      - "8015:8000"
+    volumes:
+      - F:/:/mnt/data:ro
+    networks:
+      - conductor-net
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
   # ===========================================================================
   # DOCUMENT PROCESSOR (EMPFOHLEN - Unified Docling + Surya + GLiNER)
   # ===========================================================================
@@ -689,6 +713,34 @@ services:
       resources:
         limits:
           memory: 1G
+    profiles:
+      - intelligence
+
+  # Metadata (RAW, PSD, EXE, AI, XCF, ICO)
+  worker-metadata:
+    build:
+      context: ./infra/docker/workers
+      dockerfile: Dockerfile
+    image: conductor-extraction-worker:latest
+    restart: unless-stopped
+    volumes:
+      - F:/:/mnt/data:ro
+    networks:
+      - conductor-net
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - METADATA_EXTRACTOR_URL=http://metadata-extractor:8000
+      - WORKER_TYPE=metadata
+      - CONSUMER_GROUP=workers-metadata
+    depends_on:
+      - redis
+      - metadata-extractor
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          memory: 512M
     profiles:
       - intelligence
 

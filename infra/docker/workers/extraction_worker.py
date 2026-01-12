@@ -52,6 +52,7 @@ WHISPERX_URL = os.getenv("WHISPERX_URL", "http://whisperx:9000")
 WHISPER_URL = os.getenv("WHISPER_URL", WHISPERX_URL)  # Backward compat
 WHISPER_FAST_URL = os.getenv("WHISPER_FAST_URL", WHISPERX_URL)
 PARSER_URL = os.getenv("PARSER_URL", "http://parser-service:8000")
+METADATA_EXTRACTOR_URL = os.getenv("METADATA_EXTRACTOR_URL", "http://metadata-extractor:8000")
 
 # Worker Configuration
 WORKER_TYPE = os.getenv("WORKER_TYPE", "documents")
@@ -1154,6 +1155,45 @@ class ArchiveWorker(BaseExtractionWorker):
 
 
 # =============================================================================
+# METADATA WORKER (RAW, PSD, EXE, AI, XCF, ICO)
+# =============================================================================
+
+class MetadataWorker(BaseExtractionWorker):
+    """Extrahiert Metadaten via Exiftool-Service."""
+
+    def __init__(self):
+        super().__init__(
+            input_queue="extract:metadata",
+            output_queue="enrich:ner",
+            dlq="dlq:extract",
+            worker_name=f"metadata-worker-{CONSUMER_NAME}"
+        )
+
+    async def extract(self, job: FileJob, local_path: Path) -> ExtractionResult:
+        with open(local_path, "rb") as f:
+            files = {"file": (job.filename, f)}
+            response = await self.http_client.post(
+                f"{METADATA_EXTRACTOR_URL}/metadata",
+                files=files
+            )
+
+        if response.status_code != 200:
+            raise Exception(f"Metadata extractor error: {response.status_code}")
+
+        metadata = response.json()
+
+        return ExtractionResult(
+            job_id=job.id,
+            file_path=job.path,
+            filename=job.filename,
+            text="",
+            metadata=metadata,
+            extraction_method="exiftool",
+            confidence=1.0
+        )
+
+
+# =============================================================================
 # WORKER FACTORY
 # =============================================================================
 
@@ -1165,7 +1205,8 @@ def create_worker(worker_type: str) -> BaseExtractionWorker:
         "video": VideoWorker,
         "images": ImageWorker,
         "email": EmailWorker,
-        "archive": ArchiveWorker
+        "archive": ArchiveWorker,
+        "metadata": MetadataWorker
     }
 
     if worker_type not in workers:
