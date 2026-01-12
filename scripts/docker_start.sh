@@ -50,7 +50,7 @@ check_env() {
 }
 
 # Core services (minimal)
-CORE_SERVICES="redis meilisearch tika qdrant"
+CORE_SERVICES="redis tika qdrant"
 
 # API services
 API_SERVICES="$CORE_SERVICES conductor-api"
@@ -93,12 +93,6 @@ case "${1:-all}" in
         docker compose ps
         ;;
 
-    "setup-index")
-        log "Konfiguriere Meilisearch Index..."
-        curl -X POST http://localhost:8010/index/setup
-        log "Index konfiguriert"
-        ;;
-
     "all"|"")
         check_env
         log "Starte alle Services..."
@@ -108,7 +102,7 @@ case "${1:-all}" in
         ;;
 
     *)
-        echo "Usage: $0 {api|rebuild|logs|stop|status|setup-index|all}"
+        echo "Usage: $0 {api|rebuild|logs|stop|status|all}"
         exit 1
         ;;
 esac

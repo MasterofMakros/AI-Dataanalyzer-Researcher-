@@ -14,7 +14,7 @@ setlocal enabledelayedexpansion
 
 cd /d "%~dp0\.."
 
-set CORE_SERVICES=redis meilisearch tika qdrant
+set CORE_SERVICES=redis tika qdrant
 set API_SERVICES=%CORE_SERVICES% conductor-api
 
 if "%1"=="" goto all
@@ -24,7 +24,6 @@ if "%1"=="rebuild" goto rebuild
 if "%1"=="logs" goto logs
 if "%1"=="stop" goto stop
 if "%1"=="status" goto status
-if "%1"=="setup-index" goto setup_index
 goto usage
 
 :all
@@ -68,15 +67,8 @@ goto end
 docker compose ps
 goto end
 
-:setup_index
-echo [%time%] Konfiguriere Meilisearch Index...
-curl -X POST http://localhost:8010/index/setup
-echo.
-echo [%time%] Index konfiguriert
-goto end
-
 :usage
-echo Usage: %0 {api^|rebuild^|logs^|stop^|status^|setup-index^|all}
+echo Usage: %0 {api^|rebuild^|logs^|stop^|status^|all}
 goto end
 
 :end

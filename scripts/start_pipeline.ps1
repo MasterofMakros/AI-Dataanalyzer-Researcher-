@@ -124,7 +124,6 @@ function Start-CoreServices {
     docker compose up -d meilisearch tika ollama
     docker compose up -d conductor-api neural-search-api perplexica
 
-    Wait-ForService "http://localhost:7700/health" "Meilisearch" 60
     Wait-ForService "http://localhost:9998" "Tika" 30
     Wait-ForService "http://localhost:8010/health" "Conductor API" 30
     Wait-ForService "http://localhost:8040/health" "Neural Search API" 60
@@ -183,27 +182,6 @@ function Stop-AllServices {
     Write-Header "Stopping All Services"
     docker compose down
     Write-Success "All services stopped"
-}
-
-function Initialize-SearchIndex {
-    Write-Header "Initializing Meilisearch Index"
-
-    Wait-ForService "http://localhost:7700/health" "Meilisearch" 60
-    if ($?) {
-        Write-Host "Configuring index settings..."
-        try {
-            $process = Start-Process -FilePath "python" -ArgumentList "scripts/setup_meilisearch_index.py" -NoNewWindow -PassThru -Wait
-            if ($process.ExitCode -eq 0) {
-                Write-Success "Meilisearch index configured successfully"
-            } else {
-                Write-Error "Failed to configure Meilisearch index (Exit Code: $($process.ExitCode))"
-            }
-        } catch {
-            Write-Error "Failed to run setup script: $_"
-        }
-    } else {
-        Write-Error "Skipping index setup (Meilisearch not ready)"
-    }
 }
 
 function Initialize-RedisStreams {
@@ -279,7 +257,6 @@ elseif ($GPU) {
     $hasGPU = Test-GPU
 
     Start-CoreServices
-    Initialize-SearchIndex
     Start-PipelineServices -UseGPU $hasGPU
     Initialize-RedisStreams
     Start-Workers -Count $Scale
@@ -293,7 +270,6 @@ else {
     $hasGPU = Test-GPU
 
     Start-CoreServices
-    Initialize-SearchIndex
     Start-PipelineServices -UseGPU $hasGPU
     Initialize-RedisStreams
     Start-Workers -Count $Scale

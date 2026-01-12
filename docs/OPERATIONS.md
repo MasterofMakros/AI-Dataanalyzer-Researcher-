@@ -22,7 +22,6 @@ Run the status command in the scripts directory:
 | **API** | `http://localhost:8010` | `/health` |
 | **Neural Search** | `http://localhost:8040` | `/health` |
 | **Vector DB (Qdrant)** | `http://localhost:6335` | `/healthz` |
-| **Search (Meili)** | `http://localhost:7700` | `/health` |
 
 ---
 
@@ -32,7 +31,6 @@ Run the status command in the scripts directory:
 The system state is persisted in Docker Volumes. Critical volumes:
 - `postgres_data` (n8n workflow state)
 - `qdrant_data` (Vector embeddings)
-- `meilisearch_data` (Search index)
 - `conductor_api_data` (Feedback & Config)
 
 ### 2.2 Backup Script
@@ -91,13 +89,6 @@ docker volume prune -f
 1. Verify NVIDIA Drivers are installed.
 2. Verify Docker Desktop has GPU support enabled (WSL2 integration).
 3. Run: `docker run --rm --gpus all nvidia/cuda:11.0-base nvidia-smi`
-
-### Issue: "Meilisearch Key Invalid"
-**Symptoms**: API logs show 401/403 errors connecting to Search.
-**Solution**:
-1. Check `.env` for `MEILI_MASTER_KEY`.
-2. Ensure the key is at least 16 chars.
-3. Restart Meilisearch: `docker compose restart meilisearch`
 
 ---
 

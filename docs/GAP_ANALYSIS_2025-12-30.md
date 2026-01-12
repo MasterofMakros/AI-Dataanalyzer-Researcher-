@@ -15,7 +15,7 @@
 | redis | ✅ | default | Queue/Cache |
 | n8n | ✅ | default | Workflow Engine |
 | qdrant | ✅ | default | Vektor-DB |
-| meilisearch | ✅ | default | Volltext-Suche |
+| meilisearch | ⚠️ | legacy | Volltext-Suche (optional) |
 | tika | ✅ | default | Universal Parser |
 | ollama | ✅ | default | LLM Runtime |
 | whisper | ✅ | legacy | Audio (alt) |
@@ -77,7 +77,7 @@ Differenz: Perplexity zaehlt moeglicherweise doppelt oder inkludiert ein Service
 | **NER/PII Detection** | ✅ | GLiNER |
 | **Embedding** | ✅ | E5-Large Multilingual |
 | **Vector Search** | ✅ | Qdrant |
-| **Fulltext Search** | ✅ | Meilisearch |
+| **Fulltext Search** | ⚠️ | Meilisearch (optional) |
 | **RAG Synthesis** | ✅ | neural-search-api + Ollama |
 | **Pattern-of-Life** | ⚠️ | Basis vorhanden, nicht vollstaendig |
 | **Entity Resolution** | ⚠️ | Grundstruktur, ausbaufaehig |
@@ -146,9 +146,11 @@ Folgende Dateien sind lokal vorhanden, aber nicht im Repository (durch .gitignor
    docker exec conductor-ollama ollama pull llama3.2
    ```
 
-3. **Meilisearch Index erstellen**
+3. **Qdrant Collections anlegen (optional)**
    ```bash
-   python scripts/setup_meilisearch_index.py
+   curl -X PUT http://localhost:6335/collections/documents \
+     -H "Content-Type: application/json" \
+     -d '{"vectors":{"size":1024,"distance":"Cosine"}}'
    ```
 
 ### Spaeter:

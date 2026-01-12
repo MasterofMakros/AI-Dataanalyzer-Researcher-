@@ -85,7 +85,6 @@ infra/docker/
 | Orchestrator | 8020 | Job Management |
 | Universal Router | 8030 | File Routing |
 | Document Processor | 8005 | GPU Processing |
-| Meilisearch | 7700 | Search Index |
 | Redis | 6379 | Queue/Cache |
 | Ollama | 11434 | LLM |
 | Qdrant | 6333 | Vector Store |
@@ -153,8 +152,8 @@ curl -N http://localhost:3100/api/neural-search/stream \
                                                                 │
                                                                 ▼
 ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
-│    UI       │◀───│   Neural    │◀───│ Meilisearch │◀───│  Document   │
-│  Search     │    │  Search API │    │   Index     │    │  Processor  │
+│    UI       │◀───│   Neural    │◀───│   Qdrant    │◀───│  Document   │
+│  Search     │    │  Search API │    │ Vector DB  │    │  Processor  │
 └─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘
        │                  │
        │                  ▼
@@ -178,7 +177,7 @@ curl -N http://localhost:3100/api/neural-search/stream \
 **Problem:** Erste Anfrage dauert 10-30s
 **Lösung:** Ollama vorwärmen mit dummy request
 
-### 2. Meilisearch leer
+### 2. Qdrant leer
 **Problem:** "Keine Ergebnisse" bei erster Nutzung
 **Lösung:** Dokumente indexieren via `/api/index/documents`
 
@@ -206,11 +205,11 @@ curl -N http://localhost:3100/api/neural-search/stream \
    curl http://localhost:3100
    ```
 
-4. **Meilisearch Index erstellen:**
+4. **Qdrant Collections anlegen (optional):**
    ```bash
-   curl -X POST http://localhost:7700/indexes \
+   curl -X PUT http://localhost:6335/collections/documents \
      -H "Content-Type: application/json" \
-     -d '{"uid": "documents"}'
+     -d '{"vectors":{"size":1024,"distance":"Cosine"}}'
    ```
 
 5. **Ollama Model laden:**
