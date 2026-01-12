@@ -159,9 +159,9 @@ start_minimal() {
     docker compose up -d redis
     wait_for_service "http://localhost:6379" "Redis" 10 || true
 
-    docker compose up -d conductor-api mission-control
+    docker compose up -d conductor-api perplexica
     wait_for_service "http://localhost:8010/health" "API" 30
-    wait_for_service "http://localhost:3000/health" "UI" 30
+    wait_for_service "http://localhost:3100" "Perplexica UI" 30
 
     print_success "Minimal services started"
 }
@@ -177,13 +177,13 @@ start_core() {
     docker compose up -d meilisearch tika ollama
 
     # API & Neural Search & UI
-    docker compose up -d conductor-api neural-search-api mission-control
+    docker compose up -d conductor-api neural-search-api perplexica
 
     wait_for_service "http://localhost:7700/health" "Meilisearch" 60
     wait_for_service "http://localhost:9998" "Tika" 30
     wait_for_service "http://localhost:8010/health" "Conductor API" 30
     wait_for_service "http://localhost:8040/health" "Neural Search API" 60
-    wait_for_service "http://localhost:3000/health" "Mission Control" 30
+    wait_for_service "http://localhost:3100" "Perplexica UI" 30
 
     print_success "Core services started"
 }
@@ -249,7 +249,7 @@ show_status() {
         "http://localhost:6379|Redis"
         "http://localhost:8010/health|Conductor API"
         "http://localhost:8040/health|Neural Search API"
-        "http://localhost:3000/health|Mission Control UI"
+        "http://localhost:3100|Perplexica UI"
         "http://localhost:7700/health|Meilisearch"
         "http://localhost:9998|Tika"
         "http://localhost:8005/health|Document Processor"

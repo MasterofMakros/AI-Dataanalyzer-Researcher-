@@ -196,7 +196,7 @@ intake:bulk      - Batch operations
 | extraction-worker | - | Scalable Workers | Active |
 | redis | 6379 | Message Queue | Active |
 | api | 8000 | REST API | Active |
-| ui | 3000 | Mission Control | Active |
+| ui | 3100 | Perplexica | Active |
 | neural-worker | - | Legacy Docling | Profile: legacy |
 | tesseract-ocr | - | Legacy OCR | Profile: legacy |
 | whisper | - | Legacy Whisper | Profile: legacy |

@@ -33,7 +33,7 @@
 | extraction-worker | ✅ | gpu | Queue Worker |
 | conductor-api | ✅ | default | REST API |
 | neural-search-api | ✅ | default | RAG + LLM |
-| mission-control | ✅ | default | Web UI |
+| perplexica | ✅ | default | Web UI |
 | nextcloud | ✅ | default | File Sync |
 | nextcloud-db | ✅ | default | MariaDB |
 
@@ -153,7 +153,7 @@ Folgende Dateien sind lokal vorhanden, aber nicht im Repository (durch .gitignor
 
 ### Spaeter:
 
-4. **Pattern-of-Life Dashboard** in Mission Control integrieren
+4. **Pattern-of-Life Dashboard** in Perplexica integrieren
 5. **Knowledge Graph Visualisierung** hinzufuegen
 6. **Semantische Deduplizierung** mit Embeddings
 

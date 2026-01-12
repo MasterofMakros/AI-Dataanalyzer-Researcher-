@@ -58,7 +58,7 @@ Conductor wurde mit folgenden Sicherheitsprinzipien entwickelt:
 
 ## Best Practices fuer Betreiber
 
-1. **Firewall**: Blockiere externe Zugriffe auf Ports 3000, 3100, 6335, 8010, 8040
+1. **Firewall**: Blockiere externe Zugriffe auf Ports 3100, 6335, 8010, 8040
 2. **Updates**: Halte Docker Images aktuell
 3. **Backups**: Sichere `ledger.db` und `.env` regelmaessig
 4. **Secrets**: Generiere eigene Passwoerter fuer Produktion

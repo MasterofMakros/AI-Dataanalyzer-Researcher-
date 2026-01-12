@@ -18,7 +18,7 @@ Run the status command in the scripts directory:
 ### Critical Endpoints
 | Component | URL | Health Check |
 |-----------|-----|--------------|
-| **Mission Control** | `http://localhost:3000` | `/health` |
+| **Perplexica UI** | `http://localhost:3100` | `/` |
 | **API** | `http://localhost:8010` | `/health` |
 | **Neural Search** | `http://localhost:8040` | `/health` |
 | **Vector DB (Qdrant)** | `http://localhost:6335` | `/healthz` |

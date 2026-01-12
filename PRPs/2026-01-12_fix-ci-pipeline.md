@@ -6,7 +6,7 @@
 - Ensure Backend Tests pass in the CI environment.
 
 ## Context
-- **Current Status:** Backend tests fail in CI (after 13s). Frontend build targets legacy `mission_control_v2`.
+- **Current Status:** Backend tests fail in CI (after 13s). Frontend build targets legacy `ui/perplexica`.
 - **Repo Facts:**
   - Active Frontend: `ui/perplexica` (Next.js)
   - Backend Tests: `tests/` (Python/pytest)
@@ -15,7 +15,7 @@
 ## Requirements (Functional)
 - MUST build `ui/perplexica` successfully.
 - MUST run `pytest tests/` successfully on Ubuntu-latest.
-- SHOULD remove legacy `mission_control_v2` steps from CI if obsolete.
+- SHOULD remove legacy `ui/perplexica` steps from CI if obsolete.
 
 ## Implementation Plan
 1.  **Analyze Dependencies:** Check `requirements.txt` and ensure `pytest` + app dependencies are present.

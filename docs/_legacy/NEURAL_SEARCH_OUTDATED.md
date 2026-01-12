@@ -106,7 +106,7 @@ Neural Search ist eine Perplexity-inspirierte RAG-Suchoberfläche (Retrieval-Aug
 ### Dateistruktur
 
 ```
-mission_control_v2/src/
+ui/perplexica/src/
 ├── components/
 │   ├── neural-search/
 │   │   ├── index.ts                 # Exports
@@ -120,7 +120,7 @@ mission_control_v2/src/
 ├── types/
 │   ├── index.ts
 │   └── neural-search.ts             # TypeScript Interfaces
-└── App.tsx                          # Tab-Navigation
+└── App.tsx                          # Legacy tab navigation (historical)
 ```
 
 ### Komponenten-Details
@@ -494,12 +494,12 @@ neural-search-api:
     - redis
     - ollama
 
-mission-control:
+perplexica:
   build:
-    context: .
-    dockerfile: docker/mission-control/Dockerfile
+    context: ui/perplexica
+    dockerfile: Dockerfile
   ports:
-    - "3000:80"
+    - "3100:3000"
   depends_on:
     - conductor-api
     - neural-search-api

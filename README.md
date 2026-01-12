@@ -82,7 +82,6 @@ Nach dem Start sind folgende Services verfügbar:
 | Service | URL | Beschreibung |
 |---------|-----|--------------|
 | Neural Search (Perplexica) | http://localhost:3100 | Web UI mit Local Search |
-| Mission Control | http://localhost:3000 | Admin Dashboard |
 | Conductor API | http://localhost:8010 | REST API |
 | Neural Search API | http://localhost:8040 | RAG + LLM Backend |
 | Qdrant | http://localhost:6335 | Vektor-Datenbank |
