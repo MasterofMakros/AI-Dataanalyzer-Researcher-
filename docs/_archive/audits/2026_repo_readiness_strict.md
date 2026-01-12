@@ -16,7 +16,7 @@
 *   **Conflicts:** **Minor**. `PROJECT_STATUS.md` "Offene Punkte" section needs manual update to reflect current automation state (evidence: file content mismatch vs implemented script).
 *   **Security:** **Clean**. No hardcoded secrets found in scanned legacy files. `.env.example` is complete.
 *   **Missing:** No `n8n` workflow definition files found in repo (feature "Auto-Ingest" is partial/unverified).
-*   **Warning:** Linting (ESLint) is configured in `mission_control_v2/package.json` but not enforced in a pre-commit hook or root CI configuration.
+*   **Warning:** Linting (ESLint) is configured in `ui/perplexica/package.json` but not enforced in a pre-commit hook or root CI configuration.
 
 ---
 
@@ -24,7 +24,7 @@
 
 | Feature | Status | Implementation Evidence | Verification Result |
 | :--- | :--- | :--- | :--- |
-| **Neural Search UI** | **Implemented** | `mission_control_v2/src/components/neural-search/` | Files exist. `package.json` defines build/lint scripts. |
+| **Neural Search UI** | **Implemented** | `ui/perplexica/` | Files exist. `package.json` defines build/lint scripts. |
 | **RAG Pipeline** | **Implemented** | `docker/neural-search-api/` | Service in `docker-compose.yml`. |
 | **Vector DB** | **Implemented** | `docker-compose.yml` (Qdrant, Meilisearch) | Ports 6335, 7700 open and mapped. |
 | **Local LLM** | **Implemented** | `docker-compose.yml` (Ollama) | Port 11435 mapped. Service present. |

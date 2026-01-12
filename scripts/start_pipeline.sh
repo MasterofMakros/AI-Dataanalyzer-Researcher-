@@ -159,9 +159,9 @@ start_minimal() {
     docker compose up -d redis
     wait_for_service "http://localhost:6379" "Redis" 10 || true
 
-    docker compose up -d conductor-api mission-control
+    docker compose up -d conductor-api perplexica
     wait_for_service "http://localhost:8010/health" "API" 30
-    wait_for_service "http://localhost:3000/health" "UI" 30
+    wait_for_service "http://localhost:3100" "Perplexica UI" 30
 
     print_success "Minimal services started"
 }
@@ -174,16 +174,15 @@ start_core() {
     sleep 2
 
     # Search & Storage & LLM
-    docker compose up -d meilisearch tika ollama
+    docker compose up -d tika ollama
 
     # API & Neural Search & UI
-    docker compose up -d conductor-api neural-search-api mission-control
+    docker compose up -d conductor-api neural-search-api perplexica
 
-    wait_for_service "http://localhost:7700/health" "Meilisearch" 60
     wait_for_service "http://localhost:9998" "Tika" 30
     wait_for_service "http://localhost:8010/health" "Conductor API" 30
     wait_for_service "http://localhost:8040/health" "Neural Search API" 60
-    wait_for_service "http://localhost:3000/health" "Mission Control" 30
+    wait_for_service "http://localhost:3100" "Perplexica UI" 30
 
     print_success "Core services started"
 }
@@ -249,8 +248,7 @@ show_status() {
         "http://localhost:6379|Redis"
         "http://localhost:8010/health|Conductor API"
         "http://localhost:8040/health|Neural Search API"
-        "http://localhost:3000/health|Mission Control UI"
-        "http://localhost:7700/health|Meilisearch"
+        "http://localhost:3100|Perplexica UI"
         "http://localhost:9998|Tika"
         "http://localhost:8005/health|Document Processor"
         "http://localhost:8030/health|Universal Router"
@@ -282,23 +280,6 @@ init_redis_streams() {
     print_success "Redis Streams initialized"
 }
 
-init_search_index() {
-    print_header "Initializing Meilisearch Index"
-
-    wait_for_service "http://localhost:7700/health" "Meilisearch" 60
-    if [ $? -eq 0 ]; then
-        echo "Configuring index settings..."
-        if python3 scripts/setup_meilisearch_index.py; then
-             print_success "Meilisearch index configured successfully"
-        else
-             print_error "Failed to configure Meilisearch index"
-        fi
-    else
-        print_error "Skipping index setup (Meilisearch not ready)"
-    fi
-}
-
-
 init_data() {
     print_header "Initializing Data & Models"
 
@@ -311,30 +292,6 @@ init_data() {
         print_warning "Ollama container not running. Skipping model pull."
     fi
 
-    # 2. Create Meilisearch Index
-    if docker compose ps | grep -q "conductor-meilisearch"; then
-        echo -n "Creating Meilisearch index 'conductor_docs'... "
-        # Get Master Key from .env
-        local meili_key=$(grep MEILI_MASTER_KEY "$PROJECT_ROOT/.env" | cut -d '=' -f2)
-        if [[ -z "$meili_key" ]]; then
-             meili_key="masterKey" # Fallback/Error
-        fi
-        
-        curl -s -X POST "http://localhost:7700/indexes" \
-            -H "Authorization: Bearer $meili_key" \
-            -H "Content-Type: application/json" \
-            --data '{ "uid": "conductor_docs", "primaryKey": "id" }' > /dev/null
-        print_success "Index created"
-        
-        # Update settings (Filterable attributes)
-        curl -s -X PATCH "http://localhost:7700/indexes/conductor_docs/settings" \
-            -H "Authorization: Bearer $meili_key" \
-            -H "Content-Type: application/json" \
-            --data '{ "filterableAttributes": ["file_type", "tags", "created_at"] }' > /dev/null
-        print_success "Index settings updated"
-    else
-         print_warning "Meilisearch container not running. Skipping index creation."
-    fi
 }
 
 # Main

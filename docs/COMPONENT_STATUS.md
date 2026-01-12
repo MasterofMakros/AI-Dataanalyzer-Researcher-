@@ -60,7 +60,7 @@
 
 | Komponente | Status | Version | Ersetzt durch | ADR |
 |------------|--------|---------|---------------|-----|
-| Meilisearch (BM25) | 🟢 ACTIVE | v1.6 | - | [ADR-008](ADR/ADR-008-hybrid-search.md) |
+| Meilisearch (BM25) | 🟠 DEPRECATED | v1.6 | Qdrant | [ADR-008](ADR/ADR-008-hybrid-search.md) |
 | Hybrid Search (BM25+Vektor) | 🟢 ACTIVE | v1.0 | - | [ADR-008](ADR/ADR-008-hybrid-search.md) |
 | Cross-Encoder Reranking | 🔴 REJECTED | - | - | [ADR-015](ADR/ADR-015-search-reranking.md) |
 
@@ -97,7 +97,7 @@
 |------------|--------|---------|---------------|-----|
 | Gradio Search UI | 🟢 ACTIVE | v1.0 | Evidence Board | [ADR-022](ADR/ADR-022-evidence-board-ui.md) |
 | Evidence Board (React) | 🔵 PROPOSED | - | - | [ADR-022](ADR/ADR-022-evidence-board-ui.md) |
-| Mission Control v2 | 🟡 EXPERIMENTAL | v0.1 | - | - |
+| Perplexica UI | 🟢 ACTIVE | v2.x | - | - |
 
 ---
 
@@ -107,7 +107,7 @@
 |---------|--------|--------|---------------|-----|
 | postgres | 🟢 ACTIVE | core | - | - |
 | redis | 🟢 ACTIVE | core | - | - |
-| meilisearch | 🟢 ACTIVE | core | - | - |
+| meilisearch | 🟠 DEPRECATED | legacy | - | - |
 | neural-worker | 🟢 ACTIVE | core | - | - |
 | tika | 🟢 ACTIVE | core | Docling (teilweise) | [ADR-018](ADR/ADR-018-pdf-parsing.md) |
 | n8n | 🟢 ACTIVE | core | - | - |

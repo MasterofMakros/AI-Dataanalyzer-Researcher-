@@ -176,7 +176,7 @@ Zentrale Metadaten-Datenbank für alle Dateien:
 | Track | Fokus | Status |
 | :--- | :--- | :--- |
 | **TRACK-005** | Neural Vault & Smart Ingestion | � Active |
-| **TRACK-004** | Mission Control (React Dashboard) | 🔵 Development |
+| **TRACK-004** | Perplexica UI (Search Frontend) | 🔵 Development |
 | **TRACK-003** | Hybrid RAG (Legacy) | ✅ Merged |
 
 ---

@@ -26,7 +26,7 @@
 | :--- | :--- | :--- | :--- |
 | **Local AI Processing** | **Implemented** | `docker-compose.yml` (services: ollama, document-processor) | Verified service definitions present. |
 | **Multi-Modal Extract** | **Implemented** | `docker/document-processor/` (Docling, Surya, GLiNER) | Docker build context exists. |
-| **Neural Search UI** | **Implemented** | `mission_control_v2/` (React App) | `package.json` found, build script present. |
+| **Neural Search UI** | **Implemented** | `ui/perplexica/` (React App) | `package.json` found, build script present. |
 | **RAG Pipeline** | **Implemented** | `docker/neural-search-api/` | Service defined in compose, depends on Qdrant/Meili. |
 | **Universal Routing** | **Implemented** | `docker/universal-router/router.py` | Service `universal-router` on port 8030. |
 | **CI Automation** | **Implemented** | `.github/workflows/ci.yml` | Workflow file exists and parses correctly. |
@@ -55,7 +55,7 @@
 | **Observability** | **Partial** | Healthchecks implemented for all core services (`curl`, `pg_isready`). Central logging stack (e.g. Loki) missing. |
 | **Security** | **Ready** | Secrets via `.env`. Container isolation. No hardcoded credentials (verified grep). |
 | **Tests** | **Basic** | `tests/dummy_index.csv` present. `pytest` passes. Coverage is shallow (smoke tests). |
-| **UX/Docs** | **Ready** | `README.md` is accurate. `PROJECT_OVERVIEW_2025.md` is detailed. UI on port 3000. |
+| **UX/Docs** | **Ready** | `README.md` is accurate. `PROJECT_OVERVIEW_2025.md` is detailed. UI on port 3100. |
 | **Release** | **Partial** | `CHANGELOG.md` maintained. `release.yml` exists but creates simple tag, no binary artifacts. |
 
 ---

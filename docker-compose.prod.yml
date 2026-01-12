@@ -6,17 +6,6 @@ services:
   # CORE SERVICES (Hardened)
   # ===========================================================================
 
-  mission-control:
-    extends:
-      file: docker-compose.yml
-      service: mission-control
-    environment:
-      - NODE_ENV=production
-    security_opt:
-      - no-new-privileges:true
-    read_only: false # Next.js needs write access to .next/cache
-    restart: always
-
   conductor-api:
     extends:
       file: docker-compose.yml

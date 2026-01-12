@@ -59,14 +59,14 @@ Neural Vault besteht aus **16+ Docker-Containern**, die über ein internes Netzw
 | Service | Image | External Port | Internal Port | Memory | Funktion |
 |:--------|:------|:--------------|:--------------|:-------|:---------|
 | **conductor-api** | conductor-api:latest | 8010 | 8000 | 512M | Zentrale API |
-| **mission-control** | mission-control:latest | 3000 | 80 | 128M | Mission Control UI |
+| **perplexica** | perplexica-neural-vault:latest | 3100 | 3000 | 1G | Perplexica UI |
 | **neural-search** | neural-search-api:latest | 8040 | 8040 | 512M | RAG & LLM API |
 | traefik | traefik:v3.2 | 8888 | 8888 | 128M | Reverse Proxy |
 | postgres | postgres:16-alpine | - | 5432 | 256M | n8n Database |
 | redis | redis:7.4-alpine | 6379 | 6379 | 128M | Cache + State |
 | n8n | n8nio/n8n:latest | 5680 | 5678 | 768M | Workflow Engine |
 | qdrant | qdrant/qdrant:latest | 6335 | 6333 | 1G | Vector DB (GRPC: 6336 -> 6334) |
-| meilisearch | getmeili/meilisearch:latest | 7700 | 7700 | 512M | Fulltext Search |
+| meilisearch | getmeili/meilisearch:latest | 7700 | 7700 | 512M | Fulltext Search (legacy, optional) |
 | ollama | ollama/ollama:latest | 11435 | 11434 | 8G | Local LLM |
 | tika | apache/tika:latest | 9998 | 9998 | 1G | Document Parser |
 | whisperx | conductor-whisperx:latest | 9000 | 9000 | 8G | Audio Transkription |

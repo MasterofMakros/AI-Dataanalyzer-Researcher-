@@ -939,39 +939,6 @@ services:
       - "traefik.http.services.neural.loadbalancer.server.port=8040"
 
   # ===========================================================================
-  # MISSION CONTROL UI (Neural Search Frontend)
-  # ===========================================================================
-
-  mission-control:
-    build:
-      context: .
-      dockerfile: docker/mission-control/Dockerfile
-    image: mission-control:latest
-    container_name: conductor-ui
-    restart: unless-stopped
-    ports:
-      - "3000:80"
-    networks:
-      - conductor-net
-    depends_on:
-      - conductor-api
-      - neural-search-api
-      - universal-router
-    deploy:
-      resources:
-        limits:
-          memory: 128M
-    healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost:80/health"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.ui.rule=Host(`conductor.local`)"
-      - "traefik.http.services.ui.loadbalancer.server.port=80"
-
-  # ===========================================================================
   # NEXTCLOUD (File Sync)
   # ===========================================================================
 
@@ -1050,4 +1017,3 @@ volumes:
   lancedb_data:
   # Conductor API
   conductor_api_data:
-

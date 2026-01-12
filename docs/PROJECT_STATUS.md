@@ -13,7 +13,7 @@
 | Docker Infrastructure | ✅ 100% | 20+ Services in docker-compose.yml |
 | Document Processing Pipeline | ✅ 100% | Universal Router → Orchestrator → Workers |
 | Neural Search API | ✅ 100% | RAG + LLM Synthese mit SSE Streaming |
-| Mission Control UI | ✅ 100% | React Frontend mit 4 Tabs |
+| Perplexica UI | ✅ 100% | Search Frontend |
 | Intelligence Pipeline | ✅ 100% | Priority Scoring, Dual-Path, DLQ |
 | Tiered Workers | ✅ 100% | 4 Worker-Typen (documents, audio, images, video) |
 | Audit Trail | ✅ 100% | Chain of Custody in PostgreSQL |
@@ -36,26 +36,16 @@
 
 ### Frontend (React)
 ```
-mission_control_v2/
-├── src/
-│   ├── App.tsx                          # Haupt-App mit Tab-Navigation
-│   ├── components/
-│   │   ├── neural-search/               # Neural Search UI
-│   │   │   ├── NeuralSearchPage.tsx     # Hauptseite
-│   │   │   ├── SearchProgress.tsx       # 4-Step Animation
-│   │   │   ├── StreamingResponse.tsx    # Antwort + Citations
-│   │   │   ├── SourceCard.tsx           # Multi-Modal Preview
-│   │   │   ├── FollowUpSuggestions.tsx  # Related Questions
-│   │   │   └── PipelineStatusHeader.tsx # Status Bar
-│   │   └── ui/                          # shadcn/ui Components
-│   └── types/
-│       └── neural-search.ts             # TypeScript Interfaces
+ui/perplexica/
+├── src/                                 # App source
+├── public/                              # Static assets
+├── next.config.mjs                      # Next.js config
 └── package.json
 ```
 
 ### Backend (Python)
 ```
-docker/
+infra/docker/
 ├── neural-search-api/
 │   ├── Dockerfile
 │   ├── requirements.txt
@@ -66,13 +56,10 @@ docker/
 │   └── router.py                        # File Routing (8030)
 ├── orchestrator/
 │   └── orchestrator.py                  # Job Management (8020)
-├── document-processor/
-│   ├── Dockerfile                       # GPU Version
-│   ├── Dockerfile.cpu                   # CPU Version
-│   └── main.py                          # Processing (8005)
-└── mission-control/
-    ├── Dockerfile                       # Multi-Stage Build
-    └── nginx.conf                       # Reverse Proxy
+└── document-processor/
+    ├── Dockerfile                       # GPU Version
+    ├── Dockerfile.cpu                   # CPU Version
+    └── main.py                          # Processing (8005)
 ```
 
 ### Konfiguration
@@ -92,13 +79,12 @@ docker/
 
 | Service | Port | Beschreibung |
 |---------|------|--------------|
-| Mission Control UI | 3000 | React Frontend |
+| Perplexica UI | 3100 | Search Frontend |
 | Conductor API | 8010 | Legacy API |
 | Neural Search API | 8040 | RAG + LLM |
 | Orchestrator | 8020 | Job Management |
 | Universal Router | 8030 | File Routing |
 | Document Processor | 8005 | GPU Processing |
-| Meilisearch | 7700 | Search Index |
 | Redis | 6379 | Queue/Cache |
 | Ollama | 11434 | LLM |
 | Qdrant | 6333 | Vector Store |
@@ -137,19 +123,19 @@ cd /path/to/conductor
 
 ### Neural Search (POST /api/neural-search)
 ```bash
-curl -X POST http://localhost:3000/api/neural-search \
+curl -X POST http://localhost:3100/api/neural-search \
   -H "Content-Type: application/json" \
   -d '{"query": "Was weiß ich über meinen Vertrag?", "limit": 8}'
 ```
 
 ### Pipeline Status (GET /api/pipeline/status)
 ```bash
-curl http://localhost:3000/api/pipeline/status
+curl http://localhost:3100/api/pipeline/status
 ```
 
 ### Streaming Search (POST /api/neural-search/stream)
 ```bash
-curl -N http://localhost:3000/api/neural-search/stream \
+curl -N http://localhost:3100/api/neural-search/stream \
   -H "Content-Type: application/json" \
   -d '{"query": "Zeige mir meine Rechnungen"}'
 ```
@@ -166,8 +152,8 @@ curl -N http://localhost:3000/api/neural-search/stream \
                                                                 │
                                                                 ▼
 ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
-│    UI       │◀───│   Neural    │◀───│ Meilisearch │◀───│  Document   │
-│  Search     │    │  Search API │    │   Index     │    │  Processor  │
+│    UI       │◀───│   Neural    │◀───│   Qdrant    │◀───│  Document   │
+│  Search     │    │  Search API │    │ Vector DB  │    │  Processor  │
 └─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘
        │                  │
        │                  ▼
@@ -191,7 +177,7 @@ curl -N http://localhost:3000/api/neural-search/stream \
 **Problem:** Erste Anfrage dauert 10-30s
 **Lösung:** Ollama vorwärmen mit dummy request
 
-### 2. Meilisearch leer
+### 2. Qdrant leer
 **Problem:** "Keine Ergebnisse" bei erster Nutzung
 **Lösung:** Dokumente indexieren via `/api/index/documents`
 
@@ -205,7 +191,7 @@ curl -N http://localhost:3000/api/neural-search/stream \
 
 1. **Docker Build testen:**
    ```bash
-   docker compose build mission-control neural-search-api
+   docker compose build perplexica neural-search-api
    ```
 
 2. **Services starten:**
@@ -216,14 +202,14 @@ curl -N http://localhost:3000/api/neural-search/stream \
 3. **Health Check:**
    ```bash
    curl http://localhost:8040/health
-   curl http://localhost:3000/health
+   curl http://localhost:3100
    ```
 
-4. **Meilisearch Index erstellen:**
+4. **Qdrant Collections anlegen (optional):**
    ```bash
-   curl -X POST http://localhost:7700/indexes \
+   curl -X PUT http://localhost:6335/collections/documents \
      -H "Content-Type: application/json" \
-     -d '{"uid": "documents"}'
+     -d '{"vectors":{"size":1024,"distance":"Cosine"}}'
    ```
 
 5. **Ollama Model laden:**

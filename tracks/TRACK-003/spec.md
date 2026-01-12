@@ -35,7 +35,7 @@ The user has a **Raspberry Pi 4** (Storage/Server) and a **Laptop with RTX 5090 
     6.  **Atomic Upload**: After each chunk, calls Pi's `/append` API.
     7.  **Graceful Shutdown**: On `STOP` command, finishes current sentence, then sleeps.
 
-### 3. "Mission Control" Dashboard (Pi-Hosted, Mobile-First)
+### 3. Perplexica Dashboard (Pi-Hosted, Mobile-First)
 *   **Tech**: Streamlit + Redis + shadcn/ui design principles.
 *   **Access**: Tailscale VPN (`http://100.x.y.z:8501`).
 *   **Authentication**: 4-digit PIN stored in Redis (hashed).

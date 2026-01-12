@@ -12,7 +12,7 @@ Neural Vault is an intelligence-grade document processing system designed for hi
 ```
 +------------------------------------------------------------------+
 |                         CLIENTS                                   |
-|  (Mission Control UI / API Consumers / Automated Pipelines)      |
+|  (Perplexica UI / API Consumers / Automated Pipelines)           |
 +--------------------------------+---------------------------------+
                                  |
                     +------------v------------+
@@ -23,8 +23,8 @@ Neural Vault is an intelligence-grade document processing system designed for hi
          +-----------------------+-----------------------+
          |                       |                       |
 +--------v--------+    +--------v--------+    +--------v--------+
-|   REST API      |    |  Mission Control |    |  Universal      |
-|   (Port 8000)   |    |  UI (Port 3000)  |    |  Router (8030)  |
+|   REST API      |    |  Perplexica UI   |    |  Universal      |
+|   (Port 8000)   |    |  (Port 3100)     |    |  Router (8030)  |
 +-----------------+    +------------------+    +--------+--------+
                                                         |
                                                +--------v--------+
@@ -428,7 +428,7 @@ Neural Search ist eine RAG-basierte Suchoberfläche (Retrieval-Augmented Generat
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                        MISSION CONTROL UI                               │
-│                         (React @ :3000)                                 │
+│                         (React @ :3100)                                 │
 │  ┌─────────────────────────────────────────────────────────────────┐   │
 │  │                    NeuralSearchPage                              │   │
 │  │  ┌─────────────────────────────────────────────────────────────┐│   │
@@ -546,13 +546,13 @@ interface PipelineStatus {
 
 ## Frontend Architecture
 
-### Mission Control UI (Port 3000)
+### Perplexica UI (Port 3100)
 
 **Stack**: React 18 + TypeScript + Tailwind CSS + shadcn/ui
 
 **Struktur**:
 ```
-mission_control_v2/src/
+ui/perplexica/src/
 ├── App.tsx                      # Tab-Navigation (Search/Overview/Jobs/System)
 ├── components/
 │   ├── neural-search/           # Neural Search Komponenten
@@ -613,6 +613,6 @@ mission_control_v2/src/
 ├─────────────────────────────────────────────────────────────────────────┤
 │                           FRONTEND                                       │
 ├─────────────────────────────────────────────────────────────────────────┤
-│  Mission Control     │ React UI + nginx (:3000)                         │
+│  Perplexica UI       │ React UI (:3100)                                 │
 └─────────────────────────────────────────────────────────────────────────┘
 ```

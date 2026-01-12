@@ -263,4 +263,4 @@ Basierend auf beiden KI-Analysen: **Option B (Evidence Board)**
 
 - A/B Framework: [AB_TEST_FRAMEWORK.md](../AB_TEST_FRAMEWORK.md)
 - Search UI: `scripts/search_ui.py`
-- Mission Control: `mission_control_v2/`
+- Perplexica UI: `ui/perplexica/`

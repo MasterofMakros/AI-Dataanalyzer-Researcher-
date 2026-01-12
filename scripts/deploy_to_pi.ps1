@@ -44,7 +44,7 @@ Write-Host "`n🚀 Step 3: Transferring Stack..." -ForegroundColor Yellow
 $dest = "$($Username)@$($Hostname):~/conductor/"
 
 # Copy folders
-scp -r backend_api mission_control docker_stack requirements.txt README_PI.md $dest
+scp -r backend_api ui docker_stack requirements.txt README_PI.md $dest
 
 # Copy docker-compose.yml (Handling path issue)
 if (Test-Path "docker_stack\docker-compose.yml") {
@@ -63,5 +63,5 @@ Write-Host "`n🚀 Step 4: Launching Docker..." -ForegroundColor Yellow
 ssh $Username@$Hostname "cd ~/conductor && sudo docker compose up -d --build"
 
 Write-Host "`n✅ Deployment Complete!" -ForegroundColor Green
-Write-Host "   Dashboard: http://$Hostname:3000"
+Write-Host "   Dashboard: http://$Hostname:3100"
 Write-Host "   API:       http://$Hostname:8000"
