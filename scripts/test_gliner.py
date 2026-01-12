@@ -1,6 +1,5 @@
 
 import time
-from gliner import GLiNER
 
 # German PII Test Data
 TEXT = """
@@ -14,29 +13,36 @@ Projekt: Operation "Roter Adler".
 # Labels we want to zero-shot detect
 LABELS = ["person", "iban", "date", "classification", "project"]
 
-print("🚀 Loading GLiNER Model (urchade/gliner_small-v2.1)...")
-start_load = time.time()
-try:
-    model = GLiNER.from_pretrained("urchade/gliner_small-v2.1")
-except Exception as e:
-    print(f"Failed to load small model, trying base: {e}")
-    model = GLiNER.from_pretrained("urchade/gliner_base")
+def main() -> None:
+    from gliner import GLiNER
 
-print(f"✅ Model Loaded in {time.time() - start_load:.2f}s")
+    print("🚀 Loading GLiNER Model (urchade/gliner_small-v2.1)...")
+    start_load = time.time()
+    try:
+        model = GLiNER.from_pretrained("urchade/gliner_small-v2.1")
+    except Exception as e:
+        print(f"Failed to load small model, trying base: {e}")
+        model = GLiNER.from_pretrained("urchade/gliner_base")
 
-print(f"\n📄 Analyzing Text:\n{TEXT}")
+    print(f"✅ Model Loaded in {time.time() - start_load:.2f}s")
 
-start_pred = time.time()
-entities = model.predict_entities(TEXT, LABELS)
-end_pred = time.time()
+    print(f"\n📄 Analyzing Text:\n{TEXT}")
 
-print(f"\n🎯 Results ({end_pred - start_pred:.4f}s):")
-for entity in entities:
-    print(f"   - [{entity['label'].upper()}] {entity['text']} (Score: {entity['score']:.2f})")
+    start_pred = time.time()
+    entities = model.predict_entities(TEXT, LABELS)
+    end_pred = time.time()
 
-# Verification Logic
-found_labels = [e['label'] for e in entities]
-if "person" in found_labels and "iban" in found_labels:
-    print("\n✅ SUCCESS: Detected Critical PII (Person + IBAN).")
-else:
-    print("\n⚠️ WARNING: Missed some PII.")
+    print(f"\n🎯 Results ({end_pred - start_pred:.4f}s):")
+    for entity in entities:
+        print(f"   - [{entity['label'].upper()}] {entity['text']} (Score: {entity['score']:.2f})")
+
+    # Verification Logic
+    found_labels = [e['label'] for e in entities]
+    if "person" in found_labels and "iban" in found_labels:
+        print("\n✅ SUCCESS: Detected Critical PII (Person + IBAN).")
+    else:
+        print("\n⚠️ WARNING: Missed some PII.")
+
+
+if __name__ == "__main__":
+    main()
