@@ -74,7 +74,7 @@ services:
 
   universal-router:
     build:
-      context: ./docker/universal-router
+      context: ./infra/docker/universal-router
       dockerfile: Dockerfile
     image: conductor-router:latest
     container_name: conductor-router
@@ -106,7 +106,7 @@ services:
 
   orchestrator:
     build:
-      context: ./docker/orchestrator
+      context: ./infra/docker/orchestrator
       dockerfile: Dockerfile
     image: conductor-orchestrator:latest
     container_name: conductor-orchestrator
@@ -136,7 +136,7 @@ services:
 
   worker-documents:
     build:
-      context: ./docker/workers
+      context: ./infra/docker/workers
       dockerfile: Dockerfile
     image: conductor-worker:latest
     <<: *worker-deploy
@@ -162,7 +162,7 @@ services:
 
   worker-audio:
     build:
-      context: ./docker/workers
+      context: ./infra/docker/workers
       dockerfile: Dockerfile
     image: conductor-worker:latest
     <<: *worker-deploy
@@ -189,7 +189,7 @@ services:
 
   worker-video:
     build:
-      context: ./docker/workers
+      context: ./infra/docker/workers
       dockerfile: Dockerfile
     image: conductor-worker:latest
     <<: *worker-deploy
@@ -217,7 +217,7 @@ services:
 
   worker-images:
     build:
-      context: ./docker/workers
+      context: ./infra/docker/workers
       dockerfile: Dockerfile
     image: conductor-worker:latest
     <<: *worker-deploy
@@ -242,7 +242,7 @@ services:
 
   worker-email:
     build:
-      context: ./docker/workers
+      context: ./infra/docker/workers
       dockerfile: Dockerfile
     image: conductor-worker:latest
     <<: *worker-deploy
@@ -268,7 +268,7 @@ services:
 
   worker-archive:
     build:
-      context: ./docker/workers
+      context: ./infra/docker/workers
       dockerfile: Dockerfile
     image: conductor-worker:latest
     <<: *worker-deploy
@@ -393,7 +393,7 @@ services:
 
   parser-service:
     build:
-      context: ./docker/parser-service
+      context: ./infra/docker/parser-service
       dockerfile: Dockerfile
     image: conductor-parser:latest
     container_name: conductor-parser
@@ -469,7 +469,7 @@ services:
 
   conductor-api:
     build:
-      context: ./docker/conductor-api
+      context: ./infra/docker/conductor-api
       dockerfile: Dockerfile
     image: conductor-api:latest
     container_name: conductor-api
@@ -510,7 +510,7 @@ services:
 
   enrich-ner:
     build:
-      context: ./docker/neural-worker
+      context: ./infra/docker/neural-worker
       dockerfile: Dockerfile
     image: conductor-neural-worker:latest
     container_name: conductor-enrich-ner

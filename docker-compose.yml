@@ -260,7 +260,7 @@ services:
   # Für Diarization: HF_TOKEN in .env setzen (huggingface.co Token)
   whisperx:
     build:
-      context: ./docker/whisperx-api
+      context: ./infra/docker/whisperx-api
       dockerfile: Dockerfile
     image: conductor-whisperx:latest
     container_name: conductor-whisperx
@@ -336,7 +336,7 @@ services:
   # Aktivieren mit: USE_SURYA_OCR=true in feature_flags.py
   surya-ocr:
     build:
-      context: ./docker/surya-ocr
+      context: ./infra/docker/surya-ocr
       dockerfile: Dockerfile
     image: conductor-surya-ocr:latest
     container_name: conductor-surya-ocr
@@ -371,7 +371,7 @@ services:
   # Parser Service - Python-basierte Datei-Parser (100% Docker)
   # parser-service:
   #   build:
-  #     context: ./docker/parser-service
+  #     context: ./infra/docker/parser-service
   #     dockerfile: Dockerfile
   #   image: conductor-parser:latest
   #   container_name: conductor-parser
@@ -419,7 +419,7 @@ services:
   # Port: 8005 (gleich wie neural-worker für Kompatibilität)
   document-processor:
     build:
-      context: ./docker/document-processor
+      context: ./infra/docker/document-processor
       dockerfile: Dockerfile
     image: conductor-document-processor:latest
     container_name: conductor-document-processor
@@ -465,7 +465,7 @@ services:
   # Aktivieren mit: docker compose --profile cpu up -d
   document-processor-cpu:
     build:
-      context: ./docker/document-processor
+      context: ./infra/docker/document-processor
       dockerfile: Dockerfile.cpu
     image: conductor-document-processor:cpu
     container_name: conductor-document-processor
@@ -506,7 +506,7 @@ services:
   # Nur für Kompatibilität mit --profile legacy
   neural-worker:
     build:
-      context: ./docker/neural-worker
+      context: ./infra/docker/neural-worker
       dockerfile: Dockerfile
     image: conductor-neural-worker:latest
     container_name: conductor-neural-worker
@@ -542,7 +542,7 @@ services:
   # Port: 8030
   universal-router:
     build:
-      context: ./docker/universal-router
+      context: ./infra/docker/universal-router
       dockerfile: Dockerfile
     image: conductor-universal-router:latest
     container_name: conductor-universal-router
@@ -572,7 +572,7 @@ services:
   # Port: 8020
   orchestrator:
     build:
-      context: ./docker/orchestrator
+      context: ./infra/docker/orchestrator
       dockerfile: Dockerfile
     image: conductor-orchestrator:latest
     container_name: conductor-orchestrator
@@ -607,7 +607,7 @@ services:
   # Documents (PDF, DOCX, XLSX, TXT, HTML)
   worker-documents:
     build:
-      context: ./docker/workers
+      context: ./infra/docker/workers
       dockerfile: Dockerfile
     image: conductor-extraction-worker:latest
     restart: unless-stopped
@@ -637,7 +637,7 @@ services:
   # Audio (MP3, WAV, M4A, FLAC)
   worker-audio:
     build:
-      context: ./docker/workers
+      context: ./infra/docker/workers
       dockerfile: Dockerfile
     image: conductor-extraction-worker:latest
     restart: unless-stopped
@@ -666,7 +666,7 @@ services:
   # Images (JPG, PNG, TIFF) - OCR
   worker-images:
     build:
-      context: ./docker/workers
+      context: ./infra/docker/workers
       dockerfile: Dockerfile
     image: conductor-extraction-worker:latest
     restart: unless-stopped
@@ -695,7 +695,7 @@ services:
   # Video (MP4, MKV, AVI)
   worker-video:
     build:
-      context: ./docker/workers
+      context: ./infra/docker/workers
       dockerfile: Dockerfile
     image: conductor-extraction-worker:latest
     restart: unless-stopped
@@ -724,7 +724,7 @@ services:
   # Email (EML, MSG)
   worker-email:
     build:
-      context: ./docker/workers
+      context: ./infra/docker/workers
       dockerfile: Dockerfile
     image: conductor-extraction-worker:latest
     restart: unless-stopped
@@ -751,7 +751,7 @@ services:
   # Archives (ZIP, RAR, 7Z, TAR.GZ)
   worker-archive:
     build:
-      context: ./docker/workers
+      context: ./infra/docker/workers
       dockerfile: Dockerfile
     image: conductor-extraction-worker:latest
     restart: unless-stopped
@@ -778,7 +778,7 @@ services:
   # Legacy single worker (for backwards compatibility)
   extraction-worker:
     build:
-      context: ./docker/workers
+      context: ./infra/docker/workers
       dockerfile: Dockerfile
     image: conductor-extraction-worker:latest
     restart: unless-stopped
@@ -815,7 +815,7 @@ services:
   # ===========================================================================
   conductor-api:
     build:
-      context: ./docker/conductor-api
+      context: ./infra/docker/conductor-api
       dockerfile: Dockerfile
     image: conductor-api:latest
     container_name: conductor-api
@@ -900,7 +900,7 @@ services:
 
   neural-search-api:
     build:
-      context: ./docker/neural-search-api
+      context: ./infra/docker/neural-search-api
       dockerfile: Dockerfile
     image: neural-search-api:latest
     container_name: conductor-neural-search
