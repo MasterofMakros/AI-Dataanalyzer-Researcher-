@@ -1,42 +1,47 @@
-# PRP: [Feature Name]
+# PRP: <Feature Name>
 
 ## Goal
-- [1-3 sentences describing the 'Definition of Done'.]
-
-## Context
-### Repo Patterns to Follow
-- Ref: `examples/...`
-- Ref: `existing_module/...`
-
-### External Documentation
-- [Relevant API docs, library docs]
-
-## Requirements
-### Functional Requirements
-- [ ] Requirement 1
-- [ ] Requirement 2
-
-### Non-Functional Requirements
-- Performance: ...
-- Security: ...
-
-### Out of Scope
 - ...
 
+## Non-Goals
+- ...
+
+## Current State (Repo Facts)
+- Observed files:
+- Current commands:
+- Constraints:
+
+## Requirements (Functional)
+- MUST ...
+- MUST ...
+- SHOULD ...
+- CAN ...
+
+## Requirements (Non-Functional)
+- Reliability:
+- Performance:
+- Security/privacy (local-first):
+- Operability (logs, health endpoints):
+
 ## Implementation Plan (Step-by-step)
-1.  **Step 1:** [Description]
-    - Files to touch: `path/to/file`
-    - Notes: ...
-2.  **Step 2:** ...
+1) Prime: gather context + confirm assumptions
+2) Implement: small commits, update tests
+3) Validate: run gates, fix failures
+4) Document: update README/docs/ADRs if needed
 
-## Validation Gates (Must Pass)
-- [ ] `docker compose config --quiet`
-- [ ] `./scripts/validate.ps1`
-- [ ] Manual Check: [Specific Scenario]
+## Validation Gates (MUST PASS)
+- `./scripts/validate.ps1`
+- Any extra service checks:
+  - `curl -f http://localhost:8010/health`
+  - `curl -f http://localhost:8020/health`
 
-## Acceptance Criteria
-- [ ] Feature X works as described.
-- [ ] No regression in existing validation.
+## Risks & Rollback
+- Risk:
+- Mitigation:
+- Rollback plan:
 
-## Rollback / Migration Notes
-- How to revert?
+## Definition of Done
+- [ ] All gates pass
+- [ ] Docs updated
+- [ ] No unresolved TODOs
+- [ ] Changes are minimal and reviewed

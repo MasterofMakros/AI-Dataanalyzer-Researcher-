@@ -44,7 +44,7 @@ Conductor ist ein **vollständig lokales** System zur automatischen Organisation
 ```powershell
 # 1. Repository klonen
 git clone https://github.com/MasterofMakros/AI-Dataanalyzer-Researcher-.git
-cd AI-Dataanalyzer-Researcher
+cd AI-Dataanalyzer-Researcher-
 
 # 2. Environment konfigurieren
 Copy-Item .env.example .env

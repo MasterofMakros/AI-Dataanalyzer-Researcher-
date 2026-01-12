@@ -4,16 +4,20 @@ description: "EXECUTE Phase: Implements the approved plan."
 
 # Execute Phase
 
-**Step 1: Check Plan**
-Ensure you have an approved plan in `.agents/plans/`.
+**Step 1: Load Plan**
+Read the approved PRP from `PRPs/<slug>.md`.
 
-**Step 2: Implement**
-- Make code changes strictly following the plan.
-- If you encounter a surprise (`Wait, this architecture is different...`), **STOP**, update the Plan, and ask for re-approval.
+**Step 2: Implementation Cycle**
+For each step in the plan:
+1.  **Code**: distinct, small changes.
+2.  **Verify**: Run `scripts/validate.ps1` (or relevant subset).
+3.  **Commit**: (Conceptual or actual git commit).
 
-**Step 3: Iteration**
-- Use small steps.
-- Create files, run simple tests if possible.
+**Step 3: Pivot?**
+If the plan turns out to be wrong:
+- **STOP**.
+- Update the PRP.
+- Re-request approval.
 
-**Step 4: Completion**
-When implementation is done, proceed immediately to the **Validate** phase.
+**Step 4: Done**
+When all steps are done and Validation Gates pass: proceed to **Validate**.

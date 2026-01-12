@@ -4,15 +4,16 @@ description: "PLAN Phase: Creates a structured Implementation Plan."
 
 # Plan Phase
 
-**Step 1: Create Plan File**
-Create a new file in `.agents/plans/` named `YYYY-MM-DD_<feature-slug>.md`.
-Copy the content from `.agents/plans/_templates/feature-plan.md`.
+**Step 1: Check Input**
+Ensure you have a Feature Request (e.g. `INITIAL.md` or clear instruction).
 
-**Step 2: Fill Definition**
-- **Context:** Why are we doing this?
-- **Proposed Changes:** Which files? Which Docker services?
-- **Verification:** How will we prove it works? (Must include `validate.ps1`).
+**Step 2: Create PRP**
+Run `/generate-prp` (or manually create `PRPs/<slug>.md` from template).
+The Plan MUST include:
+- Files to be modified.
+- Validation Gates to be passed.
+- Rollback strategy.
 
 **Step 3: Review**
-Present the plan to the User.
-**Do NOT proceed to execution until the user approves the plan.**
+Present the PRP to the User.
+**Wait for approval.**
