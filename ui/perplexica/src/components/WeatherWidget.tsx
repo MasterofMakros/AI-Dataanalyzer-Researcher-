@@ -1,5 +1,5 @@
 import { Cloud, Sun, CloudRain, CloudSnow, Wind } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 const WeatherWidget = () => {
   const [data, setData] = useState({
@@ -15,7 +15,13 @@ const WeatherWidget = () => {
 
   const [loading, setLoading] = useState(true);
 
-  const getApproxLocation = async () => {
+  const locationRef = useRef<{
+    latitude: number;
+    longitude: number;
+    city: string;
+  } | null>(null);
+
+  const getApproxLocation = useCallback(async () => {
     const res = await fetch('https://ipwhois.app/json/');
     const data = await res.json();
 
@@ -24,89 +30,152 @@ const WeatherWidget = () => {
       longitude: data.longitude,
       city: data.city,
     };
-  };
+  }, []);
 
-  const getLocation = async (
-    callback: (location: {
-      latitude: number;
-      longitude: number;
-      city: string;
-    }) => void,
-  ) => {
-    if (navigator.geolocation) {
-      const result = await navigator.permissions.query({
-        name: 'geolocation',
-      });
-
-      if (result.state === 'granted') {
-        navigator.geolocation.getCurrentPosition(async (position) => {
-          const res = await fetch(
-            `https://api-bdc.io/data/reverse-geocode-client?latitude=${position.coords.latitude}&longitude=${position.coords.longitude}&localityLanguage=en`,
-            {
-              method: 'GET',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-            },
-          );
-
-          const data = await res.json();
-
-          callback({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-            city: data.locality,
-          });
-        });
-      } else if (result.state === 'prompt') {
-        callback(await getApproxLocation());
-        navigator.geolocation.getCurrentPosition((position) => {});
-      } else if (result.state === 'denied') {
-        callback(await getApproxLocation());
-      }
-    } else {
-      callback(await getApproxLocation());
+  const getLocation = useCallback(async () => {
+    if (!navigator.geolocation) {
+      return getApproxLocation();
     }
-  };
 
-  const updateWeather = async () => {
-    getLocation(async (location) => {
-      const res = await fetch(`/api/weather`, {
-        method: 'POST',
-        body: JSON.stringify({
-          lat: location.latitude,
-          lng: location.longitude,
-          measureUnit: localStorage.getItem('measureUnit') ?? 'Metric',
-        }),
+    const getCurrentPosition = () =>
+      new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject);
       });
+
+    const getReverseGeocode = async (latitude: number, longitude: number) => {
+      const res = await fetch(
+        `https://api-bdc.io/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      );
 
       const data = await res.json();
 
-      if (res.status !== 200) {
-        console.error('Error fetching weather data');
-        setLoading(false);
-        return;
+      return {
+        latitude,
+        longitude,
+        city: data.locality,
+      };
+    };
+
+    try {
+      if (navigator.permissions?.query) {
+        const result = await navigator.permissions.query({
+          name: 'geolocation',
+        });
+
+        if (result.state === 'granted') {
+          const position = await getCurrentPosition();
+          return getReverseGeocode(
+            position.coords.latitude,
+            position.coords.longitude,
+          );
+        }
+        if (result.state === 'prompt') {
+          const approx = await getApproxLocation();
+          navigator.geolocation.getCurrentPosition(() => {});
+          return approx;
+        }
+        if (result.state === 'denied') {
+          return getApproxLocation();
+        }
       }
 
-      setData({
-        temperature: data.temperature,
-        condition: data.condition,
-        location: location.city,
-        humidity: data.humidity,
-        windSpeed: data.windSpeed,
-        icon: data.icon,
-        temperatureUnit: data.temperatureUnit,
-        windSpeedUnit: data.windSpeedUnit,
-      });
-      setLoading(false);
+      const position = await getCurrentPosition();
+      return getReverseGeocode(
+        position.coords.latitude,
+        position.coords.longitude,
+      );
+    } catch (error) {
+      console.error('Failed to resolve location, using approx location.', error);
+      return getApproxLocation();
+    }
+  }, [getApproxLocation]);
+
+  const updateWeather = useCallback(async () => {
+    const location = locationRef.current ?? (await getLocation());
+
+    if (!locationRef.current) {
+      locationRef.current = location;
+    }
+
+    const res = await fetch(`/api/weather`, {
+      method: 'POST',
+      body: JSON.stringify({
+        lat: location.latitude,
+        lng: location.longitude,
+        measureUnit: localStorage.getItem('measureUnit') ?? 'Metric',
+      }),
     });
-  };
+
+    const data = await res.json();
+
+    if (res.status !== 200) {
+      console.error('Error fetching weather data');
+      setLoading(false);
+      return;
+    }
+
+    setData({
+      temperature: data.temperature,
+      condition: data.condition,
+      location: location.city,
+      humidity: data.humidity,
+      windSpeed: data.windSpeed,
+      icon: data.icon,
+      temperatureUnit: data.temperatureUnit,
+      windSpeedUnit: data.windSpeedUnit,
+    });
+    setLoading(false);
+  }, [getLocation]);
 
   useEffect(() => {
-    updateWeather();
-    const intervalId = setInterval(updateWeather, 30 * 1000);
-    return () => clearInterval(intervalId);
-  }, []);
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    let cancelled = false;
+
+    const scheduleNextUpdate = async () => {
+      if (timeoutId) {
+        return;
+      }
+      await updateWeather();
+      if (cancelled) {
+        return;
+      }
+      timeoutId = setTimeout(() => {
+        timeoutId = null;
+        scheduleNextUpdate();
+      }, 60 * 1000);
+    };
+
+    const clearScheduledUpdate = () => {
+      if (!timeoutId) {
+        return;
+      }
+      clearTimeout(timeoutId);
+      timeoutId = null;
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        scheduleNextUpdate();
+      } else {
+        clearScheduledUpdate();
+      }
+    };
+
+    handleVisibilityChange();
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      cancelled = true;
+      clearScheduledUpdate();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [updateWeather]);
 
   return (
     <div className="bg-light-secondary dark:bg-dark-secondary rounded-2xl border border-light-200 dark:border-dark-200 shadow-sm shadow-light-200/10 dark:shadow-black/25 flex flex-row items-center w-full h-24 min-h-[96px] max-h-[96px] px-3 py-2 gap-3">

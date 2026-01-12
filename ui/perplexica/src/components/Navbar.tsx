@@ -1,6 +1,6 @@
 import { Clock, Edit, Share, Trash, FileText, FileDown } from 'lucide-react';
 import { Message } from './ChatWindow';
-import { useEffect, useState, Fragment } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { formatTimeDifference } from '@/lib/utils';
 import DeleteChat from './DeleteChat';
 import {
@@ -219,7 +219,9 @@ const Navbar = () => {
   }, [sections]);
 
   useEffect(() => {
-    const intervalId = setInterval(() => {
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
+    const updateTimeAgo = () => {
       if (sections.length > 0 && sections[0].message) {
         const newTimeAgo = formatTimeDifference(
           new Date(),
@@ -227,11 +229,47 @@ const Navbar = () => {
         );
         setTimeAgo(newTimeAgo);
       }
-    }, 1000);
+    };
 
-    return () => clearInterval(intervalId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    const scheduleNextUpdate = () => {
+      if (timeoutId) {
+        return;
+      }
+      const now = new Date();
+      const msUntilNextMinute =
+        60 * 1000 - (now.getSeconds() * 1000 + now.getMilliseconds());
+      timeoutId = setTimeout(() => {
+        timeoutId = null;
+        updateTimeAgo();
+        scheduleNextUpdate();
+      }, msUntilNextMinute);
+    };
+
+    const clearScheduledUpdate = () => {
+      if (!timeoutId) {
+        return;
+      }
+      clearTimeout(timeoutId);
+      timeoutId = null;
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        updateTimeAgo();
+        scheduleNextUpdate();
+      } else {
+        clearScheduledUpdate();
+      }
+    };
+
+    handleVisibilityChange();
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      clearScheduledUpdate();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [sections]);
 
   return (
     <div className="sticky -mx-4 lg:mx-0 top-0 z-40 bg-light-primary/95 dark:bg-dark-primary/95 backdrop-blur-sm border-b border-light-200/50 dark:border-dark-200/30">
