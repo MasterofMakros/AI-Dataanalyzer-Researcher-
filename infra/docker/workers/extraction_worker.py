@@ -52,6 +52,7 @@ WHISPERX_URL = os.getenv("WHISPERX_URL", "http://whisperx:9000")
 WHISPER_URL = os.getenv("WHISPER_URL", WHISPERX_URL)  # Backward compat
 WHISPER_FAST_URL = os.getenv("WHISPER_FAST_URL", WHISPERX_URL)
 PARSER_URL = os.getenv("PARSER_URL", "http://parser-service:8000")
+SPECIAL_PARSER_URL = os.getenv("SPECIAL_PARSER_URL", "http://special-parser:8015")
 
 # Worker Configuration
 WORKER_TYPE = os.getenv("WORKER_TYPE", "documents")
@@ -1154,6 +1155,79 @@ class ArchiveWorker(BaseExtractionWorker):
 
 
 # =============================================================================
+# SPECIAL PARSER WORKERS (3D, CAD, GIS, Fonts)
+# =============================================================================
+
+class SpecialParserWorker(BaseExtractionWorker):
+    """Verarbeitet Spezialformate via Special Parser Service."""
+
+    def __init__(self, category: str, input_queue: str):
+        self.category = category
+        super().__init__(
+            input_queue=input_queue,
+            output_queue="enrich:ner",
+            dlq="dlq:extract",
+            worker_name=f"special-{category}-worker-{CONSUMER_NAME}"
+        )
+
+    async def extract(self, job: FileJob, local_path: Path) -> ExtractionResult:
+        with open(local_path, "rb") as f:
+            files = {"file": (job.filename, f)}
+            response = await self.http_client.post(
+                f"{SPECIAL_PARSER_URL}/parse",
+                files=files,
+                params={"category": self.category}
+            )
+
+        if response.status_code != 200:
+            raise Exception(f"Special parser error: {response.status_code} {response.text}")
+
+        payload = response.json()
+        derived_text = payload.get("derived_text", "")
+        preview = payload.get("preview", "")
+        text = derived_text or preview
+
+        metadata = payload.get("metadata", {})
+        metadata.update(
+            {
+                "preview": preview,
+                "category": payload.get("category", self.category),
+                "parser": payload.get("parser", "special-parser"),
+            }
+        )
+
+        return ExtractionResult(
+            job_id=job.id,
+            file_path=job.path,
+            filename=job.filename,
+            text=text,
+            metadata=metadata,
+            extraction_method=payload.get("parser", "special-parser"),
+            confidence=payload.get("confidence", 0.6)
+        )
+
+
+class ThreeDWorker(SpecialParserWorker):
+    def __init__(self):
+        super().__init__(category="3d", input_queue="extract:3d")
+
+
+class CadWorker(SpecialParserWorker):
+    def __init__(self):
+        super().__init__(category="cad", input_queue="extract:cad")
+
+
+class GisWorker(SpecialParserWorker):
+    def __init__(self):
+        super().__init__(category="gis", input_queue="extract:gis")
+
+
+class FontsWorker(SpecialParserWorker):
+    def __init__(self):
+        super().__init__(category="fonts", input_queue="extract:fonts")
+
+
+# =============================================================================
 # WORKER FACTORY
 # =============================================================================
 
@@ -1165,7 +1239,11 @@ def create_worker(worker_type: str) -> BaseExtractionWorker:
         "video": VideoWorker,
         "images": ImageWorker,
         "email": EmailWorker,
-        "archive": ArchiveWorker
+        "archive": ArchiveWorker,
+        "3d": ThreeDWorker,
+        "cad": CadWorker,
+        "gis": GisWorker,
+        "fonts": FontsWorker
     }
 
     if worker_type not in workers:

@@ -392,6 +392,28 @@ services:
   #     timeout: 10s
   #     retries: 3
 
+  # Special Parser Service - 3D/CAD/GIS/Fonts
+  special-parser:
+    build:
+      context: ./infra/docker/special-parser
+      dockerfile: Dockerfile
+    image: conductor-special-parser:latest
+    container_name: conductor-special-parser
+    restart: unless-stopped
+    ports:
+      - "8015:8015"
+    networks:
+      - conductor-net
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8015/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
   # 7-Zip - Archive Processing (RAR, 7z, TAR, GZ ohne Entpacken)
   sevenzip:
     image: crazymax/7zip:latest
@@ -772,6 +794,118 @@ services:
       resources:
         limits:
           memory: 512M
+    profiles:
+      - intelligence
+
+  # 3D Models (OBJ, STL, GLTF)
+  worker-3d:
+    build:
+      context: ./infra/docker/workers
+      dockerfile: Dockerfile
+    image: conductor-extraction-worker:latest
+    restart: unless-stopped
+    volumes:
+      - F:/:/mnt/data:ro
+    networks:
+      - conductor-net
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - SPECIAL_PARSER_URL=http://special-parser:8015
+      - WORKER_TYPE=3d
+      - CONSUMER_GROUP=workers-3d
+    depends_on:
+      - redis
+      - special-parser
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: 512M
+    profiles:
+      - intelligence
+
+  # CAD (STEP/IGES/DXF)
+  worker-cad:
+    build:
+      context: ./infra/docker/workers
+      dockerfile: Dockerfile
+    image: conductor-extraction-worker:latest
+    restart: unless-stopped
+    volumes:
+      - F:/:/mnt/data:ro
+    networks:
+      - conductor-net
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - SPECIAL_PARSER_URL=http://special-parser:8015
+      - WORKER_TYPE=cad
+      - CONSUMER_GROUP=workers-cad
+    depends_on:
+      - redis
+      - special-parser
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: 512M
+    profiles:
+      - intelligence
+
+  # GIS (GeoJSON/SHP/KML)
+  worker-gis:
+    build:
+      context: ./infra/docker/workers
+      dockerfile: Dockerfile
+    image: conductor-extraction-worker:latest
+    restart: unless-stopped
+    volumes:
+      - F:/:/mnt/data:ro
+    networks:
+      - conductor-net
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - SPECIAL_PARSER_URL=http://special-parser:8015
+      - WORKER_TYPE=gis
+      - CONSUMER_GROUP=workers-gis
+    depends_on:
+      - redis
+      - special-parser
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: 512M
+    profiles:
+      - intelligence
+
+  # Fonts (TTF/OTF/WOFF)
+  worker-fonts:
+    build:
+      context: ./infra/docker/workers
+      dockerfile: Dockerfile
+    image: conductor-extraction-worker:latest
+    restart: unless-stopped
+    volumes:
+      - F:/:/mnt/data:ro
+    networks:
+      - conductor-net
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - SPECIAL_PARSER_URL=http://special-parser:8015
+      - WORKER_TYPE=fonts
+      - CONSUMER_GROUP=workers-fonts
+    depends_on:
+      - redis
+      - special-parser
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: 256M
     profiles:
       - intelligence
 

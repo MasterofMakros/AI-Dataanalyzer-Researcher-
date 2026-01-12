@@ -304,12 +304,35 @@ PROCESSOR_QUEUES = {
     "iso": "extract:archive",
     "dmg": "extract:archive",
     
+    # 3D Models
+    "obj": "extract:3d",
+    "stl": "extract:3d",
+    "ply": "extract:3d",
+    "glb": "extract:3d",
+    "gltf": "extract:3d",
+    "fbx": "extract:3d",
+
+    # CAD
+    "step": "extract:cad",
+    "stp": "extract:cad",
+    "iges": "extract:cad",
+    "igs": "extract:cad",
+    "dxf": "extract:cad",
+    "dwg": "extract:cad",
+
+    # GIS
+    "geojson": "extract:gis",
+    "shp": "extract:gis",
+    "kml": "extract:gis",
+    "gpx": "extract:gis",
+    "gpkg": "extract:gis",
+
     # Fonts
-    "woff": "extract:documents",
-    "woff2": "extract:documents",
-    "ttf": "extract:documents",
-    "otf": "extract:documents",
-    "eot": "extract:documents",
+    "woff": "extract:fonts",
+    "woff2": "extract:fonts",
+    "ttf": "extract:fonts",
+    "otf": "extract:fonts",
+    "eot": "extract:fonts",
 
     # Torrents
     "torrent": "extract:torrent",
