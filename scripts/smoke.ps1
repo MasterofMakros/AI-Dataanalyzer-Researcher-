@@ -15,7 +15,7 @@ $ErrorActionPreference = "Continue"
 
 # Service endpoints from README
 $endpoints = @(
-    @{ Name = "Mission Control";   URL = "http://localhost:3000";  Expected = 200 },
+    @{ Name = "Perplexica UI";     URL = "http://localhost:3100";  Expected = 200 },
     @{ Name = "Perplexica";        URL = "http://localhost:3100";  Expected = 200 },
     @{ Name = "Conductor API";     URL = "http://localhost:8010/health"; Expected = 200 },
     @{ Name = "Neural Search API"; URL = "http://localhost:8040/health"; Expected = 200 },

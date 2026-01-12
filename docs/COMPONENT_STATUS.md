@@ -97,7 +97,7 @@
 |------------|--------|---------|---------------|-----|
 | Gradio Search UI | 🟢 ACTIVE | v1.0 | Evidence Board | [ADR-022](ADR/ADR-022-evidence-board-ui.md) |
 | Evidence Board (React) | 🔵 PROPOSED | - | - | [ADR-022](ADR/ADR-022-evidence-board-ui.md) |
-| Mission Control v2 | 🟡 EXPERIMENTAL | v0.1 | - | - |
+| Perplexica UI | 🟢 ACTIVE | v2.x | - | - |
 
 ---
 

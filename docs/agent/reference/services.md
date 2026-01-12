@@ -6,7 +6,6 @@ Source of truth for service endpoints. Updated from `docker-compose.yml` and `RE
 
 | Service Name | Docker Service | Internal Port | Host Port | Health URL |
 | :--- | :--- | :--- | :--- | :--- |
-| **Mission Control** | `mission-control` | 80 | **3000** | `http://localhost:3000/health` (via wget) |
 | **Perplexica** | `perplexica` | 3000 | **3100** | `http://localhost:3100` |
 | **Conductor API** | `conductor-api` | 8000 | **8010** | `http://localhost:8010/health` |
 | **Neural API** | `neural-search-api`| 8040 | **8040** | `http://localhost:8040/health` |

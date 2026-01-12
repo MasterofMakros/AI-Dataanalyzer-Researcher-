@@ -10,7 +10,7 @@ You are an AI coding agent working in the Conductor repository. Your job is to i
 - MUST update docs when behavior, ports, commands, or setup changes.
 
 ## Repo Map (high-signal)
-- `ui/perplexica/` — React/TS UI (Neural Search / Mission Control)
+- `ui/perplexica/` — React/TS UI (Neural Search)
 - `docker-compose.yml` — deployment profiles (base/gpu/intelligence)
 - `scripts/` — validation & helper scripts (`validate.ps1`, `doctor.ps1`)
 - `tests/` — test suite (pytest)

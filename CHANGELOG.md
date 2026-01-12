@@ -19,7 +19,7 @@ und [Semantic Versioning](https://semver.org/lang/de/).
 ### In Test (EXPERIMENTAL)
 - `neural-worker` Docker Container mit Docling + GLiNER
 - LanceDB als "Neural Spine" für Archiv-Vektoren
-- Mission Control v2 React Dashboard
+- Perplexica UI integration
 
 ### Deprecated
 - Ollama LLM für Klassifikation (zu langsam)

@@ -30,7 +30,7 @@
         - **Chunked Processing**: 5-min segments via `ffmpeg -ss -t`.
         - **Retry Logic**: 3 retries on network failure.
 
-## Phase 3: Mission Control Dashboard (Pi-Hosted)
+## Phase 3: Perplexica Dashboard (Pi-Hosted)
 - [ ] **Step 3.1**: Streamlit App (`dashboard.py`)
     - *Auth*: PIN entry screen (4-digit, 3 attempts, 5-min lockout).
     - *Components*:

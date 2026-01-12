@@ -15,7 +15,7 @@ NC='\033[0m' # No Color
 
 # Service endpoints from README
 declare -A endpoints=(
-    ["Mission Control"]="http://localhost:3000"
+    ["Perplexica UI"]="http://localhost:3100"
     ["Perplexica"]="http://localhost:3100"
     ["Conductor API"]="http://localhost:8010/health"
     ["Neural Search API"]="http://localhost:8040/health"

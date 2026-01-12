@@ -28,7 +28,7 @@ source venv/bin/activate  # Linux/Mac
 pip install -r requirements.txt
 
 # Frontend-Abhaengigkeiten
-cd mission_control_v2
+cd ui/perplexica
 npm install
 cd ..
 
@@ -60,7 +60,7 @@ black .
 - TypeScript strict mode
 
 ```bash
-cd mission_control_v2
+cd ui/perplexica
 npm run lint
 ```
 
