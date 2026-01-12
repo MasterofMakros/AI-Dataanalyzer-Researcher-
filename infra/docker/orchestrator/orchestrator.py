@@ -53,7 +53,8 @@ QUEUES = {
         "video": "extract:video",
         "images": "extract:images",
         "email": "extract:email",
-        "archive": "extract:archive"
+        "archive": "extract:archive",
+        "databases": "extract:databases"
     },
     "enrich": {
         "ner": "enrich:ner",
@@ -250,6 +251,15 @@ def get_queue_for_type(extension: str) -> str:
         "7z": "extract:archive",
         "tar": "extract:archive",
         "gz": "extract:archive",
+
+        # Databases
+        "mdb": "extract:databases",
+        "accdb": "extract:databases",
+        "dbf": "extract:databases",
+        "sqlite": "extract:databases",
+        "sqlite3": "extract:databases",
+        "db": "extract:databases",
+        "db3": "extract:databases",
     }
 
     return type_to_queue.get(ext, "extract:documents")

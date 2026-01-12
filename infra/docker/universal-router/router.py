@@ -303,6 +303,15 @@ PROCESSOR_QUEUES = {
     "cab": "extract:archive",
     "iso": "extract:archive",
     "dmg": "extract:archive",
+
+    # Databases → extract:databases
+    "mdb": "extract:databases",
+    "accdb": "extract:databases",
+    "dbf": "extract:databases",
+    "sqlite": "extract:databases",
+    "sqlite3": "extract:databases",
+    "db": "extract:databases",
+    "db3": "extract:databases",
     
     # Fonts
     "woff": "extract:documents",

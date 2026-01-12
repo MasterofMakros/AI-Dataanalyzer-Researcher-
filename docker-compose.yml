@@ -392,6 +392,30 @@ services:
   #     timeout: 10s
   #     retries: 3
 
+  # DB Parser Service - MDB/ACCDB/DBF/SQLite
+  # db-parser:
+  #   build:
+  #     context: ./infra/docker/db-parser
+  #     dockerfile: Dockerfile
+  #   image: conductor-db-parser:latest
+  #   container_name: conductor-db-parser
+  #   restart: unless-stopped
+  #   ports:
+  #     - "8010:8010"
+  #   volumes:
+  #     - F:/:/mnt/data:ro
+  #   networks:
+  #     - conductor-net
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         memory: 512M
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:8010/health"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+
   # 7-Zip - Archive Processing (RAR, 7z, TAR, GZ ohne Entpacken)
   sevenzip:
     image: crazymax/7zip:latest
