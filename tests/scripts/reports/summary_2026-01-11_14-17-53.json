@@ -1,0 +1,84 @@
+﻿{
+    "Totals":  {
+                   "Skipped":  22,
+                   "Failed":  5,
+                   "Passed":  11
+               },
+    "Timestamp":  "2026-01-11T14:17:53",
+    "OverallStatus":  "FAIL",
+    "Suites":  [
+                   {
+                       "Passed":  0,
+                       "Name":  "Routing",
+                       "ExitCode":  null,
+                       "Failed":  0,
+                       "Duration":  550,
+                       "Skipped":  0,
+                       "Status":  "SKIP"
+                   },
+                   {
+                       "Passed":  0,
+                       "Name":  "Quality",
+                       "ExitCode":  null,
+                       "Failed":  0,
+                       "Duration":  69,
+                       "Skipped":  11,
+                       "Status":  "SKIP"
+                   },
+                   {
+                       "Passed":  0,
+                       "Name":  "Benchmark",
+                       "Failed":  1,
+                       "Error":  "Die Argumenttransformation für den Parameter \"SampleSize\" kann nicht verarbeitet werden. Der Wert \"-SampleSize\" kann nicht in den Typ \"System.Int32\" konvertiert werden. Fehler: \"Die Eingabezeichenfolge hat das falsche Format.\"",
+                       "Duration":  21,
+                       "Skipped":  0,
+                       "Status":  "ERROR"
+                   },
+                   {
+                       "Passed":  0,
+                       "Name":  "Transcription",
+                       "ExitCode":  0,
+                       "Failed":  0,
+                       "Duration":  324,
+                       "Skipped":  2,
+                       "Status":  "SKIP"
+                   },
+                   {
+                       "Passed":  0,
+                       "Name":  "OCR",
+                       "ExitCode":  0,
+                       "Failed":  0,
+                       "Duration":  165,
+                       "Skipped":  1,
+                       "Status":  "SKIP"
+                   },
+                   {
+                       "Passed":  0,
+                       "Name":  "Archive",
+                       "ExitCode":  0,
+                       "Failed":  0,
+                       "Duration":  218,
+                       "Skipped":  8,
+                       "Status":  "SKIP"
+                   },
+                   {
+                       "Passed":  11,
+                       "Name":  "Error",
+                       "ExitCode":  0,
+                       "Failed":  3,
+                       "Duration":  670,
+                       "Skipped":  0,
+                       "Status":  "FAIL"
+                   },
+                   {
+                       "Passed":  0,
+                       "Name":  "Stress",
+                       "Failed":  1,
+                       "Error":  "Die Argumenttransformation für den Parameter \"ConcurrentFiles\" kann nicht verarbeitet werden. Der Wert \"-ConcurrentFiles\" kann nicht in den Typ \"System.Int32\" konvertiert werden. Fehler: \"Die Eingabezeichenfolge hat das falsche Format.\"",
+                       "Duration":  5,
+                       "Skipped":  0,
+                       "Status":  "ERROR"
+                   }
+               ],
+    "TotalDurationMs":  2064
+}

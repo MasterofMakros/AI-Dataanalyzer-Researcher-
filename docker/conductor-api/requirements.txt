@@ -1,0 +1,21 @@
+# Neural Vault API Service Dependencies
+# =====================================
+
+# Web Framework
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+python-multipart==0.0.18
+
+# HTTP Client
+requests==2.32.3
+httpx==0.28.1
+
+# Database
+redis==5.2.1
+
+# Data Processing
+markdownify==0.14.1
+pydantic==2.10.4
+
+# Utilities
+python-dotenv==1.0.1

@@ -1,0 +1,33 @@
+# Neural Vault Document Processor (CPU Version)
+# =============================================
+# Note: torch is installed separately from CPU index
+
+# Web Framework
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+python-multipart==0.0.18
+
+# Document Processing
+docling>=2.0.0
+
+# OCR (Surya - slower on CPU but still accurate)
+surya-ocr>=0.6.0
+
+# NER/PII Detection (smaller model for CPU)
+gliner>=0.2.0
+
+# Embeddings (smaller model for CPU: e5-base instead of e5-large)
+sentence-transformers>=2.2.0
+
+# Image Processing
+Pillow>=10.0.0
+opencv-python-headless>=4.8.0
+
+# Graph & Vector DB
+rustworkx>=0.14.0
+lancedb>=0.4.0
+pyarrow>=14.0.0
+
+# Utilities
+pydantic>=2.0.0
+numpy>=1.24.0

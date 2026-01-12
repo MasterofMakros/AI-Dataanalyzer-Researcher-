@@ -1,0 +1,91 @@
+=== ANALYSE BERICHT ===
+Total Files: 1107003
+Total Size: 5404.58 GB
+
+TOP 20 EXTENSIONS (BY COUNT):
+.html: 166303
+[no_extension]: 94764
+.torrent: 94568
+.js: 67059
+.eml: 65958
+.jpg: 61086
+.pdf: 35587
+.png: 35007
+.dll: 28884
+.json: 24705
+.ts: 19699
+.manifest: 17626
+.map: 17178
+.tmp: 16102
+.doc: 15077
+.py: 13384
+.txt: 12334
+.xlsx: 11459
+.tif: 11390
+.docx: 10340
+
+TOP 20 EXTENSIONS (BY SIZE MB):
+.rar: 1997886.76 MB
+.mkv: 927357.17 MB
+.mp4: 689567.52 MB
+.tif: 244348.46 MB
+.zip: 158099.00 MB
+.jpg: 135161.42 MB
+.pdf: 130656.31 MB
+.exr: 120928.59 MB
+.7z: 97261.51 MB
+.tx: 93682.24 MB
+.vob: 78100.61 MB
+.iso: 66210.96 MB
+.vmdk: 54346.88 MB
+.arw: 54087.94 MB
+.exe: 50472.91 MB
+.mov: 47510.61 MB
+.pst: 45642.46 MB
+.webm: 44093.51 MB
+.trec: 41505.67 MB
+.part: 40919.03 MB
+
+LARGE FILES (>2GB) - TOP 20:
+freie_energie_free_energy_collection_75_GB.7z (76162.99 MB) - 04 Datenpool Grenzwissenschaften
+The.Matrix.Resurrections.2021.German.TrueHD.Atmos.DL.2160p.UHD.BluRay.DV.HDR.HEVC.Remux.Repack-NIMA4K.mkv (72139.40 MB) - 12 Datenpool Mediathek\Video\Video\Spielfilme\Matrix Resurection\The.Matrix.Resurrections.2021.German.TrueHD.Atmos.DL.2160p.UHD.BluRay.DV.HDR.HEVC.Remux.Repack-NIMA4K
+Die.Tribute.von.Panem.2023.German.AC3.LD.DL.2160p.DV.HDR.UHD.BluRay.x265-THEJUiCE.mkv (32373.25 MB) - 12 Datenpool Mediathek\Video\Video\Spielfilme\Die.Tribute.von.Panem.2023.German.AC3.LD.DL.2160p.DV.HDR.UHD.BluRay.x265-THEJUiCE\Die.Tribute.von.Panem.2023.German.AC3.LD.DL.2160p.DV.HDR.UHD.BluRay.x265-THEJUiCE
+blackarch-linux-full-2023.04.01-x86_64.iso (22495.62 MB) - 11 Datenpool Softwareanwendungen\Linux\blackarch-linux-full-2023 04 01-x86 64
+Dropbox.zip (20893.69 MB) - 99 Datenpool Archiv & Backups\Alte_Backups\Google Cloud
+endstation-bladerunner-2160p.mkv (19205.64 MB) - 12 Datenpool Mediathek\Video\Video\Spielfilme
+endstation-bladerunner-2160p.mkv (19205.64 MB) - _Inbox_Sorting\Rest_of_D\12 Datenpool Mediathek\Video\Video\Spielfilme
+2024-11-23 16-37-41.mp4 (15836.82 MB) - 09 Datenpool Projekte\Wissensaktivierung
+Das_System_Kapitel8_HD_Final.mkv (14388.44 MB) - 99 Datenpool Archiv & Backups\Alte_Backups\Backup\Galaxy Tab 7+\backup\SM-T970\SM-T970_\SM-T970_20250914110917\Video\Download
+Das_System_Kapitel8_HD_Final.mkv (14388.44 MB) - _Inbox_Sorting\Synology_Rest\Datenpool Gesellschaftsaechitektur\Das System\Das System Kapitel8 HD Final
+saviourhd-syriana-vc1.mkv (13911.22 MB) - 12 Datenpool Mediathek\Video\Video\Spielfilme\Syriana.2005.German.DL.1080p.BluRay.VC1-SAViOURHD\Syriana.2005.German.DL.1080p.BluRay.VC1-SAViOURHD
+file000124.mp4 (13560.30 MB) - 12 Datenpool Mediathek\Video\Video\Youtube\Sonstiges
+info@alive-essence.org.pst (12735.69 MB) - 99 Datenpool Archiv & Backups\Alte_Backups\Hans\Admin\Documents\Outlook-Dateien
+2024-11-16 16-11-23.mp4 (11862.78 MB) - 09 Datenpool Projekte\Wissensaktivierung
+Das System Kapitel 9AHD 59fps.mkv (11770.95 MB) - _Inbox_Sorting\Synology_Rest\Datenpool Gesellschaftsaechitektur\Das System\Das System Kapitel 9AHD 59fps
+Screen_Recording_20230519_035445_Chrome.mp4 (11011.82 MB) - _Inbox_Sorting\Synology_Rest\07 Datenpool Persönliche Angelegenheiten\Sonstiges\DCIM\Screen recordings
+hjk-engineering@gmx.ch.pst (10420.86 MB) - 99 Datenpool Archiv & Backups\Alte_Backups\Hans\Admin\Documents\Outlook-Dateien
+Das System 7D HD 59fps.mkv (10262.40 MB) - _Inbox_Sorting\Synology_Rest\Datenpool Gesellschaftsaechitektur\Das System\Das System 7D HD 59fps
+file000138.mp4 (10122.27 MB) - 12 Datenpool Mediathek\Video\Video\Youtube\Sonstiges
+berats-box.7z (9704.09 MB) - 99 Datenpool Archiv & Backups\Alte_Backups\Wiki Leaks\berats-box
+
+RED FL FILES DETECTED (Sample): 13978
+Inhaltsverzeichnis_Die_Pflanze_unsere_Lehrmeisterin.pdf
+Permakultur Naturgarten - Nachhaltig gärtnern nach dem Drei-Zonen-Modell (Markus Gastl) (Z-Library).pdf
+Daily Bio Basics Inhaltsstoffe PI_DE.pdf
+Darmreinigung_Paracleanse_GreenMedley_GoldenMilk.pdf
+Heilen mit Gold_ Kolloidales Gold und weitere Goldarzneien (German Edition).pdf
+Luc Burgin - Der Urzeit Code_ Die okologische Alternative zur Gentechnik, 3. Auflage-Herbig Verlag (2010).pdf
+Verbotene Technologien und die Ausschaltung ihrer Erfinder (1080p_30fps_H264-128kbit_AAC).Deutsch.srt
+Verbotene Technologien und die Ausschaltung ihrer Erfinder (1080p_30fps_H264-128kbit_AAC).mp4
+Verbotene Technologien und die Ausschaltung ihrer Erfinder (192kbit_AAC).m4a
+Verbotene Technologien und die Ausschaltung ihrer Erfinder (Beschreibung).txt
+Verbotene Technologien und die Ausschaltung ihrer Erfinder (BQ).jpg
+Verbotene Technologien und die Ausschaltung ihrer Erfinder (Deutsch_ASR).srt
+Ausbildung_gestalten_Elektroniker_Maschinen_und_Antriebstechnik.pdf
+Manufacturing automation  metal cutting mechanics, machine tool vibrations, and CNC design (Yusuf Altintas.) (z-lib.org).pdf
+Maschinenelemente. Entwerfen, Berechnen und Gestalten im Maschinenbau. Ein Lehr- und Arbeitsbuch Zweiter Band Getriebe (Dr.-Ing. G. Niemann (auth.)) (z-lib.org).pdf
+Roloff Matek Maschinenelemente Normung, Berechnung, Gestaltung - Lehrbuch und Tabellenbuch, 19. Auflage (Herbert Wittel, Dieter Muhs, Dieter Jannasch etc.) (Z-Library).pdf
+Thrust Vector Control - Series A Hold Down (1080p_24fps_H264-128kbit_AAC).mp4
+Thrust Vector Control - Series A Hold Down (128kbit_AAC).m4a
+Thrust Vector Control - Series A Hold Down (Beschreibung).txt
+Thrust Vector Control - Series A Hold Down (BQ).jpg

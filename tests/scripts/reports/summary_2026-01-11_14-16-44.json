@@ -1,0 +1,21 @@
+﻿{
+    "Totals":  {
+                   "Skipped":  0,
+                   "Failed":  0,
+                   "Passed":  0
+               },
+    "Timestamp":  "2026-01-11T14:16:44",
+    "OverallStatus":  "PASS",
+    "Suites":  [
+                   {
+                       "Passed":  0,
+                       "Name":  "Routing",
+                       "ExitCode":  null,
+                       "Failed":  0,
+                       "Duration":  668,
+                       "Skipped":  0,
+                       "Status":  "SKIP"
+                   }
+               ],
+    "TotalDurationMs":  698
+}

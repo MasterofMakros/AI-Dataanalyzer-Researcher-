@@ -1,0 +1,99 @@
+﻿{
+    "timestamp":  "2026-01-11T14:32:49Z",
+    "ai_debugging_hints":  [
+                               {
+                                   "suggestion":  "Run drain_and_index.py to process 1687 pending items",
+                                   "component":  "Queue Processing"
+                               }
+                           ],
+    "schema_version":  "1.0",
+    "recommended_actions":  [
+
+                            ],
+    "architecture":  {
+                         "components_tested":  [
+                                                   "Universal Router",
+                                                   "Tika/Docling Workers",
+                                                   "WhisperX",
+                                                   "Surya OCR",
+                                                   "7zip Worker",
+                                                   "DLQ System"
+                                               ],
+                         "mermaid_diagram":  "graph TB\r\n    subgraph INTAKE\r\n        A[File Upload] --\u003e B[Universal Router]\r\n        B --\u003e C{Format Detection}\r\n    end\r\n\r\n    subgraph QUEUES\r\n        C --\u003e D[extract:documents]\r\n        C --\u003e E[extract:images]\r\n        C --\u003e F[extract:audio]\r\n        C --\u003e G[extract:video]\r\n        C --\u003e H[extract:archive]\r\n        C --\u003e I[extract:email]\r\n    end\r\n\r\n    subgraph WORKERS\r\n        D --\u003e J[Tika/Docling]\r\n        E --\u003e K[Surya OCR]\r\n        F --\u003e L[WhisperX]\r\n        G --\u003e M[FFmpeg + WhisperX]\r\n        H --\u003e N[7zip]\r\n        I --\u003e O[Email Parser]\r\n    end\r\n\r\n    subgraph ENRICHMENT\r\n        J --\u003e P[enrich:ner]\r\n        K --\u003e P\r\n        L --\u003e P\r\n        M --\u003e P\r\n        N --\u003e P\r\n        O --\u003e P\r\n        P --\u003e Q[GLiNER NER]\r\n    end\r\n\r\n    subgraph INDEX\r\n        Q --\u003e R[Meilisearch]\r\n        R --\u003e S[Qdrant Vectors]\r\n    end\r\n\r\n    subgraph SEARCH\r\n        T[Search Query] --\u003e R\r\n        R --\u003e U[Results]\r\n    end\r\n\r\n    style A fill:#4CAF50\r\n    style R fill:#2196F3\r\n    style U fill:#9C27B0"
+                     },
+    "test_results":  [
+                         {
+                             "component":  "Universal Router",
+                             "name":  "Routing",
+                             "passed":  0,
+                             "failed":  0,
+                             "duration_ms":  535,
+                             "skipped":  0,
+                             "status":  "SKIP"
+                         },
+                         {
+                             "component":  "Tika/Docling Workers",
+                             "name":  "Extraction",
+                             "passed":  0,
+                             "failed":  0,
+                             "duration_ms":  234,
+                             "skipped":  0,
+                             "status":  "SKIP"
+                         },
+                         {
+                             "component":  "WhisperX",
+                             "name":  "Transcription",
+                             "passed":  0,
+                             "failed":  0,
+                             "duration_ms":  258,
+                             "skipped":  0,
+                             "status":  "SKIP"
+                         },
+                         {
+                             "component":  "Surya OCR",
+                             "name":  "OCR",
+                             "passed":  0,
+                             "failed":  0,
+                             "duration_ms":  255,
+                             "skipped":  0,
+                             "status":  "SKIP"
+                         },
+                         {
+                             "component":  "7zip Worker",
+                             "name":  "Archive",
+                             "passed":  0,
+                             "failed":  0,
+                             "duration_ms":  208,
+                             "skipped":  0,
+                             "status":  "SKIP"
+                         },
+                         {
+                             "component":  "DLQ System",
+                             "name":  "ErrorHandling",
+                             "passed":  0,
+                             "failed":  0,
+                             "duration_ms":  651,
+                             "skipped":  0,
+                             "status":  "SKIP"
+                         }
+                     ],
+    "execution_summary":  {
+                              "passed":  0,
+                              "failed":  0,
+                              "skipped":  6,
+                              "overall_status":  "PASS",
+                              "total_suites":  6
+                          },
+    "queue_status":  {
+                         "total_pending":  1687,
+                         "queues":  {
+                                        "extract_video":  0,
+                                        "enrich_ner":  342,
+                                        "extract_documents":  235,
+                                        "extract_email":  252,
+                                        "extract_images":  190,
+                                        "extract_audio":  36,
+                                        "extract_archive":  632
+                                    }
+                     }
+}

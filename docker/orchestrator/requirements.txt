@@ -1,0 +1,11 @@
+# Neural Vault Orchestrator Dependencies
+
+# Web Framework
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+
+# Redis (async)
+redis[hiredis]==5.2.1
+
+# Data Validation
+pydantic==2.10.4

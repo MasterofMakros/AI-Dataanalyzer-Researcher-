@@ -1,0 +1,47 @@
+﻿graph TB
+    subgraph INTAKE
+        A[File Upload] --> B[Universal Router]
+        B --> C{Format Detection}
+    end
+
+    subgraph QUEUES
+        C --> D[extract:documents]
+        C --> E[extract:images]
+        C --> F[extract:audio]
+        C --> G[extract:video]
+        C --> H[extract:archive]
+        C --> I[extract:email]
+    end
+
+    subgraph WORKERS
+        D --> J[Tika/Docling]
+        E --> K[Surya OCR]
+        F --> L[WhisperX]
+        G --> M[FFmpeg + WhisperX]
+        H --> N[7zip]
+        I --> O[Email Parser]
+    end
+
+    subgraph ENRICHMENT
+        J --> P[enrich:ner]
+        K --> P
+        L --> P
+        M --> P
+        N --> P
+        O --> P
+        P --> Q[GLiNER NER]
+    end
+
+    subgraph INDEX
+        Q --> R[Meilisearch]
+        R --> S[Qdrant Vectors]
+    end
+
+    subgraph SEARCH
+        T[Search Query] --> R
+        R --> U[Results]
+    end
+
+    style A fill:#4CAF50
+    style R fill:#2196F3
+    style U fill:#9C27B0

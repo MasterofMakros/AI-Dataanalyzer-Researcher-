@@ -1,0 +1,10 @@
+﻿Testdokument 3: Tabelle als Text
+================================
+
+| Name          | Abteilung     | Gehalt     |
+|---------------|---------------|------------|
+| Anna Schmidt  | Entwicklung   | 65.000 EUR |
+| Ben MÃ¼ller    | Marketing     | 55.000 EUR |
+| Clara Weber   | Vertrieb      | 60.000 EUR |
+
+Durchschnitt: 60.000 EUR

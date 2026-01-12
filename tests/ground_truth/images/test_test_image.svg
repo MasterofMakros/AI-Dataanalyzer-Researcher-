@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+  <title>Neural Vault Test SVG - CONDUCTOR_SVG_TEST_11111</title>
+  <rect x="10" y="10" width="180" height="180" fill="#4a90d9" rx="20"/>
+  <text x="100" y="100" text-anchor="middle" fill="white" font-size="20">Test SVG</text>
+  <text x="100" y="130" text-anchor="middle" fill="white" font-size="12">Format Verification</text>
+</svg>

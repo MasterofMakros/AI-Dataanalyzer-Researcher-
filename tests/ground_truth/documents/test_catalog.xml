@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<catalog>
+    <product id="P001">
+        <name>Laptop Pro 15</name>
+        <category>Elektronik</category>
+        <price currency="EUR">1299.99</price>
+        <stock>42</stock>
+        <description>Leistungsstarker Laptop fÃ¼r Profis</description>
+    </product>
+    <product id="P002">
+        <name>Wireless Mouse</name>
+        <category>ZubehÃ¶r</category>
+        <price currency="EUR">29.99</price>
+        <stock>156</stock>
+        <description>Ergonomische kabellose Maus</description>
+    </product>
+    <product id="P003">
+        <name>USB-C Hub</name>
+        <category>ZubehÃ¶r</category>
+        <price currency="EUR">49.99</price>
+        <stock>78</stock>
+        <description>7-in-1 USB-C Docking Station</description>
+    </product>
+</catalog>

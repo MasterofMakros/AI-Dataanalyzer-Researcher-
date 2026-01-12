@@ -1,0 +1,472 @@
+﻿{
+    "Configuration":  {
+                          "WaitSeconds":  15,
+                          "SampleSize":  2
+                      },
+    "Timestamp":  "2026-01-11T14:30:41",
+    "Categories":  {
+                       "archive":  {
+                                       "SuccessfulSubmissions":  10,
+                                       "Processor":  "7zip",
+                                       "Extensions":  {
+                                                          "zip":  {
+                                                                      "FilesFound":  2,
+                                                                      "Failed":  0,
+                                                                      "AverageLatencyMs":  2,
+                                                                      "Submitted":  2,
+                                                                      "Latencies":  [
+                                                                                        2,
+                                                                                        2
+                                                                                    ]
+                                                                  },
+                                                          "rar":  {
+                                                                      "FilesFound":  2,
+                                                                      "Failed":  0,
+                                                                      "AverageLatencyMs":  1.5,
+                                                                      "Submitted":  2,
+                                                                      "Latencies":  [
+                                                                                        2,
+                                                                                        1
+                                                                                    ]
+                                                                  },
+                                                          "7z":  {
+                                                                     "FilesFound":  2,
+                                                                     "Failed":  0,
+                                                                     "AverageLatencyMs":  1.5,
+                                                                     "Submitted":  2,
+                                                                     "Latencies":  [
+                                                                                       2,
+                                                                                       1
+                                                                                   ]
+                                                                 },
+                                                          "tar":  {
+                                                                      "FilesFound":  2,
+                                                                      "Failed":  0,
+                                                                      "AverageLatencyMs":  1,
+                                                                      "Submitted":  2,
+                                                                      "Latencies":  [
+                                                                                        1,
+                                                                                        1
+                                                                                    ]
+                                                                  },
+                                                          "gz":  {
+                                                                     "FilesFound":  2,
+                                                                     "Failed":  0,
+                                                                     "AverageLatencyMs":  1.5,
+                                                                     "Submitted":  2,
+                                                                     "Latencies":  [
+                                                                                       2,
+                                                                                       1
+                                                                                   ]
+                                                                 }
+                                                      },
+                                       "FailedSubmissions":  0,
+                                       "AverageLatencyMs":  1.5,
+                                       "TotalFiles":  10
+                                   },
+                       "documents":  {
+                                         "SuccessfulSubmissions":  16,
+                                         "Processor":  "Tika/Docling",
+                                         "Extensions":  {
+                                                            "md":  {
+                                                                       "FilesFound":  2,
+                                                                       "Failed":  0,
+                                                                       "AverageLatencyMs":  2,
+                                                                       "Submitted":  2,
+                                                                       "Latencies":  [
+                                                                                         2,
+                                                                                         2
+                                                                                     ]
+                                                                   },
+                                                            "pdf":  {
+                                                                        "FilesFound":  2,
+                                                                        "Failed":  0,
+                                                                        "AverageLatencyMs":  1.5,
+                                                                        "Submitted":  2,
+                                                                        "Latencies":  [
+                                                                                          2,
+                                                                                          1
+                                                                                      ]
+                                                                    },
+                                                            "csv":  {
+                                                                        "FilesFound":  2,
+                                                                        "Failed":  0,
+                                                                        "AverageLatencyMs":  1.5,
+                                                                        "Submitted":  2,
+                                                                        "Latencies":  [
+                                                                                          2,
+                                                                                          1
+                                                                                      ]
+                                                                    },
+                                                            "txt":  {
+                                                                        "FilesFound":  2,
+                                                                        "Failed":  0,
+                                                                        "AverageLatencyMs":  3,
+                                                                        "Submitted":  2,
+                                                                        "Latencies":  [
+                                                                                          3,
+                                                                                          3
+                                                                                      ]
+                                                                    },
+                                                            "json":  {
+                                                                         "FilesFound":  2,
+                                                                         "Failed":  0,
+                                                                         "AverageLatencyMs":  2,
+                                                                         "Submitted":  2,
+                                                                         "Latencies":  [
+                                                                                           2,
+                                                                                           2
+                                                                                       ]
+                                                                     },
+                                                            "html":  {
+                                                                         "FilesFound":  2,
+                                                                         "Failed":  0,
+                                                                         "AverageLatencyMs":  2.5,
+                                                                         "Submitted":  2,
+                                                                         "Latencies":  [
+                                                                                           2,
+                                                                                           3
+                                                                                       ]
+                                                                     },
+                                                            "xlsx":  {
+                                                                         "FilesFound":  2,
+                                                                         "Failed":  0,
+                                                                         "AverageLatencyMs":  2,
+                                                                         "Submitted":  2,
+                                                                         "Latencies":  [
+                                                                                           2,
+                                                                                           2
+                                                                                       ]
+                                                                     },
+                                                            "docx":  {
+                                                                         "FilesFound":  2,
+                                                                         "Failed":  0,
+                                                                         "AverageLatencyMs":  1.5,
+                                                                         "Submitted":  2,
+                                                                         "Latencies":  [
+                                                                                           2,
+                                                                                           1
+                                                                                       ]
+                                                                     }
+                                                        },
+                                         "FailedSubmissions":  0,
+                                         "AverageLatencyMs":  2,
+                                         "TotalFiles":  16
+                                     },
+                       "audio":  {
+                                     "SuccessfulSubmissions":  10,
+                                     "Processor":  "WhisperX",
+                                     "Extensions":  {
+                                                        "m4a":  {
+                                                                    "FilesFound":  2,
+                                                                    "Failed":  0,
+                                                                    "AverageLatencyMs":  1,
+                                                                    "Submitted":  2,
+                                                                    "Latencies":  [
+                                                                                      1,
+                                                                                      1
+                                                                                  ]
+                                                                },
+                                                        "mp3":  {
+                                                                    "FilesFound":  2,
+                                                                    "Failed":  0,
+                                                                    "AverageLatencyMs":  1.5,
+                                                                    "Submitted":  2,
+                                                                    "Latencies":  [
+                                                                                      2,
+                                                                                      1
+                                                                                  ]
+                                                                },
+                                                        "ogg":  {
+                                                                    "FilesFound":  2,
+                                                                    "Failed":  0,
+                                                                    "AverageLatencyMs":  1.5,
+                                                                    "Submitted":  2,
+                                                                    "Latencies":  [
+                                                                                      2,
+                                                                                      1
+                                                                                  ]
+                                                                },
+                                                        "wav":  {
+                                                                    "FilesFound":  2,
+                                                                    "Failed":  0,
+                                                                    "AverageLatencyMs":  1.5,
+                                                                    "Submitted":  2,
+                                                                    "Latencies":  [
+                                                                                      2,
+                                                                                      1
+                                                                                  ]
+                                                                },
+                                                        "flac":  {
+                                                                     "FilesFound":  2,
+                                                                     "Failed":  0,
+                                                                     "AverageLatencyMs":  1.5,
+                                                                     "Submitted":  2,
+                                                                     "Latencies":  [
+                                                                                       2,
+                                                                                       1
+                                                                                   ]
+                                                                 }
+                                                    },
+                                     "FailedSubmissions":  0,
+                                     "AverageLatencyMs":  1.4,
+                                     "TotalFiles":  10
+                                 },
+                       "video":  {
+                                     "SuccessfulSubmissions":  10,
+                                     "Processor":  "FFmpeg + WhisperX",
+                                     "Extensions":  {
+                                                        "webm":  {
+                                                                     "FilesFound":  2,
+                                                                     "Failed":  0,
+                                                                     "AverageLatencyMs":  2,
+                                                                     "Submitted":  2,
+                                                                     "Latencies":  [
+                                                                                       2,
+                                                                                       2
+                                                                                   ]
+                                                                 },
+                                                        "mp4":  {
+                                                                    "FilesFound":  2,
+                                                                    "Failed":  0,
+                                                                    "AverageLatencyMs":  3.5,
+                                                                    "Submitted":  2,
+                                                                    "Latencies":  [
+                                                                                      2,
+                                                                                      5
+                                                                                  ]
+                                                                },
+                                                        "avi":  {
+                                                                    "FilesFound":  2,
+                                                                    "Failed":  0,
+                                                                    "AverageLatencyMs":  2.5,
+                                                                    "Submitted":  2,
+                                                                    "Latencies":  [
+                                                                                      3,
+                                                                                      2
+                                                                                  ]
+                                                                },
+                                                        "mov":  {
+                                                                    "FilesFound":  2,
+                                                                    "Failed":  0,
+                                                                    "AverageLatencyMs":  2,
+                                                                    "Submitted":  2,
+                                                                    "Latencies":  [
+                                                                                      2,
+                                                                                      2
+                                                                                  ]
+                                                                },
+                                                        "mkv":  {
+                                                                    "FilesFound":  2,
+                                                                    "Failed":  0,
+                                                                    "AverageLatencyMs":  7.5,
+                                                                    "Submitted":  2,
+                                                                    "Latencies":  [
+                                                                                      3,
+                                                                                      12
+                                                                                  ]
+                                                                }
+                                                    },
+                                     "FailedSubmissions":  0,
+                                     "AverageLatencyMs":  3.5,
+                                     "TotalFiles":  10
+                                 },
+                       "images":  {
+                                      "SuccessfulSubmissions":  12,
+                                      "Processor":  "Surya OCR",
+                                      "Extensions":  {
+                                                         "gif":  {
+                                                                     "FilesFound":  2,
+                                                                     "Failed":  0,
+                                                                     "AverageLatencyMs":  2,
+                                                                     "Submitted":  2,
+                                                                     "Latencies":  [
+                                                                                       2,
+                                                                                       2
+                                                                                   ]
+                                                                 },
+                                                         "jpg":  {
+                                                                     "FilesFound":  2,
+                                                                     "Failed":  0,
+                                                                     "AverageLatencyMs":  2,
+                                                                     "Submitted":  2,
+                                                                     "Latencies":  [
+                                                                                       2,
+                                                                                       2
+                                                                                   ]
+                                                                 },
+                                                         "png":  {
+                                                                     "FilesFound":  2,
+                                                                     "Failed":  0,
+                                                                     "AverageLatencyMs":  2.5,
+                                                                     "Submitted":  2,
+                                                                     "Latencies":  [
+                                                                                       3,
+                                                                                       2
+                                                                                   ]
+                                                                 },
+                                                         "tiff":  {
+                                                                      "FilesFound":  2,
+                                                                      "Failed":  0,
+                                                                      "AverageLatencyMs":  1.5,
+                                                                      "Submitted":  2,
+                                                                      "Latencies":  [
+                                                                                        2,
+                                                                                        1
+                                                                                    ]
+                                                                  },
+                                                         "webp":  {
+                                                                      "FilesFound":  2,
+                                                                      "Failed":  0,
+                                                                      "AverageLatencyMs":  2,
+                                                                      "Submitted":  2,
+                                                                      "Latencies":  [
+                                                                                        2,
+                                                                                        2
+                                                                                    ]
+                                                                  },
+                                                         "bmp":  {
+                                                                     "FilesFound":  2,
+                                                                     "Failed":  0,
+                                                                     "AverageLatencyMs":  2,
+                                                                     "Submitted":  2,
+                                                                     "Latencies":  [
+                                                                                       2,
+                                                                                       2
+                                                                                   ]
+                                                                 }
+                                                     },
+                                      "FailedSubmissions":  0,
+                                      "AverageLatencyMs":  2,
+                                      "TotalFiles":  12
+                                  },
+                       "code":  {
+                                    "SuccessfulSubmissions":  16,
+                                    "Processor":  "Text Extraction",
+                                    "Extensions":  {
+                                                       "sql":  {
+                                                                   "FilesFound":  2,
+                                                                   "Failed":  0,
+                                                                   "AverageLatencyMs":  1.5,
+                                                                   "Submitted":  2,
+                                                                   "Latencies":  [
+                                                                                     2,
+                                                                                     1
+                                                                                 ]
+                                                               },
+                                                       "java":  {
+                                                                    "FilesFound":  2,
+                                                                    "Failed":  0,
+                                                                    "AverageLatencyMs":  2,
+                                                                    "Submitted":  2,
+                                                                    "Latencies":  [
+                                                                                      2,
+                                                                                      2
+                                                                                  ]
+                                                                },
+                                                       "js":  {
+                                                                  "FilesFound":  2,
+                                                                  "Failed":  0,
+                                                                  "AverageLatencyMs":  1,
+                                                                  "Submitted":  2,
+                                                                  "Latencies":  [
+                                                                                    1,
+                                                                                    1
+                                                                                ]
+                                                              },
+                                                       "ts":  {
+                                                                  "FilesFound":  2,
+                                                                  "Failed":  0,
+                                                                  "AverageLatencyMs":  1.5,
+                                                                  "Submitted":  2,
+                                                                  "Latencies":  [
+                                                                                    2,
+                                                                                    1
+                                                                                ]
+                                                              },
+                                                       "sh":  {
+                                                                  "FilesFound":  2,
+                                                                  "Failed":  0,
+                                                                  "AverageLatencyMs":  1.5,
+                                                                  "Submitted":  2,
+                                                                  "Latencies":  [
+                                                                                    2,
+                                                                                    1
+                                                                                ]
+                                                              },
+                                                       "rs":  {
+                                                                  "FilesFound":  2,
+                                                                  "Failed":  0,
+                                                                  "AverageLatencyMs":  1.5,
+                                                                  "Submitted":  2,
+                                                                  "Latencies":  [
+                                                                                    2,
+                                                                                    1
+                                                                                ]
+                                                              },
+                                                       "py":  {
+                                                                  "FilesFound":  2,
+                                                                  "Failed":  0,
+                                                                  "AverageLatencyMs":  1.5,
+                                                                  "Submitted":  2,
+                                                                  "Latencies":  [
+                                                                                    1,
+                                                                                    2
+                                                                                ]
+                                                              },
+                                                       "go":  {
+                                                                  "FilesFound":  2,
+                                                                  "Failed":  0,
+                                                                  "AverageLatencyMs":  1.5,
+                                                                  "Submitted":  2,
+                                                                  "Latencies":  [
+                                                                                    2,
+                                                                                    1
+                                                                                ]
+                                                              }
+                                                   },
+                                    "FailedSubmissions":  0,
+                                    "AverageLatencyMs":  1.5,
+                                    "TotalFiles":  16
+                                },
+                       "email":  {
+                                     "SuccessfulSubmissions":  4,
+                                     "Processor":  "Email Parser",
+                                     "Extensions":  {
+                                                        "msg":  {
+                                                                    "FilesFound":  2,
+                                                                    "Failed":  0,
+                                                                    "AverageLatencyMs":  2,
+                                                                    "Submitted":  2,
+                                                                    "Latencies":  [
+                                                                                      3,
+                                                                                      1
+                                                                                  ]
+                                                                },
+                                                        "eml":  {
+                                                                    "FilesFound":  2,
+                                                                    "Failed":  0,
+                                                                    "AverageLatencyMs":  4,
+                                                                    "Submitted":  2,
+                                                                    "Latencies":  [
+                                                                                      6,
+                                                                                      2
+                                                                                  ]
+                                                                }
+                                                    },
+                                     "FailedSubmissions":  0,
+                                     "AverageLatencyMs":  3,
+                                     "TotalFiles":  4
+                                 }
+                   },
+    "Summary":  {
+                    "TotalProcessingTimeMs":  0,
+                    "TotalSuccessful":  78,
+                    "AverageLatencyMs":  2,
+                    "ElapsedSeconds":  15,
+                    "TotalFilesSubmitted":  78,
+                    "ThroughputPerMinute":  272,
+                    "DocumentsIndexed":  68,
+                    "TotalFailed":  0
+                }
+}

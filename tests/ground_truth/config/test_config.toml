@@ -1,0 +1,24 @@
+﻿# TOML Konfiguration Testdatei
+[package]
+name = "my-project"
+version = "1.0.0"
+authors = ["Max Mustermann <max@example.com>"]
+
+[dependencies]
+serde = "1.0"
+tokio = { version = "1.0", features = ["full"] }
+
+[database]
+host = "localhost"
+port = 5432
+name = "production"
+
+[[servers]]
+name = "primary"
+ip = "192.168.1.1"
+port = 8080
+
+[[servers]]
+name = "secondary"
+ip = "192.168.1.2"
+port = 8081

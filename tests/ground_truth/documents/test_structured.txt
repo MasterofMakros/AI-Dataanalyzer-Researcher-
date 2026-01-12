@@ -1,0 +1,20 @@
+﻿Testdokument 2: Strukturierter Text
+===================================
+
+Kapitel 1: Einleitung
+---------------------
+Dies ist die Einleitung zum Dokument.
+
+Kapitel 2: Hauptteil
+--------------------
+Der Hauptteil enthÃ¤lt wichtige Informationen.
+
+2.1 Unterabschnitt A
+Die Details zum ersten Thema.
+
+2.2 Unterabschnitt B
+Die Details zum zweiten Thema.
+
+Kapitel 3: Zusammenfassung
+--------------------------
+Hier steht die Zusammenfassung.

@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Neural Vault Test Suite" tests="38" failures="5" skipped="22" time="2.116">
+  <testsuite name="Routing" tests="0" failures="0" skipped="0" time="0.642">
+    <testcase name="Routing" classname="NeuralVault.Routing" time="0.642">
+      <skipped/>
+    </testcase>
+  </testsuite>
+  <testsuite name="Quality" tests="11" failures="0" skipped="11" time="0.062">
+    <testcase name="Quality" classname="NeuralVault.Quality" time="0.062">
+      <skipped/>
+    </testcase>
+  </testsuite>
+  <testsuite name="Benchmark" tests="1" failures="1" skipped="0" time="0.015">
+    <testcase name="Benchmark" classname="NeuralVault.Benchmark" time="0.015">
+      <failure message="Die Argumenttransformation für den Parameter "SampleSize" kann nicht verarbeitet werden. Der Wert "-SampleSize" kann nicht in den Typ "System.Int32" konvertiert werden. Fehler: "Die Eingabezeichenfolge hat das falsche Format."">Die Argumenttransformation für den Parameter "SampleSize" kann nicht verarbeitet werden. Der Wert "-SampleSize" kann nicht in den Typ "System.Int32" konvertiert werden. Fehler: "Die Eingabezeichenfolge hat das falsche Format."</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="Transcription" tests="2" failures="0" skipped="2" time="0.307">
+    <testcase name="Transcription" classname="NeuralVault.Transcription" time="0.307">
+      <skipped/>
+    </testcase>
+  </testsuite>
+  <testsuite name="OCR" tests="1" failures="0" skipped="1" time="0.181">
+    <testcase name="OCR" classname="NeuralVault.OCR" time="0.181">
+      <skipped/>
+    </testcase>
+  </testsuite>
+  <testsuite name="Archive" tests="8" failures="0" skipped="8" time="0.219">
+    <testcase name="Archive" classname="NeuralVault.Archive" time="0.219">
+      <skipped/>
+    </testcase>
+  </testsuite>
+  <testsuite name="Error" tests="14" failures="3" skipped="0" time="0.684">
+    <testcase name="Error" classname="NeuralVault.Error" time="0.684">
+      <failure message="Test failed">Test failed</failure>
+    </testcase>
+  </testsuite>
+  <testsuite name="Stress" tests="1" failures="1" skipped="0" time="0.006">
+    <testcase name="Stress" classname="NeuralVault.Stress" time="0.006">
+      <failure message="Die Argumenttransformation für den Parameter "ConcurrentFiles" kann nicht verarbeitet werden. Der Wert "-ConcurrentFiles" kann nicht in den Typ "System.Int32" konvertiert werden. Fehler: "Die Eingabezeichenfolge hat das falsche Format."">Die Argumenttransformation für den Parameter "ConcurrentFiles" kann nicht verarbeitet werden. Der Wert "-ConcurrentFiles" kann nicht in den Typ "System.Int32" konvertiert werden. Fehler: "Die Eingabezeichenfolge hat das falsche Format."</failure>
+    </testcase>
+  </testsuite>
+</testsuites>

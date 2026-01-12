@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Neural Vault Test Suite" tests="0" failures="0" skipped="0" time="0.668">
+  <testsuite name="Routing" tests="0" failures="0" skipped="0" time="0.668">
+    <testcase name="Routing" classname="NeuralVault.Routing" time="0.668">
+      <skipped/>
+    </testcase>
+  </testsuite>
+</testsuites>

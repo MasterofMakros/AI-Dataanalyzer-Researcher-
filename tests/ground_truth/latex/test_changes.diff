@@ -1,0 +1,12 @@
+﻿--- original.py	2024-03-15 10:00:00
++++ modified.py	2024-03-15 11:00:00
+@@ -1,5 +1,6 @@
+ def calculate(a, b):
+-    return a + b
++    """Berechnet die Summe zweier Zahlen."""
++    result = a + b
++    return result
+
+ def main():
+-    print(calculate(1, 2))
++    print(f"Ergebnis: {calculate(1, 2)}")

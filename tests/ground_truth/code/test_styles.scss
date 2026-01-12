@@ -1,0 +1,36 @@
+﻿// SCSS Test File
+\-color: #3498db;
+\-color: #2ecc71;
+\-stack: 'Roboto', sans-serif;
+
+@mixin flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  
+  .header {
+    background: \-color;
+    color: white;
+    padding: 20px;
+    
+    h1 {
+      font-family: \-stack;
+      font-size: 2rem;
+    }
+  }
+  
+  .card {
+    @include flex-center;
+    padding: 15px;
+    border-radius: 8px;
+    
+    &:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+  }
+}

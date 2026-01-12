@@ -1,0 +1,32 @@
+﻿{
+    "company": "TechCorp GmbH",
+    "founded": 2015,
+    "employees": [
+        {
+            "id": 1,
+            "name": "Anna Schmidt",
+            "position": "CEO",
+            "salary": 150000,
+            "department": "Management"
+        },
+        {
+            "id": 2,
+            "name": "Ben MÃ¼ller",
+            "position": "CTO",
+            "salary": 130000,
+            "department": "Technologie"
+        },
+        {
+            "id": 3,
+            "name": "Clara Weber",
+            "position": "CFO",
+            "salary": 125000,
+            "department": "Finanzen"
+        }
+    ],
+    "revenue": {
+        "2022": 5000000,
+        "2023": 7500000,
+        "2024": 10000000
+    }
+}

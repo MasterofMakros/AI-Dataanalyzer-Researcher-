@@ -1,0 +1,12 @@
+﻿Testdokument 1: Einfacher Text
+==============================
+
+Dies ist ein einfaches Textdokument zum Testen der Textextraktion.
+
+Enthaltene Informationen:
+- Name: Max Mustermann
+- Datum: 15. MÃ¤rz 2024
+- Betrag: 1.234,56 EUR
+
+Dieser Text sollte vollstÃ¤ndig extrahiert werden kÃ¶nnen.
+Die Formatierung (ZeilenumbrÃ¼che) sollte erhalten bleiben.

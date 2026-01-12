@@ -1,0 +1,348 @@
+﻿{
+    "version": "2.0.0",
+    "generated": "2026-01-11 12:20:00",
+    "description": "Neural Vault Ground Truth Test Repository - Known content for extraction validation",
+    "coverage": {
+        "total_supported_formats": 127,
+        "formats_with_test_files": 127,
+        "total_test_files": 400,
+        "coverage_percentage": 100.0,
+        "note": "Includes generated dummy files for binary/rare formats"
+    },
+    "categories": {
+        "documents": {
+            "formats": [
+                "pdf",
+                "docx",
+                "xlsx",
+                "pptx",
+                "doc",
+                "xls",
+                "ppt",
+                "odt",
+                "ods",
+                "odp",
+                "rtf",
+                "txt",
+                "html",
+                "xml",
+                "json",
+                "csv",
+                "md"
+            ],
+            "expected_queue": "extract:documents",
+            "test_files_count": 12,
+            "validation_method": "text_extraction"
+        },
+        "code": {
+            "formats": [
+                "py",
+                "js",
+                "ts",
+                "java",
+                "c",
+                "cpp",
+                "go",
+                "rs",
+                "rb",
+                "php",
+                "swift",
+                "kt",
+                "scala",
+                "r",
+                "pl",
+                "hs",
+                "ex",
+                "dart",
+                "vue",
+                "scss",
+                "sh",
+                "sql",
+                "css",
+                "ps1"
+            ],
+            "expected_queue": "extract:documents",
+            "test_files_count": 25,
+            "validation_method": "syntax_preservation"
+        },
+        "config": {
+            "formats": [
+                "yaml",
+                "yml",
+                "toml",
+                "ini",
+                "conf"
+            ],
+            "expected_queue": "extract:documents",
+            "test_files_count": 5,
+            "validation_method": "structure_preservation"
+        },
+        "subtitles": {
+            "formats": [
+                "srt",
+                "vtt",
+                "sub"
+            ],
+            "expected_queue": "extract:documents",
+            "test_files_count": 3,
+            "validation_method": "timestamp_extraction"
+        },
+        "images": {
+            "formats": [
+                "jpg",
+                "jpeg",
+                "png",
+                "gif",
+                "bmp",
+                "tiff",
+                "webp",
+                "heic",
+                "svg",
+                "ico"
+            ],
+            "expected_queue": "extract:images",
+            "test_files_count": 15,
+            "validation_method": "ocr_accuracy"
+        },
+        "audio": {
+            "formats": [
+                "mp3",
+                "wav",
+                "flac",
+                "ogg",
+                "m4a",
+                "aac",
+                "opus",
+                "aiff"
+            ],
+            "expected_queue": "extract:audio",
+            "test_files_count": 10,
+            "validation_method": "transcription_wer"
+        },
+        "video": {
+            "formats": [
+                "mp4",
+                "mkv",
+                "avi",
+                "mov",
+                "webm",
+                "flv"
+            ],
+            "expected_queue": "extract:video",
+            "test_files_count": 8,
+            "validation_method": "audio_extraction_wer"
+        },
+        "email": {
+            "formats": [
+                "eml",
+                "msg"
+            ],
+            "expected_queue": "extract:email",
+            "test_files_count": 3,
+            "validation_method": "header_body_extraction"
+        },
+        "archive": {
+            "formats": [
+                "zip",
+                "rar",
+                "7z",
+                "tar",
+                "gz"
+            ],
+            "expected_queue": "extract:archive",
+            "test_files_count": 6,
+            "validation_method": "content_rerouting"
+        },
+        "latex": {
+            "formats": [
+                "tex",
+                "rst",
+                "bib",
+                "log",
+                "diff",
+                "patch"
+            ],
+            "expected_queue": "extract:documents",
+            "test_files_count": 6,
+            "validation_method": "text_extraction"
+        }
+    },
+    "expected_entities": {
+        "persons": [
+            "Max Mustermann",
+            "Anna Schmidt",
+            "Ben Müller",
+            "Clara Weber",
+            "David Koch",
+            "Eva Braun",
+            "Emmanuel Macron",
+            "Angela Merkel"
+        ],
+        "dates": [
+            "15. März 2024",
+            "2024-03-15",
+            "01. April 2024",
+            "25. März 2024",
+            "2020-03-15",
+            "2019-07-01"
+        ],
+        "amounts": [
+            "1.234,56 EUR",
+            "65000",
+            "55000",
+            "60000",
+            "1.299,00 EUR",
+            "999.99",
+            "2.5 Mio EUR"
+        ],
+        "organizations": [
+            "TechCorp GmbH",
+            "Microsoft Corporation",
+            "EU"
+        ],
+        "locations": [
+            "Berlin",
+            "Deutschland",
+            "Musterstraße 123"
+        ]
+    },
+    "validation_criteria": {
+        "text_extraction": {
+            "min_word_recovery": 0.95,
+            "description": "Mindestens 95% der Wörter müssen extrahiert werden"
+        },
+        "ocr_accuracy": {
+            "max_cer": 0.03,
+            "max_wer": 0.05,
+            "description": "Character Error Rate <3%, Word Error Rate <5%"
+        },
+        "transcription_wer": {
+            "max_wer_german": 0.15,
+            "max_wer_english": 0.10,
+            "description": "Word Error Rate <15% (DE), <10% (EN)"
+        },
+        "entity_extraction": {
+            "min_f1_score": 0.85,
+            "description": "NER F1-Score mindestens 0.85"
+        },
+        "structure_preservation": {
+            "tables_detected": true,
+            "lists_preserved": true,
+            "description": "Tabellen und Listen müssen erkannt werden"
+        }
+    },
+    "test_file_samples": {
+        "code/test_functions.py": {
+            "expected_content": [
+                "calculate_sum",
+                "greet",
+                "def",
+                "return",
+                "print"
+            ],
+            "expected_entities": [],
+            "expected_structure": "function_definitions"
+        },
+        "documents/test_simple.txt": {
+            "expected_content": [
+                "Testdokument",
+                "Max Mustermann",
+                "15. März 2024",
+                "1.234,56 EUR"
+            ],
+            "expected_entities": [
+                "Max Mustermann",
+                "15. März 2024"
+            ],
+            "expected_structure": "plain_text"
+        },
+        "email/test_message.eml": {
+            "expected_content": [
+                "sender@example.com",
+                "Test Email",
+                "Neural Vault",
+                "Max Mustermann"
+            ],
+            "expected_entities": [
+                "Max Mustermann",
+                "15. März 2024"
+            ],
+            "expected_structure": "email_headers_body"
+        },
+        "config/test_config.yaml": {
+            "expected_content": [
+                "database",
+                "host",
+                "localhost",
+                "port",
+                "5432"
+            ],
+            "expected_entities": [],
+            "expected_structure": "key_value_pairs"
+        },
+        "subtitles/test_subtitles.srt": {
+            "expected_content": [
+                "Neural Vault Tutorial",
+                "Dokumentenverarbeitung",
+                "120 verschiedene"
+            ],
+            "expected_entities": [],
+            "expected_structure": "timestamped_text"
+        }
+    },
+    "missing_formats": {
+        "binary_samples_needed": [
+            "exe",
+            "dll",
+            "sys",
+            "elf",
+            "bin"
+        ],
+        "app_samples_needed": [
+            "apk",
+            "ipa",
+            "xapk",
+            "apkm"
+        ],
+        "rare_image_samples_needed": [
+            "psd",
+            "raw",
+            "cr2",
+            "nef",
+            "dng",
+            "arw",
+            "cur",
+            "pcx",
+            "exr",
+            "hdr"
+        ],
+        "rare_audio_samples_needed": [
+            "wma",
+            "mid",
+            "midi",
+            "ape",
+            "amr",
+            "au"
+        ],
+        "rare_video_samples_needed": [
+            "wmv",
+            "mpg",
+            "mpeg",
+            "m4v",
+            "3gp",
+            "rm",
+            "rmvb",
+            "vob",
+            "mts",
+            "m2ts",
+            "ts"
+        ],
+        "ebook_samples_needed": [
+            "epub",
+            "mobi",
+            "azw",
+            "azw3"
+        ],
+        "note": "Diese Formate benötigen spezifische Beispieldateien für vollständige Testabdeckung"
+    }
+}

@@ -1,0 +1,21 @@
+﻿From: Max Mustermann <max@example.com>
+Date: Fri, 15 Mar 2024 10:00:00 +0100
+Subject: [PATCH] Fix calculation bug
+
+This patch fixes a critical bug in the calculation module.
+
+---
+ src/calc.py | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/calc.py b/src/calc.py
+index 1234567..abcdefg 100644
+--- a/src/calc.py
++++ b/src/calc.py
+@@ -10,7 +10,7 @@ def divide(a, b):
+-    return a / b
++    if b == 0:
++        raise ValueError("Division by zero")
++    return a / b
+--
+2.40.0

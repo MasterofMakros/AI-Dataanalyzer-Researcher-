@@ -1,0 +1,27 @@
+﻿# YAML Konfiguration Testdatei
+database:
+  host: localhost
+  port: 5432
+  name: production_db
+  credentials:
+    username: admin
+    password: geheim123
+
+server:
+  port: 8080
+  workers: 4
+  timeout: 30
+
+logging:
+  level: INFO
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  handlers:
+    - console
+    - file
+
+features:
+  - name: authentication
+    enabled: true
+  - name: caching
+    enabled: true
+    ttl: 3600
