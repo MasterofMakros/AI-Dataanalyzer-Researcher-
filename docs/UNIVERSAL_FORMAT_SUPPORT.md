@@ -91,22 +91,22 @@
 | WebP | .webp | Tesseract | OCR | ✅ |
 | HEIC/HEIF | .heic, .heif | Tesseract | OCR | ✅ |
 | AVIF | .avif | Tesseract | OCR | ✅ |
-| PSD | .psd | Exiftool | Metadata | ❌ |
-| XCF | .xcf | Exiftool | Metadata | ❌ |
-| ICO | .ico | Exiftool | Metadata | ❌ |
+| PSD | .psd | Metadata Extractor (ExifTool) | Metadata | ❌ |
+| XCF | .xcf | Metadata Extractor (ExifTool) | Metadata | ❌ |
+| ICO | .ico | Metadata Extractor (ExifTool) | Metadata | ❌ |
 | SVG | .svg | Tika | Text | ❌ |
 | EPS | .eps | Tika | Text | ❌ |
-| AI | .ai | Exiftool | Metadata | ❌ |
+| AI | .ai | Metadata Extractor (ExifTool) | Metadata | ❌ |
 | **RAW-Formate** | | | | |
-| Canon | .cr2, .cr3 | Exiftool | Metadata | ❌ |
-| Nikon | .nef | Exiftool | Metadata | ❌ |
-| Sony | .arw | Exiftool | Metadata | ❌ |
-| DNG | .dng | Exiftool | Metadata | ❌ |
-| Fuji | .raf | Exiftool | Metadata | ❌ |
-| Olympus | .orf | Exiftool | Metadata | ❌ |
-| Panasonic | .rw2 | Exiftool | Metadata | ❌ |
-| Pentax | .pef | Exiftool | Metadata | ❌ |
-| OpenEXR | .exr | Exiftool | Metadata | ❌ |
+| Canon | .cr2, .cr3 | Metadata Extractor (ExifTool) | Metadata | ❌ |
+| Nikon | .nef | Metadata Extractor (ExifTool) | Metadata | ❌ |
+| Sony | .arw | Metadata Extractor (ExifTool) | Metadata | ❌ |
+| DNG | .dng | Metadata Extractor (ExifTool) | Metadata | ❌ |
+| Fuji | .raf | Metadata Extractor (ExifTool) | Metadata | ❌ |
+| Olympus | .orf | Metadata Extractor (ExifTool) | Metadata | ❌ |
+| Panasonic | .rw2 | Metadata Extractor (ExifTool) | Metadata | ❌ |
+| Pentax | .pef | Metadata Extractor (ExifTool) | Metadata | ❌ |
+| OpenEXR | .exr | Metadata Extractor (ExifTool) | Metadata | ❌ |
 
 ### Kategorie 4: Audio (20 Formate)
 
@@ -312,7 +312,7 @@
 | Android | .apk | Archive | Manifest |
 | iOS | .ipa | Archive | Manifest |
 | **Executables** | | | |
-| Windows | .exe, .dll | Exiftool | Nur Metadata |
+| Windows | .exe, .dll | Metadata Extractor (ExifTool) | Nur Metadata |
 | Linux | .so | Exiftool | Nur Metadata |
 | macOS | .dylib | Exiftool | Nur Metadata |
 | **Verschlüsselt** | | | |
