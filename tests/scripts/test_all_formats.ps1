@@ -1,5 +1,5 @@
 ﻿# Neural Vault: Comprehensive All-Format Test Suite
-# Tests ALL 127 supported formats with ground truth validation
+# Tests ALL 128 supported formats with ground truth validation
 # Stand: 11.01.2026
 
 param(
@@ -20,7 +20,7 @@ $allFormats = @{
     code = @("py", "js", "ts", "tsx", "jsx", "sh", "ps1", "sql", "css", "lua", "c", "cpp", "cc", "cxx", "h", "hpp", "java", "go", "rs", "rb", "php", "swift", "kt", "scala", "r", "pl", "pm", "asm", "bas", "vb", "cs", "fs", "hs", "elm", "clj", "ex", "exs", "erl", "dart", "vue", "svelte", "scss", "sass", "less", "styl", "coffee", "bat", "cmd", "awk", "sed", "makefile", "cmake", "gradle", "groovy")
     config = @("yaml", "yml", "ini", "toml", "conf")
     subtitles = @("srt", "vtt", "sub")
-    ebooks = @("epub", "mobi", "azw", "azw3")
+    ebooks = @("epub", "mobi", "azw", "azw3", "djvu")
     images = @("jpg", "jpeg", "png", "gif", "bmp", "tiff", "tif", "webp", "heic", "psd", "raw", "cr2", "nef", "dng", "arw", "svg", "ico", "cur", "pcx", "tga", "exr", "hdr")
     audio = @("mp3", "wav", "flac", "m4a", "aac", "ogg", "wma", "mid", "midi", "ape", "opus", "amr", "au", "aiff", "aif")
     video = @("mp4", "mkv", "avi", "mov", "wmv", "webm", "flv", "mpg", "mpeg", "m4v", "3gp", "rm", "rmvb", "vob", "mts", "m2ts", "ts")
@@ -34,7 +34,8 @@ $allFormats = @{
 
 # Queue mappings
 $queueMappings = @{
-    "extract:documents" = @("pdf", "docx", "xlsx", "pptx", "doc", "xls", "ppt", "odt", "ods", "odp", "rtf", "txt", "html", "xml", "json", "csv", "md", "py", "js", "ts", "tsx", "jsx", "sh", "ps1", "sql", "css", "lua", "c", "cpp", "cc", "cxx", "h", "hpp", "java", "go", "rs", "rb", "php", "swift", "kt", "scala", "r", "pl", "pm", "asm", "bas", "vb", "cs", "fs", "hs", "elm", "clj", "ex", "exs", "erl", "dart", "vue", "svelte", "scss", "sass", "less", "styl", "coffee", "bat", "cmd", "awk", "sed", "makefile", "cmake", "gradle", "groovy", "yaml", "yml", "ini", "toml", "conf", "srt", "vtt", "sub", "epub", "mobi", "azw", "azw3", "woff", "woff2", "ttf", "otf", "eot", "rst", "tex", "cls", "bib", "log", "diff", "patch")
+    "extract:documents" = @("pdf", "docx", "xlsx", "pptx", "doc", "xls", "ppt", "odt", "ods", "odp", "rtf", "txt", "html", "xml", "json", "csv", "md", "py", "js", "ts", "tsx", "jsx", "sh", "ps1", "sql", "css", "lua", "c", "cpp", "cc", "cxx", "h", "hpp", "java", "go", "rs", "rb", "php", "swift", "kt", "scala", "r", "pl", "pm", "asm", "bas", "vb", "cs", "fs", "hs", "elm", "clj", "ex", "exs", "erl", "dart", "vue", "svelte", "scss", "sass", "less", "styl", "coffee", "bat", "cmd", "awk", "sed", "makefile", "cmake", "gradle", "groovy", "yaml", "yml", "ini", "toml", "conf", "srt", "vtt", "sub", "woff", "woff2", "ttf", "otf", "eot", "rst", "tex", "cls", "bib", "log", "diff", "patch")
+    "extract:ebooks" = @("epub", "mobi", "azw", "azw3", "djvu")
     "extract:images" = @("jpg", "jpeg", "png", "gif", "bmp", "tiff", "tif", "webp", "heic", "psd", "raw", "cr2", "nef", "dng", "arw", "svg", "ico", "cur", "pcx", "tga", "exr", "hdr")
     "extract:audio" = @("mp3", "wav", "flac", "m4a", "aac", "ogg", "wma", "mid", "midi", "ape", "opus", "amr", "au", "aiff", "aif")
     "extract:video" = @("mp4", "mkv", "avi", "mov", "wmv", "webm", "flv", "mpg", "mpeg", "m4v", "3gp", "rm", "rmvb", "vob", "mts", "m2ts", "ts")
@@ -56,7 +57,7 @@ foreach ($queue in $queueMappings.Keys) {
 $global:Results = @{
     Timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
     Summary = @{
-        TotalFormats = 127
+        TotalFormats = 128
         TestedFormats = 0
         FormatsWithFiles = 0
         Passed = 0
@@ -217,4 +218,3 @@ if ($Report) {
 }
 
 Write-Host ""
-

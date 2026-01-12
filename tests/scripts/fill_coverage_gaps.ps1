@@ -47,7 +47,7 @@ foreach ($ext in $allFormats) {
         elseif ("exe,dll,sys,elf,bin" -contains $ext) { $dir = "$baseDir\binary" }
         elseif ("apk,ipa,xapk,apkm" -contains $ext) { $dir = "$baseDir\apps" }
         elseif ("woff,woff2,ttf,otf,eot" -contains $ext) { $dir = "$baseDir\fonts" }
-        elseif ("epub,mobi,azw,azw3" -contains $ext) { $dir = "$baseDir\ebooks" }
+        elseif ("epub,mobi,azw,azw3,djvu" -contains $ext) { $dir = "$baseDir\ebooks" }
         elseif ("py,js,ts,java,go,rs,cpp,c,h,sh" -contains $ext) { $dir = "$baseDir\code" }
         
         if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir -Force | Out-Null }
@@ -64,4 +64,3 @@ foreach ($ext in $allFormats) {
 }
 
 Write-Host "Gap filling complete."
-
