@@ -1,0 +1,6 @@
+fastapi==0.110.0
+uvicorn[standard]==0.29.0
+ebooklib==0.18
+beautifulsoup4==4.12.3
+lxml==5.2.1
+kindleunpack==0.81

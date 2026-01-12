@@ -392,6 +392,30 @@ services:
   #     timeout: 10s
   #     retries: 3
 
+  # Ebook Parser Service - EPUB, MOBI, AZW, AZW3, DjVu
+  ebook-parser:
+    build:
+      context: ./infra/docker/ebook-parser
+      dockerfile: Dockerfile
+    image: conductor-ebook-parser:latest
+    container_name: conductor-ebook-parser
+    restart: unless-stopped
+    ports:
+      - "8045:8000"
+    volumes:
+      - F:/:/mnt/data:ro
+    networks:
+      - conductor-net
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
   # 7-Zip - Archive Processing (RAR, 7z, TAR, GZ ohne Entpacken)
   sevenzip:
     image: crazymax/7zip:latest
@@ -628,6 +652,35 @@ services:
       - tika
     deploy:
       replicas: 4
+      resources:
+        limits:
+          memory: 512M
+    profiles:
+      - intelligence
+
+  # E-Books (EPUB, MOBI, AZW, AZW3, DjVu)
+  worker-ebooks:
+    build:
+      context: ./infra/docker/workers
+      dockerfile: Dockerfile
+    image: conductor-extraction-worker:latest
+    restart: unless-stopped
+    volumes:
+      - F:/:/mnt/data:ro
+    networks:
+      - conductor-net
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - EBOOK_PARSER_URL=http://ebook-parser:8000
+      - WORKER_TYPE=ebooks
+      - INPUT_QUEUE=extract:ebooks
+      - CONSUMER_GROUP=workers-ebooks
+    depends_on:
+      - redis
+      - ebook-parser
+    deploy:
+      replicas: 2
       resources:
         limits:
           memory: 512M

@@ -76,7 +76,8 @@ $samples = @{
         files = @(
             @{Name="test.epub"; Url="https://filesamples.com/samples/ebook/epub/A%20Midsummer%20Night's%20Dream.epub"; Description="EPUB sample"},
             @{Name="test.mobi"; Url="https://filesamples.com/samples/ebook/mobi/A%20Midsummer%20Night's%20Dream.mobi"; Description="MOBI sample"},
-            @{Name="test.azw3"; Url="https://filesamples.com/samples/ebook/azw3/A%20Midsummer%20Night's%20Dream.azw3"; Description="AZW3 sample"}
+            @{Name="test.azw3"; Url="https://filesamples.com/samples/ebook/azw3/A%20Midsummer%20Night's%20Dream.azw3"; Description="AZW3 sample"},
+            @{Name="test.djvu"; Url="https://file-examples.com/storage/fe1f7d92f2189e0c4c7b0c5/2017/10/file_example_DJVU_1.djvu"; Description="DjVu sample"}
         )
     }
 
@@ -239,5 +240,4 @@ Create-DummyFile "$archiveDir\test.iso" "43 44 30 30 31" # CD001 at offset (usua
 
 Write-Host "Dummy files created!"
 exit
-
 

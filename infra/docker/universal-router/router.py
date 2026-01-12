@@ -65,6 +65,7 @@ MAGIC_SIGNATURES = {
     b"RIFF": ("riff", None),  # WAV, AVI, WebP
     b"8BPS": ("psd", "image/vnd.adobe.photoshop"),
     b"gimp xcf": ("xcf", "image/x-xcf"),
+    b"AT&TFORM": ("djvu", "image/vnd.djvu"),
 
     # Audio
     b"\xff\xfb": ("mp3", "audio/mpeg"),
@@ -221,10 +222,11 @@ PROCESSOR_QUEUES = {
     "sub": "extract:documents",
 
     # E-Books
-    "epub": "extract:documents",
-    "mobi": "extract:documents",
-    "azw": "extract:documents",
-    "azw3": "extract:documents",
+    "epub": "extract:ebooks",
+    "mobi": "extract:ebooks",
+    "azw": "extract:ebooks",
+    "azw3": "extract:ebooks",
+    "djvu": "extract:ebooks",
 
     # Images → extract:images (matches ImageWorker.input_queue)
     "jpg": "extract:images",
