@@ -1,0 +1,17 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        djvulibre-bin \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY ebook_parser.py /app/ebook_parser.py
+
+EXPOSE 8000
+
+CMD ["uvicorn", "ebook_parser:app", "--host", "0.0.0.0", "--port", "8000"]
