@@ -6,7 +6,8 @@ Spezialisierte Worker für verschiedene Dateitypen.
 Implementiert das Assembly-Line Pattern.
 
 Worker-Typen:
-- DocumentWorker: PDF, DOCX, XLSX via Tika/Docling
+ - DocumentWorker: PDF, DOCX, XLSX via Tika/Docling
+ - EbookWorker: EPUB, MOBI, AZW, AZW3, DjVu via Ebook Parser
 - AudioWorker: MP3, WAV via Whisper
 - VideoWorker: MP4, MKV via FFmpeg + Whisper
 - ImageWorker: JPG, PNG via Tesseract/PaddleOCR
@@ -52,7 +53,7 @@ WHISPERX_URL = os.getenv("WHISPERX_URL", "http://whisperx:9000")
 WHISPER_URL = os.getenv("WHISPER_URL", WHISPERX_URL)  # Backward compat
 WHISPER_FAST_URL = os.getenv("WHISPER_FAST_URL", WHISPERX_URL)
 PARSER_URL = os.getenv("PARSER_URL", "http://parser-service:8000")
-SPECIAL_PARSER_URL = os.getenv("SPECIAL_PARSER_URL", "http://special-parser:8015")
+EBOOK_PARSER_URL = os.getenv("EBOOK_PARSER_URL", "http://ebook-parser:8000")
 
 # Worker Configuration
 WORKER_TYPE = os.getenv("WORKER_TYPE", "documents")
@@ -801,6 +802,45 @@ class DocumentWorker(BaseExtractionWorker):
 
 
 # =============================================================================
+# EBOOK WORKER (EPUB, MOBI, AZW, AZW3, DJVU)
+# =============================================================================
+
+class EbookWorker(BaseExtractionWorker):
+    """Verarbeitet E-Books via Ebook Parser Service."""
+
+    def __init__(self):
+        super().__init__(
+            input_queue="extract:ebooks",
+            output_queue="enrich:ner",
+            dlq="dlq:extract",
+            worker_name=f"ebook-worker-{CONSUMER_NAME}"
+        )
+
+    async def extract(self, job: FileJob, local_path: Path) -> ExtractionResult:
+        with open(local_path, "rb") as f:
+            files = {"file": (job.filename, f)}
+            response = await self.http_client.post(
+                f"{EBOOK_PARSER_URL}/extract",
+                files=files
+            )
+
+        if response.status_code != 200:
+            raise Exception(f"Ebook Parser error: {response.status_code}")
+
+        result = response.json()
+
+        return ExtractionResult(
+            job_id=job.id,
+            file_path=job.path,
+            filename=job.filename,
+            text=result.get("text", ""),
+            metadata=result.get("metadata", {}),
+            extraction_method=result.get("extraction_method", "ebook-parser"),
+            confidence=0.9
+        )
+
+
+# =============================================================================
 # AUDIO WORKER (MP3, WAV, M4A)
 # =============================================================================
 
@@ -1235,6 +1275,7 @@ def create_worker(worker_type: str) -> BaseExtractionWorker:
     """Erstellt Worker basierend auf Typ."""
     workers = {
         "documents": DocumentWorker,
+        "ebooks": EbookWorker,
         "audio": AudioWorker,
         "video": VideoWorker,
         "images": ImageWorker,
