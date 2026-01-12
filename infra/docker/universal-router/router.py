@@ -65,6 +65,7 @@ MAGIC_SIGNATURES = {
     b"RIFF": ("riff", None),  # WAV, AVI, WebP
     b"8BPS": ("psd", "image/vnd.adobe.photoshop"),
     b"gimp xcf": ("xcf", "image/x-xcf"),
+    b"AT&TFORM": ("djvu", "image/vnd.djvu"),
 
     # Audio
     b"\xff\xfb": ("mp3", "audio/mpeg"),
@@ -149,7 +150,6 @@ PROCESSOR_QUEUES = {
     "html": "extract:documents",
     "xml": "extract:documents",
     "json": "extract:documents",
-    "csv": "extract:documents",
     "md": "extract:documents",
 
     # Code Files - Programming Languages
@@ -221,10 +221,11 @@ PROCESSOR_QUEUES = {
     "sub": "extract:documents",
 
     # E-Books
-    "epub": "extract:documents",
-    "mobi": "extract:documents",
-    "azw": "extract:documents",
-    "azw3": "extract:documents",
+    "epub": "extract:ebooks",
+    "mobi": "extract:ebooks",
+    "azw": "extract:ebooks",
+    "azw3": "extract:ebooks",
+    "djvu": "extract:ebooks",
 
     # Images → extract:images (matches ImageWorker.input_queue)
     "jpg": "extract:images",
@@ -309,13 +310,45 @@ PROCESSOR_QUEUES = {
     "cab": "extract:archive",
     "iso": "extract:archive",
     "dmg": "extract:archive",
+
+    # Databases → extract:databases
+    "mdb": "extract:databases",
+    "accdb": "extract:databases",
+    "dbf": "extract:databases",
+    "sqlite": "extract:databases",
+    "sqlite3": "extract:databases",
+    "db": "extract:databases",
+    "db3": "extract:databases",
     
+    # 3D Models
+    "obj": "extract:3d",
+    "stl": "extract:3d",
+    "ply": "extract:3d",
+    "glb": "extract:3d",
+    "gltf": "extract:3d",
+    "fbx": "extract:3d",
+
+    # CAD
+    "step": "extract:cad",
+    "stp": "extract:cad",
+    "iges": "extract:cad",
+    "igs": "extract:cad",
+    "dxf": "extract:cad",
+    "dwg": "extract:cad",
+
+    # GIS
+    "geojson": "extract:gis",
+    "shp": "extract:gis",
+    "kml": "extract:gis",
+    "gpx": "extract:gis",
+    "gpkg": "extract:gis",
+
     # Fonts
-    "woff": "extract:documents",
-    "woff2": "extract:documents",
-    "ttf": "extract:documents",
-    "otf": "extract:documents",
-    "eot": "extract:documents",
+    "woff": "extract:fonts",
+    "woff2": "extract:fonts",
+    "ttf": "extract:fonts",
+    "otf": "extract:fonts",
+    "eot": "extract:fonts",
 
     # Torrents
     "torrent": "extract:torrent",
@@ -335,12 +368,24 @@ PROCESSOR_QUEUES = {
 
     # Documentation/Latex
     "rst": "extract:documents",
-    "tex": "extract:documents",
     "cls": "extract:documents",
-    "bib": "extract:documents",
     "log": "extract:documents",
     "diff": "extract:documents",
     "patch": "extract:documents",
+
+    # Scientific Formats → extract:scientific
+    "csv": "extract:scientific",
+    "tsv": "extract:scientific",
+    "jsonl": "extract:scientific",
+    "tex": "extract:scientific",
+    "bib": "extract:scientific",
+    "ris": "extract:scientific",
+    "rmd": "extract:scientific",
+    "ipynb": "extract:scientific",
+    "mat": "extract:scientific",
+    "h5": "extract:scientific",
+    "hdf5": "extract:scientific",
+    "nc": "extract:scientific",
 
     # Encrypted (skip)
     "gpg": "skip",

@@ -54,7 +54,10 @@ QUEUES = {
         "images": "extract:images",
         "email": "extract:email",
         "archive": "extract:archive",
-        "metadata": "extract:metadata"
+        "3d": "extract:3d",
+        "cad": "extract:cad",
+        "gis": "extract:gis",
+        "fonts": "extract:fonts"
     },
     "enrich": {
         "ner": "enrich:ner",
@@ -264,7 +267,36 @@ def get_queue_for_type(extension: str) -> str:
         "7z": "extract:archive",
         "tar": "extract:archive",
         "gz": "extract:archive",
-        "exe": "extract:metadata",
+
+        # 3D
+        "obj": "extract:3d",
+        "stl": "extract:3d",
+        "ply": "extract:3d",
+        "glb": "extract:3d",
+        "gltf": "extract:3d",
+        "fbx": "extract:3d",
+
+        # CAD
+        "step": "extract:cad",
+        "stp": "extract:cad",
+        "iges": "extract:cad",
+        "igs": "extract:cad",
+        "dxf": "extract:cad",
+        "dwg": "extract:cad",
+
+        # GIS
+        "geojson": "extract:gis",
+        "shp": "extract:gis",
+        "kml": "extract:gis",
+        "gpx": "extract:gis",
+        "gpkg": "extract:gis",
+
+        # Fonts
+        "woff": "extract:fonts",
+        "woff2": "extract:fonts",
+        "ttf": "extract:fonts",
+        "otf": "extract:fonts",
+        "eot": "extract:fonts",
     }
 
     return type_to_queue.get(ext, "extract:documents")

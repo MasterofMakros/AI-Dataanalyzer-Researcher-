@@ -1,0 +1,9 @@
+ISO-10303-21;
+HEADER;
+FILE_DESCRIPTION(('Simple STEP example'),'2;1');
+FILE_NAME('sample.step','2024-01-01T00:00:00',('author'),('org'),'preprocessor','originating_system','');
+FILE_SCHEMA(('AP203'));
+ENDSEC;
+DATA;
+ENDSEC;
+END-ISO-10303-21;

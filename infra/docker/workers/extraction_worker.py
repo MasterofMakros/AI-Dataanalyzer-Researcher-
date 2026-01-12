@@ -6,7 +6,8 @@ Spezialisierte Worker für verschiedene Dateitypen.
 Implementiert das Assembly-Line Pattern.
 
 Worker-Typen:
-- DocumentWorker: PDF, DOCX, XLSX via Tika/Docling
+ - DocumentWorker: PDF, DOCX, XLSX via Tika/Docling
+ - EbookWorker: EPUB, MOBI, AZW, AZW3, DjVu via Ebook Parser
 - AudioWorker: MP3, WAV via Whisper
 - VideoWorker: MP4, MKV via FFmpeg + Whisper
 - ImageWorker: JPG, PNG via Tesseract/PaddleOCR
@@ -52,7 +53,7 @@ WHISPERX_URL = os.getenv("WHISPERX_URL", "http://whisperx:9000")
 WHISPER_URL = os.getenv("WHISPER_URL", WHISPERX_URL)  # Backward compat
 WHISPER_FAST_URL = os.getenv("WHISPER_FAST_URL", WHISPERX_URL)
 PARSER_URL = os.getenv("PARSER_URL", "http://parser-service:8000")
-METADATA_EXTRACTOR_URL = os.getenv("METADATA_EXTRACTOR_URL", "http://metadata-extractor:8000")
+EBOOK_PARSER_URL = os.getenv("EBOOK_PARSER_URL", "http://ebook-parser:8000")
 
 # Worker Configuration
 WORKER_TYPE = os.getenv("WORKER_TYPE", "documents")
@@ -801,6 +802,45 @@ class DocumentWorker(BaseExtractionWorker):
 
 
 # =============================================================================
+# EBOOK WORKER (EPUB, MOBI, AZW, AZW3, DJVU)
+# =============================================================================
+
+class EbookWorker(BaseExtractionWorker):
+    """Verarbeitet E-Books via Ebook Parser Service."""
+
+    def __init__(self):
+        super().__init__(
+            input_queue="extract:ebooks",
+            output_queue="enrich:ner",
+            dlq="dlq:extract",
+            worker_name=f"ebook-worker-{CONSUMER_NAME}"
+        )
+
+    async def extract(self, job: FileJob, local_path: Path) -> ExtractionResult:
+        with open(local_path, "rb") as f:
+            files = {"file": (job.filename, f)}
+            response = await self.http_client.post(
+                f"{EBOOK_PARSER_URL}/extract",
+                files=files
+            )
+
+        if response.status_code != 200:
+            raise Exception(f"Ebook Parser error: {response.status_code}")
+
+        result = response.json()
+
+        return ExtractionResult(
+            job_id=job.id,
+            file_path=job.path,
+            filename=job.filename,
+            text=result.get("text", ""),
+            metadata=result.get("metadata", {}),
+            extraction_method=result.get("extraction_method", "ebook-parser"),
+            confidence=0.9
+        )
+
+
+# =============================================================================
 # AUDIO WORKER (MP3, WAV, M4A)
 # =============================================================================
 
@@ -1155,42 +1195,76 @@ class ArchiveWorker(BaseExtractionWorker):
 
 
 # =============================================================================
-# METADATA WORKER (RAW, PSD, EXE, AI, XCF, ICO)
+# SPECIAL PARSER WORKERS (3D, CAD, GIS, Fonts)
 # =============================================================================
 
-class MetadataWorker(BaseExtractionWorker):
-    """Extrahiert Metadaten via Exiftool-Service."""
+class SpecialParserWorker(BaseExtractionWorker):
+    """Verarbeitet Spezialformate via Special Parser Service."""
 
-    def __init__(self):
+    def __init__(self, category: str, input_queue: str):
+        self.category = category
         super().__init__(
-            input_queue="extract:metadata",
+            input_queue=input_queue,
             output_queue="enrich:ner",
             dlq="dlq:extract",
-            worker_name=f"metadata-worker-{CONSUMER_NAME}"
+            worker_name=f"special-{category}-worker-{CONSUMER_NAME}"
         )
 
     async def extract(self, job: FileJob, local_path: Path) -> ExtractionResult:
         with open(local_path, "rb") as f:
             files = {"file": (job.filename, f)}
             response = await self.http_client.post(
-                f"{METADATA_EXTRACTOR_URL}/metadata",
-                files=files
+                f"{SPECIAL_PARSER_URL}/parse",
+                files=files,
+                params={"category": self.category}
             )
 
         if response.status_code != 200:
-            raise Exception(f"Metadata extractor error: {response.status_code}")
+            raise Exception(f"Special parser error: {response.status_code} {response.text}")
 
-        metadata = response.json()
+        payload = response.json()
+        derived_text = payload.get("derived_text", "")
+        preview = payload.get("preview", "")
+        text = derived_text or preview
+
+        metadata = payload.get("metadata", {})
+        metadata.update(
+            {
+                "preview": preview,
+                "category": payload.get("category", self.category),
+                "parser": payload.get("parser", "special-parser"),
+            }
+        )
 
         return ExtractionResult(
             job_id=job.id,
             file_path=job.path,
             filename=job.filename,
-            text="",
+            text=text,
             metadata=metadata,
-            extraction_method="exiftool",
-            confidence=1.0
+            extraction_method=payload.get("parser", "special-parser"),
+            confidence=payload.get("confidence", 0.6)
         )
+
+
+class ThreeDWorker(SpecialParserWorker):
+    def __init__(self):
+        super().__init__(category="3d", input_queue="extract:3d")
+
+
+class CadWorker(SpecialParserWorker):
+    def __init__(self):
+        super().__init__(category="cad", input_queue="extract:cad")
+
+
+class GisWorker(SpecialParserWorker):
+    def __init__(self):
+        super().__init__(category="gis", input_queue="extract:gis")
+
+
+class FontsWorker(SpecialParserWorker):
+    def __init__(self):
+        super().__init__(category="fonts", input_queue="extract:fonts")
 
 
 # =============================================================================
@@ -1201,12 +1275,16 @@ def create_worker(worker_type: str) -> BaseExtractionWorker:
     """Erstellt Worker basierend auf Typ."""
     workers = {
         "documents": DocumentWorker,
+        "ebooks": EbookWorker,
         "audio": AudioWorker,
         "video": VideoWorker,
         "images": ImageWorker,
         "email": EmailWorker,
         "archive": ArchiveWorker,
-        "metadata": MetadataWorker
+        "3d": ThreeDWorker,
+        "cad": CadWorker,
+        "gis": GisWorker,
+        "fonts": FontsWorker
     }
 
     if worker_type not in workers:

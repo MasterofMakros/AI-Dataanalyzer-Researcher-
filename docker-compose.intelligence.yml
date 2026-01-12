@@ -131,6 +131,31 @@ services:
       retries: 3
 
   # ===========================================================================
+  # SPECIAL PARSER (3D/CAD/GIS/Fonts)
+  # ===========================================================================
+
+  special-parser:
+    build:
+      context: ./infra/docker/special-parser
+      dockerfile: Dockerfile
+    image: conductor-special-parser:latest
+    container_name: conductor-special-parser
+    restart: unless-stopped
+    ports:
+      - "8015:8015"
+    networks:
+      - conductor-net
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8015/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ===========================================================================
   # EXTRACTION WORKERS - Document Processing
   # ===========================================================================
 
@@ -337,6 +362,110 @@ services:
           memory: 512M
 
   # ===========================================================================
+  # EXTRACTION WORKERS - 3D Models
+  # ===========================================================================
+
+  worker-3d:
+    build:
+      context: ./infra/docker/workers
+      dockerfile: Dockerfile
+    image: conductor-worker:latest
+    <<: *worker-deploy
+    environment:
+      <<: *common-env
+      WORKER_TYPE: 3d
+      SPECIAL_PARSER_URL: http://special-parser:8015
+    volumes: *data-volume
+    depends_on:
+      - redis
+      - special-parser
+    networks:
+      - conductor-net
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: 512M
+
+  # ===========================================================================
+  # EXTRACTION WORKERS - CAD
+  # ===========================================================================
+
+  worker-cad:
+    build:
+      context: ./infra/docker/workers
+      dockerfile: Dockerfile
+    image: conductor-worker:latest
+    <<: *worker-deploy
+    environment:
+      <<: *common-env
+      WORKER_TYPE: cad
+      SPECIAL_PARSER_URL: http://special-parser:8015
+    volumes: *data-volume
+    depends_on:
+      - redis
+      - special-parser
+    networks:
+      - conductor-net
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: 512M
+
+  # ===========================================================================
+  # EXTRACTION WORKERS - GIS
+  # ===========================================================================
+
+  worker-gis:
+    build:
+      context: ./infra/docker/workers
+      dockerfile: Dockerfile
+    image: conductor-worker:latest
+    <<: *worker-deploy
+    environment:
+      <<: *common-env
+      WORKER_TYPE: gis
+      SPECIAL_PARSER_URL: http://special-parser:8015
+    volumes: *data-volume
+    depends_on:
+      - redis
+      - special-parser
+    networks:
+      - conductor-net
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: 512M
+
+  # ===========================================================================
+  # EXTRACTION WORKERS - Fonts
+  # ===========================================================================
+
+  worker-fonts:
+    build:
+      context: ./infra/docker/workers
+      dockerfile: Dockerfile
+    image: conductor-worker:latest
+    <<: *worker-deploy
+    environment:
+      <<: *common-env
+      WORKER_TYPE: fonts
+      SPECIAL_PARSER_URL: http://special-parser:8015
+    volumes: *data-volume
+    depends_on:
+      - redis
+      - special-parser
+    networks:
+      - conductor-net
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: 256M
+
+  # ===========================================================================
   # PROCESSING SERVICES - Tika (Documents)
   # ===========================================================================
 
@@ -456,6 +585,27 @@ services:
       resources:
         limits:
           memory: 1G
+
+  # ===========================================================================
+  # PROCESSING SERVICES - DB Parser (MDB/ACCDB/DBF/SQLite)
+  # ===========================================================================
+
+  db-parser:
+    build:
+      context: ./infra/docker/db-parser
+      dockerfile: Dockerfile
+    image: conductor-db-parser:latest
+    container_name: conductor-db-parser
+    restart: unless-stopped
+    volumes:
+      - F:/:/mnt/data:ro
+    networks:
+      - conductor-net
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          memory: 512M
 
   # ===========================================================================
   # PROCESSING SERVICES - 7-Zip (Archives)
