@@ -150,7 +150,6 @@ PROCESSOR_QUEUES = {
     "html": "extract:documents",
     "xml": "extract:documents",
     "json": "extract:documents",
-    "csv": "extract:documents",
     "md": "extract:documents",
 
     # Code Files - Programming Languages
@@ -331,12 +330,24 @@ PROCESSOR_QUEUES = {
 
     # Documentation/Latex
     "rst": "extract:documents",
-    "tex": "extract:documents",
     "cls": "extract:documents",
-    "bib": "extract:documents",
     "log": "extract:documents",
     "diff": "extract:documents",
     "patch": "extract:documents",
+
+    # Scientific Formats → extract:scientific
+    "csv": "extract:scientific",
+    "tsv": "extract:scientific",
+    "jsonl": "extract:scientific",
+    "tex": "extract:scientific",
+    "bib": "extract:scientific",
+    "ris": "extract:scientific",
+    "rmd": "extract:scientific",
+    "ipynb": "extract:scientific",
+    "mat": "extract:scientific",
+    "h5": "extract:scientific",
+    "hdf5": "extract:scientific",
+    "nc": "extract:scientific",
 
     # Encrypted (skip)
     "gpg": "skip",

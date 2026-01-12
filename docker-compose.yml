@@ -392,16 +392,16 @@ services:
   #     timeout: 10s
   #     retries: 3
 
-  # Ebook Parser Service - EPUB, MOBI, AZW, AZW3, DjVu
-  ebook-parser:
+  # Scientific Parser Service - Tabular/Text Extraction
+  scientific-parser:
     build:
-      context: ./infra/docker/ebook-parser
+      context: ./infra/docker/scientific-parser
       dockerfile: Dockerfile
-    image: conductor-ebook-parser:latest
-    container_name: conductor-ebook-parser
+    image: conductor-scientific-parser:latest
+    container_name: conductor-scientific-parser
     restart: unless-stopped
     ports:
-      - "8045:8000"
+      - "8050:8050"
     volumes:
       - F:/:/mnt/data:ro
     networks:
@@ -411,7 +411,7 @@ services:
         limits:
           memory: 1G
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8050/health"]
       interval: 30s
       timeout: 10s
       retries: 3
