@@ -483,7 +483,7 @@ services:
     environment:
       - PROCESSOR_DEVICE=cuda
       - GLINER_MODEL=urchade/gliner_medium-v2.1
-      - EMBED_MODEL=intfloat/multilingual-e5-large
+      - EMBED_MODEL=Alibaba-NLP/gte-Qwen3-Embedding-0.6B
       - SURYA_BATCH_SIZE=4
       - SURYA_LANGS=de,en
       - LANCEDB_PATH=/data/lancedb
@@ -529,7 +529,7 @@ services:
     environment:
       - PROCESSOR_DEVICE=cpu
       - GLINER_MODEL=urchade/gliner_small-v2.1
-      - EMBED_MODEL=intfloat/multilingual-e5-base
+      - EMBED_MODEL=Alibaba-NLP/gte-Qwen3-Embedding-0.6B
       - SURYA_BATCH_SIZE=1
       - SURYA_LANGS=de,en
       - LANCEDB_PATH=/data/lancedb

@@ -36,7 +36,7 @@ FEATURE_FLAGS = {
     # A/B TESTS (2025-12 Benchmark-basiert)
     # =========================================================================
     # Embedding: e5-large vs Qwen3-Embedding
-    "USE_QWEN3_EMBEDDING": (False, "EXPERIMENTAL"),
+    "USE_QWEN3_EMBEDDING": (True, "ACTIVE"),
 
     # =========================================================================
     # PROCESSOR SELECTION (Benchmark-driven)

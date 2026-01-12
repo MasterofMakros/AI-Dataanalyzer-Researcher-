@@ -23,8 +23,8 @@ class EmbeddingModel(Enum):
     E5_LARGE = "intfloat/multilingual-e5-large"
 
     # Empfohlen (2025 Benchmark Winner)
-    QWEN3_EMBEDDING_0_6B = "Alibaba-NLP/gte-Qwen2-0.6B-instruct"
-    QWEN3_EMBEDDING_1_5B = "Alibaba-NLP/gte-Qwen2-1.5B-instruct"
+    QWEN3_EMBEDDING_0_6B = "Alibaba-NLP/gte-Qwen3-Embedding-0.6B"
+    QWEN3_EMBEDDING_1_5B = "Alibaba-NLP/gte-Qwen3-Embedding-1.5B"
 
     # Alternativen
     JINA_V3 = "jinaai/jina-embeddings-v3"
@@ -57,14 +57,14 @@ EMBEDDING_CONFIGS = {
 
     # Empfohlen (2025)
     EmbeddingModel.QWEN3_EMBEDDING_0_6B: EmbeddingConfig(
-        model_id="Alibaba-NLP/gte-Qwen2-0.6B-instruct",
+        model_id="Alibaba-NLP/gte-Qwen3-Embedding-0.6B",
         dimensions=1024,
         max_tokens=8192,
         batch_size=16,
     ),
 
     EmbeddingModel.QWEN3_EMBEDDING_1_5B: EmbeddingConfig(
-        model_id="Alibaba-NLP/gte-Qwen2-1.5B-instruct",
+        model_id="Alibaba-NLP/gte-Qwen3-Embedding-1.5B",
         dimensions=1536,
         max_tokens=8192,
         batch_size=8,
@@ -91,8 +91,8 @@ EMBEDDING_CONFIGS = {
 # =============================================================================
 
 # Feature Flag für A/B-Test
-EMBEDDING_MODEL_ACTIVE = EmbeddingModel.E5_LARGE  # Aktuell
-EMBEDDING_MODEL_EXPERIMENTAL = EmbeddingModel.QWEN3_EMBEDDING_0_6B  # Test
+EMBEDDING_MODEL_ACTIVE = EmbeddingModel.QWEN3_EMBEDDING_0_6B  # Aktuell
+EMBEDDING_MODEL_EXPERIMENTAL = EmbeddingModel.E5_LARGE  # Test
 
 
 def get_embedding_config(experimental: bool = False) -> EmbeddingConfig:

@@ -52,7 +52,7 @@ def get_embed_model():
     if embed_model is None:
         logger.info("🧬 Lazy Loading Embedding Model...")
         # optimized for German/English mixed content
-        MODEL_NAME = os.getenv("EMBED_MODEL", "paraphrase-multilingual-MiniLM-L12-v2")
+        MODEL_NAME = os.getenv("EMBED_MODEL", "Alibaba-NLP/gte-Qwen3-Embedding-0.6B")
         embed_model = SentenceTransformer(MODEL_NAME)
     return embed_model
 
