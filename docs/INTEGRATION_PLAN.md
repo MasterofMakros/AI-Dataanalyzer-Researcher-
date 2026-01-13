@@ -14,7 +14,6 @@
 | **context_header.py** | ✅ JA | P1 | Bereits da | RAG-Qualität verbessern |
 | **feedback_tracker.py** | ✅ JA | P1 | Bereits da | Lernfähigkeit |
 | **tika_markdown.py** | ✅ JA | P1 | Bereits da | Tabellenerhalt |
-| **setup_meilisearch_index.py** | ✅ JA | P1 | Bereits da | Pattern-of-Life |
 | **Universal Router** | ⚠️ OPTIONAL | P2 | Mittel | Nur bei >10k Dateien |
 | **Orchestrator** | ⚠️ OPTIONAL | P3 | Hoch | Nur bei Skalierung |
 | **Extraction Workers** | ❌ NEIN | - | Hoch | Überflüssig, existiert |
@@ -137,18 +136,6 @@ def on_user_correction(file_hash, old_category, new_category):
     )
 ```
 
-### 2.3 Meilisearch Index Setup ausführen
-
-Einmalig nach Start:
-
-```bash
-python scripts/setup_meilisearch_index.py
-```
-
-Oder in Startup-Script integrieren.
-
----
-
 ## Phase 3: Später einbinden (Wenn nötig)
 
 ### 3.1 Universal Router (nur bei Performance-Problemen)
@@ -265,7 +252,6 @@ Tag 1:
 Woche 1:
 ├── tika_markdown.py aktivieren
 ├── context_header.py bei Indexierung nutzen
-├── setup_meilisearch_index.py ausführen
 └── feedback_tracker.py für UI vorbereiten
 
 Später (wenn nötig):
@@ -294,13 +280,10 @@ docker/universal-router/         → Optional, später
 # 1. Format Registry testen
 python -c "from config.format_registry import get_format_stats; print(get_format_stats())"
 
-# 2. Meilisearch Index konfigurieren
-python scripts/setup_meilisearch_index.py
-
-# 3. Tika Markdown testen
+# 2. Tika Markdown testen
 python -c "from scripts.utils.tika_markdown import extract_markdown; print(extract_markdown('test.pdf')[:500])"
 
-# 4. smart_ingest.py mit neuen Imports starten
+# 3. smart_ingest.py mit neuen Imports starten
 python scripts/smart_ingest.py --path /path/to/files
 ```
 

@@ -24,7 +24,6 @@ RESULTS_JSON = TEST_DIR / "_test_results.json"
 
 TIKA_URL = "http://localhost:9998"
 OLLAMA_URL = "http://localhost:11435"
-MEILISEARCH_URL = "http://localhost:7700"
 
 # Keys
 def load_env():
@@ -38,7 +37,6 @@ def load_env():
     return env
 
 ENV = load_env()
-MEILI_KEY = ENV.get("MEILI_MASTER_KEY", "")
 
 @dataclass
 class TestResult:

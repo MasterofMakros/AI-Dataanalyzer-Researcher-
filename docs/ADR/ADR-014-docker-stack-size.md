@@ -23,18 +23,17 @@ Aktuelle `docker-compose.yml` enthält:
 3. redis
 4. n8n
 5. qdrant
-6. meilisearch
-7. tika
-8. ollama
-9. whisper
-10. ffmpeg-api
-11. tesseract-ocr
-12. parser-service
-13. sevenzip
-14. neural-worker
-15. nextcloud
-16. nextcloud-db
-17. (potentiell weitere)
+6. tika
+7. ollama
+8. whisper
+9. ffmpeg-api
+10. tesseract-ocr
+11. parser-service
+12. sevenzip
+13. neural-worker
+14. nextcloud
+15. nextcloud-db
+16. (potentiell weitere)
 
 **Problem:**
 - Hoher RAM-Bedarf (~16GB+ für alle)
@@ -68,7 +67,6 @@ Aktuelle `docker-compose.yml` enthält:
 |-----------|----------|-----|--------------|
 | postgres | Metadaten-DB | 256MB | KRITISCH |
 | redis | Cache/Queue | 128MB | KRITISCH |
-| meilisearch | Fulltext-Suche | 512MB | KRITISCH |
 | neural-worker | NER, Embedding | 4GB | KRITISCH |
 | tika | Dokument-Parsing | 1GB | HOCH |
 | n8n | Workflow Engine | 768MB | MITTEL |
@@ -213,8 +211,6 @@ services:
   postgres:
     <<: *core
   redis:
-    <<: *core
-  meilisearch:
     <<: *core
   neural-worker:
     <<: *core

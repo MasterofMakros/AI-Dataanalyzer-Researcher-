@@ -14,7 +14,7 @@ import os
 
 # Mock-Implementation für Entwicklung
 class MockSearchClient:
-    """Placeholder - ersetze durch echten Qdrant/Meilisearch Client."""
+    """Placeholder - ersetze durch echten Qdrant Client."""
     
     def __init__(self, index_path: str = "tests/dummy_index.csv"):
         self.index_path = index_path

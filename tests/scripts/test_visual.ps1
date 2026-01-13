@@ -88,7 +88,7 @@ function Show-Architecture {
     +------------------+
     |     INDEX        |
     +------------------+
-    |  [Meilisearch]   |
+    |  [Qdrant]        |
     |       |          |
     |  [Qdrant Vector] |
     +------------------+
@@ -226,7 +226,7 @@ function Show-DetailedArchitecture {
     Write-Host "  |       v" -ForegroundColor DarkGray
     Write-Host "  |  " -NoNewline -ForegroundColor DarkGray
     Write-Host "[INDEX]" -NoNewline -ForegroundColor $indexColor
-    Write-Host " Meilisearch + Qdrant" -ForegroundColor $indexColor
+    Write-Host " Qdrant" -ForegroundColor $indexColor
     Write-Host "  |       |" -ForegroundColor DarkGray
     
     # SEARCH

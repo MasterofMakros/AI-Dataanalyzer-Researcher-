@@ -31,10 +31,10 @@
 
 ### C. Communication (65k EMLs) -> Strategy: "Vector-Lite Search"
 *   **Problem:** Indexing 65k unstructured texts requires fast ingest and low-latency search.
-*   **Expert Solution:** **Meilisearch** (Rust).
+*   **Expert Solution:** **Qdrant** (Rust).
     *   *Mechanism:* A specialized search engine optimized for speed and typo-tolerance.
     *   *Efficiency:* Rust backend ensures minimal RAM footprint compared to Java-based Elasticsearch.
-    *   *Action:* Parse EMLs to JSONL -> Ingest to Meilisearch running on Mini-PC.
+    *   *Action:* Parse EMLs to JSONL -> Ingest to Qdrant running on Mini-PC.
 
 ---
 
@@ -44,7 +44,7 @@
 | :--- | :--- | :--- |
 | **Indexing / Embedding** | **NPU (XDNA 2)** | Offload embedding generation (Llama/BERT) to NPU. Saves CPU for OS. |
 | **Video Decoding** | **iGPU (Radeon 890M)** | Use VCN (Video Core Next) for thumb/keyframe generation. |
-| **Database I/O** | **NVMe (PCIe 5.0)** | High-IOPS random read for Qdrant/Meilisearch lookups. |
+| **Database I/O** | **NVMe (PCIe 5.0)** | High-IOPS random read for Qdrant/Qdrant lookups. |
 | **Cold Storage** | **HDD (SATA)** | Spin down when not in active ingest to save energy. |
 
 ---
@@ -62,5 +62,5 @@
     *   Run Indexing Script on `Z:\`.
 
 3.  **Phase 3: The Brain (Text/Web)**
-    *   Ingest 65k EMLs into Meilisearch.
+    *   Ingest 65k EMLs into Qdrant.
     *   Filter 166k HTMLs (remove boilerplates) -> Qdrant (Low Priority).

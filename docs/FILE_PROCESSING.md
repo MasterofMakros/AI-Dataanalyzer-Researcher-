@@ -81,7 +81,6 @@
 │                                                                         │
 │  • Shadow Ledger (SQLite): Alle Metadaten                              │
 │  • Qdrant: Vektor-Embeddings für semantische Suche                     │
-│  • Meilisearch: Volltext für exakte Suche (optional)                   │
 │  • Dateisystem: Datei wird verschoben/umbenannt                        │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
@@ -456,15 +455,14 @@ INSERT INTO file_metadata (
     confidence,
     
     -- Extrahierte Inhalte
-    extracted_text,           -- Volltext (für Meilisearch)
+    extracted_text,           -- Volltext (für Suche)
     extracted_entities,       -- JSON: {"vendor": "Bauhaus", "amount": 45.50}
     
     -- Format-spezifisch (JSON)
     format_metadata,          -- Alles andere (EXIF, ID3, etc.)
     
     -- Externe IDs
-    qdrant_point_id,
-    meilisearch_doc_id
+    qdrant_point_id
 ) VALUES (...);
 ```
 
@@ -511,29 +509,6 @@ qdrant_client.upsert(
 - "Zeige mir Fotos vom Strand" → Semantische Ähnlichkeit
 - "Finde Rechnungen über 100€" → Payload-Filter + Semantik
 
-### 4.2 Meilisearch (Volltext-Suche)
-
-```python
-# Beispiel: Dokument in Meilisearch speichern
-meilisearch_client.index("files").add_documents([
-    {
-        "id": "file_12345",
-        "original_filename": "IMG_4523.jpg",
-        "current_filename": "2024-08-15_Foto_Barcelona_Strand.jpg",
-        "category": "Foto",
-        "extracted_text": "Golden Retriever am Strand bei Sonnenuntergang",
-        "entities_flat": "Barcelona Hund Strand Sonnenuntergang"
-    }
-])
-```
-
-**Suchmöglichkeiten:**
-- "Retriever" → Exakt-Match im Text
-- "Barcelon*" → Prefix-Suche
-- Typo-tolerant: "Barselona" findet "Barcelona"
-
----
-
 ## 5. Zusammenfassung: Was wird wo gespeichert?
 
 | Speicherort | Was | Zweck |
@@ -541,7 +516,6 @@ meilisearch_client.index("files").add_documents([
 | **Dateisystem (F:/)** | Die Datei selbst (umbenannt) | Zugriff via Nextcloud/Explorer |
 | **Shadow Ledger (SQLite)** | Alle Metadaten + Original-Dateiname | Audit-Trail, Schnelle Abfragen |
 | **Qdrant** | Vektor-Embeddings + Payload | Semantische Suche ("ähnliche Dokumente") |
-| **Meilisearch** | Volltext + Entities | Exakte Suche, Typo-tolerant |
 
 ---
 
@@ -593,13 +567,11 @@ meilisearch_client.index("files").add_documents([
 - **Datei verschoben nach:** `F:/09 Finanzen/Eingangsrechnungen/2024/2024-05-12_Rechnung_Bauhaus_127EUR.jpg`
 - **Shadow Ledger:** Alle Metadaten gespeichert, Original-Name erhalten
 - **Qdrant:** Embedding gespeichert mit Payload
-- **Meilisearch:** Volltext indexiert
 
 ### Spätere Suche
 ```
 User: "Zeige mir Bauhaus-Rechnungen von 2024"
 
-→ Meilisearch: Findet "Bauhaus" im Text
 → Qdrant: Payload-Filter category="Rechnung" AND invoice_date LIKE "2024%"
 → Result: 2024-05-12_Rechnung_Bauhaus_127EUR.jpg
 ```

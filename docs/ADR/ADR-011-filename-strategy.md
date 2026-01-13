@@ -61,7 +61,7 @@ baseline:
   metriken:
     - name: "search_relevance"
       beschreibung: "Relevanz bei Suche nach Smart Name"
-      messmethode: "Meilisearch query, manuelles Review"
+      messmethode: "Qdrant query, manuelles Review"
     - name: "rollback_success"
       beschreibung: "Erfolgsrate beim Wiederherstellen"
       aktueller_wert: "Abhängig von DB-Integrität"

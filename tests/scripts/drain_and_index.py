@@ -69,7 +69,7 @@ def main():
                             if isinstance(payload, str):
                                 payload = json.loads(payload)
                             
-                            # Ensure ID for Meilisearch
+                            # Ensure ID for search index
                             if "id" not in payload:
                                 payload["id"] = msg_id.replace("-", "")
                                 

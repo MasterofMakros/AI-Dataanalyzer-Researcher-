@@ -68,7 +68,6 @@ CREATE TABLE IF NOT EXISTS file_metadata (
     
     -- Externe System-IDs
     qdrant_point_id TEXT,             -- Vector-ID in Qdrant
-    meilisearch_doc_id TEXT,          -- ID in Meilisearch
     nextcloud_file_id INTEGER,        -- Nextcloud interne ID
     
     -- Audit & Performance

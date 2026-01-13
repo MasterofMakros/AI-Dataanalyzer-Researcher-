@@ -24,7 +24,6 @@ Dieses Dokument hilft neuen Teammitgliedern, die Sprache des Projekts zu versteh
 | :--- | :--- |
 | **n8n** | Open-Source Workflow-Automatisierungs-Tool. Das "Zentrale Nervensystem", das alle Aktionen orchestriert. |
 | **Qdrant** | Vektordatenbank (in Rust). Speichert semantische Embeddings für die Suche ("Finde ähnliche Dokumente"). |
-| **Meilisearch** | Volltextsuchmaschine (in Rust). Schneller als Elasticsearch, ideal für E-Mails und Dokumente. |
 | **Ollama** | Lokaler LLM-Runner. Führt Modelle wie Llama3 oder Mistral auf deiner Hardware aus. |
 | **Tika** | Apache-Projekt zur Dateityp-Erkennung und Textextraktion (1400+ Formate). |
 | **Immich** | Open-Source Google-Photos-Alternative für lokales Foto/Video-Management mit KI-Features (Gesichtserkennung). |

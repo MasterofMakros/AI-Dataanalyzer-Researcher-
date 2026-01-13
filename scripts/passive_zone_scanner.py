@@ -15,7 +15,7 @@ sys.path.append(str(Path(__file__).resolve().parent.parent))
 
 from config.paths import BASE_DIR, LEDGER_DB_PATH, INBOX_DIR, QUARANTINE_DIR, ARCHIVE_DIR, TEST_SUITE_DIR
 from scripts.bulk_scanner import BulkScanner
-from scripts.file_indexer import process_file, index_to_meilisearch, index_to_qdrant
+from scripts.file_indexer import process_file, generate_embedding, index_to_qdrant
 
 # Config
 SCAN_ROOT = BASE_DIR
@@ -94,22 +94,8 @@ def main():
                 # Add status tag
                 doc['passive_zone'] = True
                 
-                # Push to Meili & Qdrant
-                index_to_meilisearch(doc)
-                # Qdrant: Need embeddings? process_file does classify but maybe not embed?
-                # file_indexer.py generate_embedding is not called in process_file?
-                # Let's check file_indexer.py... it uses extract_text_tika but where is embed?
-                # Ah, file_indexer.py process_file does NOT call embedding?
-                # It calls classify_with_ollama.
-                # It does NOT call generate_embedding?
-                # Wait, file_indexer.py 131: index_to_meilisearch.
-                # Where is index_to_qdrant called in file_indexer.py? 
-                # It's NOT called in main() loop of file_indexer.py! 
-                # It seems file_indexer.py MVP was incomplete for Qdrant?
-                
-                # Fixing specific gap: Call embedding here if text exists
+                # Qdrant: Embedding + Index
                 if doc.get('extracted_text'):
-                    from scripts.file_indexer import generate_embedding, index_to_qdrant
                     vec = generate_embedding(doc['extracted_text'])
                     if vec:
                         index_to_qdrant(doc['id'], vec, doc)
