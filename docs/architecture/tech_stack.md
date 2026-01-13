@@ -112,14 +112,19 @@ YYYY-MM-DD_Category_Entity_Description.ext
 
 ## Docker-Container
 
-| Container | Image | Ports |
+| Container | Image | Ports (Host → Container) |
 |:---|:---|:---|
-| `nextcloud` | nextcloud:28-apache | 8080 |
-| `nextcloud-db` | mariadb:10.11 | 3306 (intern) |
-| `n8n` | n8nio/n8n | 5678 |
-| `qdrant` | qdrant/qdrant | 6333, 6334 |
-| `ollama` | ollama/ollama | 11434 |
-| `tika` | apache/tika | 9998 |
+| `traefik` | traefik:v3.2 | 8888 → 8888 |
+| `nextcloud` | nextcloud:30-apache | 8081 → 80 |
+| `nextcloud-db` | mariadb:11 | 3306 (intern) |
+| `n8n` | n8nio/n8n:latest | 5680 → 5678 |
+| `qdrant` | qdrant/qdrant:latest | 6335 → 6333, 6336 → 6334 |
+| `ollama` | ollama/ollama:latest | 11435 → 11434 |
+| `tika` | apache/tika:2.9.0 | 9998 → 9998 |
+| `whisperx` | conductor-whisperx:latest | 9000 → 9000 |
+| `surya-ocr` | conductor-surya-ocr:latest | 9999 → 8000 |
+| `conductor-api` | conductor-api:latest | 8010 → 8000 |
+| `neural-search-api` | neural-search-api:latest | 8040 → 8040 |
 
 ---
 
