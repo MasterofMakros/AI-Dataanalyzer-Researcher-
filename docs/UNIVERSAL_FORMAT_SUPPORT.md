@@ -320,6 +320,119 @@
 
 ---
 
+## Darstellungs-Playbook (UI/UX)
+
+> Ziel: Jede Quelle lässt sich im Suchergebnis **verifizieren** (Ausschnitte sehen/hören) und bei Bedarf **vertiefen**.
+
+### Quellen-Sprunglogik (LLM → Viewer)
+
+- **Quellenanker normalisieren:** Jede evidenzierte Quelle bekommt ein `source_anchor`-Objekt mit `format`, `uri` und einem formatspezifischen Locator (z. B. `page`, `timecode`, `line_range`, `bbox`, `chapter`, `cell`).  
+- **Viewer-Router:** UI wählt anhand `format` den passenden Viewer und übergibt den Locator (deeplink bzw. initiale Fokus-Position).  
+- **Antwort → Evidenzen:** LLM liefert pro Antwortsatz eine Liste von Quellenankern (mit Start/Ende), die beim Klick den Viewer exakt positionieren.  
+
+### Dokumente
+
+- **Paginated Document Viewer (Text-Layer + Highlights):** PDF, DOCX, DOC, ODT, RTF, Apple Pages (.pages).  
+- **Spreadsheet Grid + Formel-Ansicht:** XLSX, XLS, ODS, Apple Numbers (.numbers), CSV, TSV.  
+- **Slide Deck Viewer (Folie/Notizen/Navigation):** PPTX, PPT, ODP, Apple Keynote (.key).  
+- **Struktur-Explorer (Tree + Raw-Ansicht):** XML, JSON, YAML/YML.  
+- **HTML/Markup Preview (Rendered + Source Toggle):** HTML/HTM, XHTML, MHTML, LaTeX (.tex/.latex), TXT.  
+
+### E-Books
+
+- **E-Book Reader (Reflow + Kapitel-Navigation):** EPUB, MOBI, AZW, AZW3, FB2.  
+- **Image/Page Viewer + OCR-Overlay:** DjVu.  
+- **Comic Reader (Bildstrecke + Thumbnails):** CBZ, CBR, CB7.  
+
+### Bilder
+
+- **Image Viewer (Zoom, EXIF, OCR-Overlay):** JPEG, PNG, BMP, TIFF, WebP, HEIC/HEIF, AVIF.  
+- **Animierte Vorschau:** GIF (mit Play/Pause).  
+- **Vector Viewer (SVG/PDF-Render):** SVG, EPS.  
+- **Design-Dateien (Rasterized Preview + Metadata):** PSD, XCF, AI, ICO.  
+- **RAW Viewer (Embedded Preview + EXIF, optional Develop):** CR2/CR3, NEF, ARW, DNG, RAF, ORF, RW2, PEF.  
+- **HDR Viewer (Tone-Mapping + Layers):** EXR.  
+
+### Audio
+
+- **Waveform Player + Timecoded Transcript:** MP3, AAC, M4A, WAV, FLAC, ALAC, OGG, Opus, WMA, AIFF, APE.  
+- **Audiobook Player (Kapitel + Speed):** M4B.  
+- **MIDI Player (Synth + Piano Roll):** MID/MIDI.  
+
+### Video
+
+- **Video Player (Timeline + Keyframes + Transcript):** MP4/M4V, MKV, WebM, AVI, MOV, WMV, FLV, MPG/MPEG, 3GP/3G2, MXF, TS/M2TS, VOB, OGV, RM/RMVB, DivX/XviD.  
+
+### E-Mail & Kommunikation
+
+- **Message Viewer (Header, Body, Attachments, Thread):** EML, MSG, MBOX.  
+- **Mailbox Explorer (Folder Tree + Message View):** PST, OST.  
+- **Contact Card Viewer:** VCF.  
+- **Calendar Event Viewer (Timeline + TZ):** ICS/ICAL.  
+
+### Archive & Disk Images
+
+- **File Tree + On-Demand Preview (safe extract):** ZIP, RAR, 7Z, TAR, GZ/TGZ, BZ2/TBZ2, XZ/TXZ, ZST, LZ, LZMA.  
+- **Disk Image Browser (Mount/List + File Tree):** ISO, IMG, DMG, VHD/VHDX, VMDK.  
+
+### Source Code & Markup
+
+- **Syntax-Highlight Code Viewer:** .py, .js, .ts, .java, .c/.cpp/.cxx/.h/.hpp, .cs, .go, .rs, .rb, .php, .swift, .kt, .scala, .r, .pl, .lua, .sh, .bat, .ps1, .sql, .groovy, .dart, .ex, .erl, .hs, .clj, .fs, .ml, .asm, .cob, .f90.  
+- **Rendered + Source Toggle:** Markdown (.md), reStructuredText (.rst), AsciiDoc (.adoc).  
+- **Config Viewer (Key/Value + Raw):** .ini/.cfg/.conf, .toml, .properties, .env.  
+
+### Datenbanken
+
+- **Schema Explorer + Table Preview:** SQLite (.sqlite/.sqlite3/.db), Access (.mdb/.accdb), dBASE (.dbf).  
+- **SQL Viewer (Syntax + ERD Extract):** .sql.  
+- **Column Stats + Sample Rows:** Parquet, Feather, Arrow.  
+
+### 3D-Modelle
+
+- **WebGL 3D Viewer (Orbit/Measure + Mesh Stats):** OBJ, STL, PLY, FBX, glTF/GLB, DAE, 3DS.  
+- **Metadata + Conversion Hint:** BLEND, MAX, MA/MB, C4D, SKP.  
+
+### CAD & Engineering
+
+- **CAD Viewer (2D/3D Render + Layers + Maßstab):** DWG, DXF, DWF, STEP/STP, IGES/IGS, SAT.  
+- **Metadata + Conversion Hint:** IPT/IAM, SLDPRT/SLDASM.  
+
+### GIS & Geodaten
+
+- **Map Viewer (Tiles + Layer Toggle + Bounds):** SHP/SHX/DBF, GeoJSON, KML/KMZ, GPX, OSM/PBF.  
+
+### Wissenschaftliche Formate
+
+- **Dataset Explorer (Arrays + Plot + Stats):** MAT, NetCDF, HDF/HDF5/H5, FITS, NPY/NPZ, Parquet, Feather, Arrow.  
+- **Safe Summary (No Execute) + Conversion Hint:** Pickle/PKL.  
+
+### Schriftarten
+
+- **Font Specimen Viewer (Alphabet, Weights, Glyph Table):** TTF, OTF, WOFF/WOFF2, EOT, PFB/PFM.  
+
+### Spezialformate
+
+- **Torrent Inspector (File List + Trackers):** .torrent.  
+- **Subtitle Viewer (Timecodes + Search Highlights):** SRT, ASS/SSA, VTT.  
+- **App Package Viewer (Manifest + Resources):** APK, IPA.  
+- **Binary Inspector (Metadata + Hashes + Strings):** EXE/DLL, SO, DYLIB.  
+- **Encrypted Placeholder + Decrypt Prompt:** GPG/PGP.  
+
+---
+
+## Quellenanker: Beispiele pro Format
+
+- **PDF/DOCX:** `{"page": 12, "char_range": [532, 812]}` → Seite 12 öffnen, Text markieren.  
+- **Audio/Video:** `{"timecode": "00:12:05", "duration": 18}` → Player an Zeitmarke springen, Segment highlighten.  
+- **Tabellen:** `{"sheet": "Report", "cell": "D12"}` → Grid auf Zelle fokussieren.  
+- **Code/Logs:** `{"line_range": [120, 146]}` → Zeilenbereich hervorheben.  
+- **Bilder/OCR:** `{"bbox": [x, y, w, h]}` → Zoom auf OCR-Box.  
+- **E-Mails:** `{"message_id": "<...>", "section": "body"}` → Nachricht/Abschnitt fokussieren.  
+- **3D/CAD:** `{"view": "isometric", "layer": "Walls"}` → vordefinierte Ansicht/Layer.  
+- **GIS:** `{"bbox": [minLon, minLat, maxLon, maxLat]}` → Kartenzoom auf Bounding Box.  
+
+---
+
 ## Magic Byte Detection
 
 Der Router erkennt Dateien anhand ihrer **Magic Bytes** (Datei-Signatur):
