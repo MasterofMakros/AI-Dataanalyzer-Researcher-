@@ -1,7 +1,7 @@
 'use client';
 
 import { Message } from '@/components/ChatWindow';
-import { Block } from '@/lib/types';
+import { Block, Chunk } from '@/lib/types';
 import {
   createContext,
   useContext,
