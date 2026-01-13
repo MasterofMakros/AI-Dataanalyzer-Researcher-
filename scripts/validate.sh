@@ -62,25 +62,36 @@ if [ "$QUICK" = false ]; then
     '
 fi
 
-# 4. Frontend Build Check
+# 4. Frontend Lint Check
 if [ "$QUICK" = false ]; then
-    test_step "Frontend Build Check" '
+    test_step "Frontend Lint Check" '
         if [ -f "./ui/perplexica/package.json" ]; then
-            cd ./ui/perplexica && npm run build --if-present >/dev/null 2>&1 && cd ../..
+            (cd ./ui/perplexica && npm run lint --if-present)
         else
             echo -e "${YELLOW}SKIP: ui/perplexica not found${NC}"
         fi
     '
 fi
 
-# 5. Docker Compose Validation
+# 5. Frontend Build Check
+if [ "$QUICK" = false ]; then
+    test_step "Frontend Build Check" '
+        if [ -f "./ui/perplexica/package.json" ]; then
+            (cd ./ui/perplexica && npm run build --if-present >/dev/null 2>&1)
+        else
+            echo -e "${YELLOW}SKIP: ui/perplexica not found${NC}"
+        fi
+    '
+fi
+
+# 6. Docker Compose Validation
 if [ "$SKIP_DOCKER" = false ]; then
     test_step "Docker Compose Config" '
         docker compose config --quiet
     '
 fi
 
-# 6. Smoke Test (if containers running)
+# 7. Smoke Test (if containers running)
 if [ "$SKIP_DOCKER" = false ]; then
     test_step "Smoke Test" '
         containers=$(docker ps --format "{{.Names}}" 2>/dev/null)

@@ -1,5 +1,7 @@
 # PRP: Smoke Test - Verify Context Engineering Setup
 
+Status: planned
+
 ## Goal
 - Verify that the new `scripts/validate.ps1` works.
 - Verify that `CLAUDE.md` and templates are present.

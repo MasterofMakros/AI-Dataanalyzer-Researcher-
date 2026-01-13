@@ -1,7 +1,7 @@
 # PRP: Feature Backlog Generator (G-001)
 
 ## Status
-- State: done
+- State: planned
 - Owner: codex
 - Last Updated: 2025-01-15
 
@@ -45,4 +45,4 @@
 - Rollback steps: revert changes and restore previous behavior.
 
 ## Execution Notes (filled during implementation)
-- Implemented `scripts/generate_feature_backlog.py` to build the backlog from PRPs.
+- TBD
