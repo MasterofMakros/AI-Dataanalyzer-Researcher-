@@ -75,6 +75,19 @@ docker compose --profile intelligence up -d
 ./scripts/validate.sh
 ```
 
+**Scope:**
+- Doctor check (Umgebung/Prereqs)
+- Python compile check
+- Backend Tests (`pytest tests/`)
+- Frontend Lint (`npm run lint --if-present`)
+- Frontend Build (`npm run build --if-present`)
+- Docker Compose config validation
+- Smoke tests (nur wenn Container laufen)
+
+**Optionen:**
+- `--quick`/`-Quick`: Skips UI build/lint + Backend Tests.
+- `--skip-docker`/`-SkipDocker`: Skips Docker config + Smoke tests.
+
 ### Überprüfung
 
 Nach dem Start sind folgende Services verfügbar (Host-Ports):

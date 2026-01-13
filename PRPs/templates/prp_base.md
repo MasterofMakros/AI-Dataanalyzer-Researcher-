@@ -29,9 +29,10 @@
 3) Validate: run gates, fix failures
 4) Document: update README/docs/ADRs if needed
 
-## Validation Gates (MUST PASS)
-- `./scripts/validate.ps1`
-- Any extra service checks:
+## Test Plan (Exact Commands)
+- Windows (PowerShell): `./scripts/validate.ps1`
+- Linux/macOS: `./scripts/validate.sh`
+- Optional service checks (when services are running):
   - `curl -f http://localhost:8010/health`
   - `curl -f http://localhost:8020/health`
 
