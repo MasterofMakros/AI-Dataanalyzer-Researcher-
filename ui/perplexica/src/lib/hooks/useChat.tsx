@@ -335,6 +335,81 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
           const citationRegex = /\[([^\]]+)\]/g;
           const regex = /\[(\d+)\]/g;
 
+          const escapeHtmlAttribute = (value: string) =>
+            value
+              .replace(/&/g, '&amp;')
+              .replace(/"/g, '&quot;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;')
+              .replace(/\s+/g, ' ')
+              .trim();
+
+          const buildCitationAttributes = (source?: Chunk) => {
+            if (!source) {
+              return '';
+            }
+
+            const rawSnippet = source.content?.trim() ?? '';
+            const snippet =
+              rawSnippet.length > 280
+                ? `${rawSnippet.slice(0, 277)}...`
+                : rawSnippet;
+
+            const title = source.metadata?.title ?? '';
+            const sourceType = source.metadata?.sourceType ?? 'web';
+            const filePath = source.metadata?.url ?? '';
+            const page = source.metadata?.page
+              ? String(source.metadata.page)
+              : '';
+            const timecodeStart = source.metadata?.timecodeStart ?? '';
+            const timecodeEnd = source.metadata?.timecodeEnd ?? '';
+            const url = source.metadata?.url ?? '';
+
+            const attributes: string[] = [];
+
+            if (title) {
+              attributes.push(`data-title="${escapeHtmlAttribute(title)}"`);
+            }
+
+            if (snippet) {
+              attributes.push(`data-snippet="${escapeHtmlAttribute(snippet)}"`);
+            }
+
+            if (sourceType) {
+              attributes.push(
+                `data-source-type="${escapeHtmlAttribute(sourceType)}"`,
+              );
+            }
+
+            if (filePath) {
+              attributes.push(
+                `data-file-path="${escapeHtmlAttribute(filePath)}"`,
+              );
+            }
+
+            if (page) {
+              attributes.push(`data-page="${escapeHtmlAttribute(page)}"`);
+            }
+
+            if (timecodeStart) {
+              attributes.push(
+                `data-timecode-start="${escapeHtmlAttribute(timecodeStart)}"`,
+              );
+            }
+
+            if (timecodeEnd) {
+              attributes.push(
+                `data-timecode-end="${escapeHtmlAttribute(timecodeEnd)}"`,
+              );
+            }
+
+            if (url) {
+              attributes.push(`data-source-url="${escapeHtmlAttribute(url)}"`);
+            }
+
+            return attributes.join(' ');
+          };
+
           if (processedText.includes('<think>')) {
             const openThinkTag = processedText.match(/<think>/g)?.length || 0;
             const closeThinkTag =
@@ -367,9 +442,10 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
 
                     const source = sources[number - 1];
                     const url = source?.metadata?.url;
+                    const attributes = buildCitationAttributes(source);
 
                     if (url) {
-                      return `<citation href="${url}">${numStr}</citation>`;
+                      return `<citation href="${url}" ${attributes}>${numStr}</citation>`;
                     } else {
                       return ``;
                     }
