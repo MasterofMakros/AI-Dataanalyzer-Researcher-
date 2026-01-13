@@ -18,7 +18,6 @@ from smart_ingest import (
     sha256_hash, 
     get_mime_type, 
     save_to_shadow_ledger,
-    index_to_meilisearch,
     EXTENDED_AVAILABLE,
     EXTENDED_EXTENSIONS,
     TEXT_EXTENSIONS
@@ -190,9 +189,6 @@ def process_passive_file(filepath: Path):
         # 4. Speichern (Shadow Ledger only in Offline Mode)
         print("  💾 Indexing (Ledger)...")
         save_to_shadow_ledger(data)
-        
-        # Meili skip (Docker Down)
-        # index_to_meilisearch(meili_doc)
         
         return True
         

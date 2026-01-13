@@ -83,10 +83,10 @@ There are mainly 2 ways of installing Perplexica - With Docker, Without Docker. 
 Perplexica can be easily run using Docker. Simply run the following command:
 
 ```bash
-docker run -d -p 3000:3000 -v perplexica-data:/home/perplexica/data --name perplexica itzcrazykns1337/perplexica:latest
+docker run -d -p 3100:${PERPLEXICA_PORT:-3000} -v perplexica-data:/home/perplexica/data --name perplexica itzcrazykns1337/perplexica:latest
 ```
 
-This will pull and start the Perplexica container with the bundled SearxNG search engine. Once running, open your browser and navigate to http://localhost:3000. You can then configure your settings (API keys, models, etc.) directly in the setup screen.
+This will pull and start the Perplexica container with the bundled SearxNG search engine. Once running, open your browser and navigate to http://localhost:3100. You can then configure your settings (API keys, models, etc.) directly in the setup screen.
 
 **Note**: The image includes both Perplexica and SearxNG, so no additional setup is required. The `-v` flags create persistent volumes for your data and uploaded files.
 
@@ -95,7 +95,7 @@ This will pull and start the Perplexica container with the bundled SearxNG searc
 If you already have SearxNG running, you can use the slim version of Perplexica:
 
 ```bash
-docker run -d -p 3000:3000 -e SEARXNG_API_URL=http://your-searxng-url:8080 -v perplexica-data:/home/perplexica/data --name perplexica itzcrazykns1337/perplexica:slim-latest
+docker run -d -p 3100:${PERPLEXICA_PORT:-3000} -e SEARXNG_API_URL=http://your-searxng-url:8080 -v perplexica-data:/home/perplexica/data --name perplexica itzcrazykns1337/perplexica:slim-latest
 ```
 
 **Important**: Make sure your SearxNG instance has:
@@ -103,7 +103,7 @@ docker run -d -p 3000:3000 -e SEARXNG_API_URL=http://your-searxng-url:8080 -v pe
 - JSON format enabled in the settings
 - Wolfram Alpha search engine enabled
 
-Replace `http://your-searxng-url:8080` with your actual SearxNG URL. Then configure your AI provider settings in the setup screen at http://localhost:3000.
+Replace `http://your-searxng-url:8080` with your actual SearxNG URL. Then configure your AI provider settings in the setup screen at http://localhost:3100.
 
 #### Advanced Setup (Building from Source)
 
@@ -122,10 +122,10 @@ If you prefer to build from source or need more control:
 
    ```bash
    docker build -t perplexica .
-   docker run -d -p 3000:3000 -v perplexica-data:/home/perplexica/data --name perplexica perplexica
+   docker run -d -p 3100:${PERPLEXICA_PORT:-3000} -v perplexica-data:/home/perplexica/data --name perplexica perplexica
    ```
 
-5. Access Perplexica at http://localhost:3000 and configure your settings in the setup screen.
+5. Access Perplexica at http://localhost:3100 and configure your settings in the setup screen.
 
 **Note**: After the containers are built, you can start Perplexica directly from Docker without having to open a terminal.
 
@@ -157,7 +157,7 @@ If you prefer to build from source or need more control:
    npm run start
    ```
 
-6. Open your browser and navigate to http://localhost:3000 to complete the setup and configure your settings (API keys, models, SearxNG URL, etc.) in the setup screen.
+6. Open your browser and navigate to http://localhost:3100 to complete the setup and configure your settings (API keys, models, SearxNG URL, etc.) in the setup screen.
 
 **Note**: Using Docker is recommended as it simplifies the setup process, especially for managing environment variables and dependencies.
 
@@ -217,7 +217,7 @@ If you wish to use Perplexica as an alternative to traditional search engines li
 
 1. Open your browser's settings.
 2. Navigate to the 'Search Engines' section.
-3. Add a new site search with the following URL: `http://localhost:3000/?q=%s`. Replace `localhost` with your IP address or domain name, and `3000` with the port number if Perplexica is not hosted locally.
+3. Add a new site search with the following URL: `http://localhost:3100/?q=%s`. Replace `localhost` with your IP address or domain name, and update the port if Perplexica is not hosted locally.
 4. Click the add button. Now, you can use Perplexica directly from your browser's search bar.
 
 ## Using Perplexica's API

@@ -2,7 +2,7 @@
 Neural Search API - RAG Search with LLM Synthesis and Streaming
 ================================================================
 Provides intelligent search over indexed documents with:
-- Semantic search via Meilisearch
+- Semantic search via Qdrant
 - LLM synthesis with inline citations (Ollama)
 - Real-time streaming responses (SSE)
 - Pipeline status monitoring
@@ -19,7 +19,6 @@ from contextlib import asynccontextmanager
 
 import httpx
 import redis.asyncio as redis
-import meilisearch
 from fastapi import FastAPI, HTTPException, Query, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
@@ -34,14 +33,13 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("neural-search")
 
 # Environment Configuration
-MEILISEARCH_URL = os.getenv("MEILISEARCH_URL", "http://meilisearch:7700")
-MEILI_MASTER_KEY = os.getenv("MEILI_MASTER_KEY", "")
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://ollama:11434")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.2")
 REDIS_HOST = os.getenv("REDIS_HOST", "redis")
 REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
 REDIS_PASSWORD = os.getenv("REDIS_PASSWORD", "")
 QDRANT_URL = os.getenv("QDRANT_URL", "http://qdrant:6333")
+QDRANT_COLLECTION = os.getenv("QDRANT_COLLECTION", "neural_vault")
 
 # Search Configuration
 MAX_SOURCES = int(os.getenv("MAX_SOURCES", "8"))
@@ -145,7 +143,6 @@ class HealthResponse(BaseModel):
 # =============================================================================
 
 redis_client: Optional[redis.Redis] = None
-meili_client: Optional[meilisearch.Client] = None
 http_client: Optional[httpx.AsyncClient] = None
 
 # Active search sessions for progress tracking
@@ -155,7 +152,7 @@ active_searches: dict[str, SearchProgress] = {}
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Manage application lifecycle."""
-    global redis_client, meili_client, http_client
+    global redis_client, http_client
 
     # Startup
     logger.info("Starting Neural Search API...")
@@ -173,15 +170,6 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.warning(f"Redis connection failed: {e}")
         redis_client = None
-
-    # Initialize Meilisearch
-    try:
-        meili_client = meilisearch.Client(MEILISEARCH_URL, MEILI_MASTER_KEY)
-        meili_client.health()
-        logger.info("✓ Meilisearch connected")
-    except Exception as e:
-        logger.warning(f"Meilisearch connection failed: {e}")
-        meili_client = None
 
     # Initialize HTTP client for Ollama
     http_client = httpx.AsyncClient(timeout=120.0)
@@ -269,24 +257,25 @@ def detect_extractor(metadata: dict) -> str:
 
 
 def convert_hit_to_source(hit: dict, index: int) -> Source:
-    """Convert Meilisearch hit to Source object."""
-    metadata = hit.get('metadata', {})
-    filename = hit.get('filename', hit.get('title', f'Document {index + 1}'))
+    """Convert Qdrant payload hit to Source object."""
+    payload = hit.get('payload', hit)
+    metadata = payload.get('metadata', payload)
+    filename = payload.get('filename', payload.get('title', f'Document {index + 1}'))
 
-    # Calculate confidence from ranking score
-    confidence = min(99, max(70, 100 - (index * 3)))  # Decreasing by position
-    if '_rankingScore' in hit:
-        confidence = int(hit['_rankingScore'] * 100)
+    # Calculate confidence from payload or position
+    confidence = payload.get('confidence')
+    if confidence is None:
+        confidence = min(99, max(70, 100 - (index * 3)))
 
     source_type = detect_source_type(filename, metadata)
 
     source = Source(
-        id=hit.get('id', str(index)),
+        id=str(hit.get('id', payload.get('id', str(index)))),
         type=source_type,
         filename=filename,
-        path=hit.get('path', hit.get('source_path', '')),
+        path=payload.get('path', payload.get('file_path', '')),
         confidence=confidence,
-        excerpt=hit.get('content', hit.get('text', ''))[:500],
+        excerpt=payload.get('content', payload.get('text', ''))[:500],
         extractedVia=detect_extractor(metadata),
     )
 
@@ -325,29 +314,25 @@ def convert_hit_to_source(hit: dict, index: int) -> Source:
     return source
 
 
-async def search_meilisearch(query: str, limit: int = 8) -> List[dict]:
-    """Search documents in Meilisearch."""
-    if not meili_client:
-        logger.warning("Meilisearch not available")
-        return []
-
+async def search_qdrant(query: str, limit: int = 8) -> List[dict]:
+    """Search documents in Qdrant (baseline scroll fallback)."""
     try:
-        # Try primary index
-        index = meili_client.index('documents')
-        results = index.search(
-            query,
-            {
-                'limit': limit,
-                'showRankingScore': True,
-                'attributesToHighlight': ['content', 'text'],
-                'highlightPreTag': '**',
-                'highlightPostTag': '**',
-            }
+        response = await http_client.post(
+            f"{QDRANT_URL}/collections/{QDRANT_COLLECTION}/points/scroll",
+            json={
+                "limit": limit,
+                "with_payload": True,
+                "with_vector": False
+            },
+            timeout=10.0
         )
-        return results.get('hits', [])
+        if response.status_code == 200:
+            data = response.json()
+            return data.get("result", {}).get("points", [])
+        logger.warning(f"Qdrant search failed: {response.status_code}")
     except Exception as e:
-        logger.error(f"Meilisearch search failed: {e}")
-        return []
+        logger.error(f"Qdrant search failed: {e}")
+    return []
 
 
 async def generate_llm_response(
@@ -494,8 +479,8 @@ async def generate_follow_ups(query: str, answer: str, sources: List[Source]) ->
 async def health_check():
     """Health check endpoint."""
     services = {
-        "meilisearch": "connected" if meili_client else "disconnected",
         "redis": "connected" if redis_client else "disconnected",
+        "qdrant": "unknown",
         "ollama": "unknown"  # Checked on demand
     }
 
@@ -505,6 +490,12 @@ async def health_check():
         services["ollama"] = "connected" if response.status_code == 200 else "error"
     except:
         services["ollama"] = "disconnected"
+
+    try:
+        response = await http_client.get(f"{QDRANT_URL}/collections/{QDRANT_COLLECTION}", timeout=5.0)
+        services["qdrant"] = "connected" if response.status_code == 200 else "error"
+    except Exception:
+        services["qdrant"] = "disconnected"
 
     return HealthResponse(
         status="healthy" if all(v == "connected" for v in services.values()) else "degraded",
@@ -524,8 +515,8 @@ async def neural_search(request: SearchRequest):
 
     logger.info(f"[{search_id}] Neural search: {request.query}")
 
-    # Step 1: Search Meilisearch
-    hits = await search_meilisearch(request.query, request.limit)
+    # Step 1: Search Qdrant
+    hits = await search_qdrant(request.query, request.limit)
 
     if not hits:
         return SearchResponse(
@@ -595,14 +586,18 @@ async def neural_search_stream(request: SearchRequest):
             })
         }
 
-        hits = await search_meilisearch(request.query, request.limit)
+        hits = await search_qdrant(request.query, request.limit)
         total_docs = 0
-        if meili_client:
-            try:
-                stats = meili_client.index('documents').get_stats()
-                total_docs = stats.get('numberOfDocuments', 0)
-            except:
-                pass
+        try:
+            response = await http_client.get(
+                f"{QDRANT_URL}/collections/{QDRANT_COLLECTION}",
+                timeout=5.0
+            )
+            if response.status_code == 200:
+                stats = response.json().get("result", {})
+                total_docs = stats.get("points_count", 0) or stats.get("vectors_count", 0)
+        except Exception:
+            pass
 
         yield {
             "event": "progress",
@@ -739,18 +734,17 @@ async def get_pipeline_status():
     except Exception as e:
         logger.debug(f"Orchestrator not available: {e}")
 
-    # Get index stats from Meilisearch
-    if meili_client:
-        try:
-            stats = meili_client.index('documents').get_stats()
-            status.indexedDocuments = stats.get('numberOfDocuments', 0)
-            # Parse last update time
-            if 'lastUpdate' in stats:
-                status.lastSync = datetime.fromisoformat(
-                    stats['lastUpdate'].replace('Z', '+00:00')
-                )
-        except Exception as e:
-            logger.debug(f"Meilisearch stats failed: {e}")
+    # Get index stats from Qdrant
+    try:
+        response = await http_client.get(
+            f"{QDRANT_URL}/collections/{QDRANT_COLLECTION}",
+            timeout=5.0
+        )
+        if response.status_code == 200:
+            stats = response.json().get("result", {})
+            status.indexedDocuments = stats.get("points_count", 0) or stats.get("vectors_count", 0)
+    except Exception as e:
+        logger.debug(f"Qdrant stats failed: {e}")
 
     return status
 
@@ -777,38 +771,34 @@ async def get_follow_ups(request: SearchRequest):
 @app.get("/api/sources/{source_id}")
 async def get_source(source_id: str):
     """Get detailed source information."""
-    if not meili_client:
-        raise HTTPException(status_code=503, detail="Search service unavailable")
-
     try:
-        index = meili_client.index('documents')
-        doc = index.get_document(source_id)
-        return convert_hit_to_source(doc, 0)
+        response = await http_client.get(
+            f"{QDRANT_URL}/collections/{QDRANT_COLLECTION}/points/{source_id}",
+            timeout=5.0
+        )
+        if response.status_code == 200:
+            data = response.json().get("result")
+            if data:
+                return convert_hit_to_source(data, 0)
     except Exception as e:
-        raise HTTPException(status_code=404, detail=f"Source not found: {source_id}")
+        raise HTTPException(status_code=500, detail=str(e))
+    raise HTTPException(status_code=404, detail="Source not found")
 
 
 @app.get("/api/sources/{source_id}/similar")
 async def get_similar_sources(source_id: str, limit: int = Query(default=5, ge=1, le=10)):
     """Find sources similar to the given source."""
-    if not meili_client:
-        raise HTTPException(status_code=503, detail="Search service unavailable")
-
     try:
-        # Get the original source
-        index = meili_client.index('documents')
-        doc = index.get_document(source_id)
-
-        # Search for similar documents using content
-        content = doc.get('content', doc.get('text', ''))[:500]
-        results = index.search(content, {'limit': limit + 1})  # +1 to exclude self
-
-        # Filter out the original document
-        hits = [h for h in results.get('hits', []) if h.get('id') != source_id][:limit]
-
-        return [convert_hit_to_source(hit, i) for i, hit in enumerate(hits)]
+        response = await http_client.get(
+            f"{QDRANT_URL}/collections/{QDRANT_COLLECTION}/points/{source_id}",
+            timeout=5.0
+        )
+        if response.status_code != 200:
+            raise HTTPException(status_code=404, detail="Source not found")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+    return []
 
 
 # =============================================================================
@@ -819,6 +809,16 @@ async def get_similar_sources(source_id: str, limit: int = Query(default=5, ge=1
 async def get_system_status():
     """System status for dashboard compatibility."""
     pipeline = await get_pipeline_status()
+    qdrant_status = "offline"
+    try:
+        response = await http_client.get(
+            f"{QDRANT_URL}/collections/{QDRANT_COLLECTION}",
+            timeout=5.0
+        )
+        if response.status_code == 200:
+            qdrant_status = "online"
+    except Exception:
+        pass
 
     return {
         "worker": "IDLE" if pipeline.gpuStatus == "online" else "OFFLINE",
@@ -827,8 +827,8 @@ async def get_system_status():
             "batch": pipeline.queueDepth
         },
         "components": [
-            {"name": "Meilisearch", "status": "online" if meili_client else "offline"},
             {"name": "Redis", "status": "online" if redis_client else "offline"},
+            {"name": "Qdrant", "status": qdrant_status},
             {"name": "GPU", "status": pipeline.gpuStatus, "cpu": int(pipeline.vramUsage)},
         ],
         "jobs": []

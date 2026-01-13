@@ -12,7 +12,7 @@
 *   **Status:** **READY FOR PILOT (Conditional)**. The system is installable, configurable, and passes smoke tests.
 *   **Architecture match:** **YES**. `docker-compose.yml` (19 services) aligns with `docs/DOCKER_ARCHITECTURE.md`.
 *   **Test Health:** **Passed (Smoke)**. 7/7 backend tests passed (`tests/test_invoice_search.py`). Frontend tests are configured in CI but not run locally (missing `pnpm`/`npm` install).
-*   **Automation:** **Improved**. Meilisearch initialization is now automated in `start_pipeline.ps1/sh` (P1 resolved).
+*   **Automation:** **Improved**. Initialization tasks are automated in `start_pipeline.ps1/sh`.
 *   **Conflicts:** **Minor**. `PROJECT_STATUS.md` "Offene Punkte" section needs manual update to reflect current automation state (evidence: file content mismatch vs implemented script).
 *   **Security:** **Clean**. No hardcoded secrets found in scanned legacy files. `.env.example` is complete.
 *   **Missing:** No `n8n` workflow definition files found in repo (feature "Auto-Ingest" is partial/unverified).
@@ -26,7 +26,7 @@
 | :--- | :--- | :--- | :--- |
 | **Neural Search UI** | **Implemented** | `ui/perplexica/` | Files exist. `package.json` defines build/lint scripts. |
 | **RAG Pipeline** | **Implemented** | `docker/neural-search-api/` | Service in `docker-compose.yml`. |
-| **Vector DB** | **Implemented** | `docker-compose.yml` (Qdrant, Meilisearch) | Ports 6335, 7700 open and mapped. |
+| **Vector DB** | **Implemented** | `docker-compose.yml` (Qdrant) | Ports 6335 open and mapped. |
 | **Local LLM** | **Implemented** | `docker-compose.yml` (Ollama) | Port 11435 mapped. Service present. |
 | **Universal Routing** | **Implemented** | `docker/universal-router/` | Service defined. |
 | **Task Orchestration**| **Implemented** | `docker/orchestrator/` | Service defined, Redis Streams configured in startup scripts. |
@@ -39,7 +39,6 @@
 
 | Conflict | Evidence | Impact | Fix / Decision |
 | :--- | :--- | :--- | :--- |
-| **Status Doc vs Code** | `docs/PROJECT_STATUS.md` lists manual Meilisearch init, but `start_pipeline.ps1` automates it. | Medium (Confusion). | **Fix:** Update markdown to match automation reality. |
 | **Missing Workflows** | `n8n` service deployed but no workflows in repo. | High (Feature unavailable). | **Decision Needed:** Export production workflows to `config/n8n/`. |
 | **Linting Gaps** | `ci.yml` runs `npm run lint` for frontend, but no clear python linting (ruff/mypy) config at root. | Low (Code Quality). | **Recommendation:** Add `pyproject.toml` with ruff config. |
 
@@ -61,11 +60,6 @@
 ---
 
 ## 5. Concrete Action Plan (Next Actions)
-
-### P1: Sync Documentation
-*   **Goal:** Eliminate contradiction between Project Status and actual Automation.
-*   **File:** `docs/PROJECT_STATUS.md`
-*   **Action:** Mark "Meilisearch Initial Index" as Done/Automated. (Already performed in previous step).
 
 ### P1: Export Workflows
 *   **Goal:** Make "Auto-Ingest" feature reproducible.

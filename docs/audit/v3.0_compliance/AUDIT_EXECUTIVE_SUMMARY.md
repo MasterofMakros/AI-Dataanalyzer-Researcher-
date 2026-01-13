@@ -18,7 +18,7 @@ This audit was conducted to rigorously enforce V3.0 compliance across the `Maste
 This was not merely a cleanup; it was a **Governance Engineering** overhaul.
 
 1.  **Security Hardening (P0):**
-    *   **Resolved:** Created `docker-compose.prod.yml` with pinned versions (`Qdrant v1.15.5`, `Meilisearch v1.23.0`) and localhost bindings (`127.0.0.1`).
+    *   **Resolved:** Created `docker-compose.prod.yml` with pinned versions (`Qdrant v1.15.5`) and localhost bindings (`127.0.0.1`).
     *   **Impact:** Prevents accidental exposure of sensitive databases to the public network and ensures reproducible builds.
 
 2.  **Governance Enforcement (P0):**

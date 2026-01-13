@@ -1,6 +1,6 @@
 """
 Neural Vault File Indexer - MVP Version
-Indexiert Dateien in Meilisearch und Qdrant
+Indexiert Dateien in Qdrant
 
 Usage:
     python file_indexer.py --path /path/to/folder --limit 100
@@ -12,8 +12,9 @@ import json
 import hashlib
 import requests
 import time
-import sys
 from pathlib import Path
+from datetime import datetime
+from typing import Optional, List, Dict, Any
 # Add project root to path
 if __name__ == "__main__":
     sys.path.append(str(Path(__file__).resolve().parent.parent))
@@ -22,7 +23,6 @@ from config.paths import BASE_DIR
 
 # Konfiguration aus .env
 TIKA_URL = "http://localhost:9998/tika"
-MEILISEARCH_URL = "http://localhost:7700"
 QDRANT_URL = "http://localhost:6335"
 OLLAMA_URL = "http://localhost:11435"
 
@@ -38,7 +38,6 @@ def load_env():
     return env
 
 ENV = load_env()
-MEILI_KEY = ENV.get("MEILI_MASTER_KEY", "")
 QDRANT_KEY = ENV.get("QDRANT_API_KEY", "")
 
 # Unterstützte Dateitypen für Volltext
@@ -132,17 +131,6 @@ Antworte mit exakt diesem JSON-Format:
         "tags": []
     }
 
-def index_to_meilisearch(doc: Dict[str, Any]):
-    """Indexiere Dokument in Meilisearch."""
-    headers = {"Authorization": f"Bearer {MEILI_KEY}"}
-    response = requests.post(
-        f"{MEILISEARCH_URL}/indexes/files/documents",
-        headers=headers,
-        json=[doc],
-        timeout=30
-    )
-    return response.status_code in (200, 202)
-
 def index_to_qdrant(doc_id: str, vector: List[float], payload: Dict):
     """Indexiere Vektor in Qdrant."""
     headers = {"api-key": QDRANT_KEY}
@@ -221,9 +209,18 @@ def main(path: str, limit: int = 100):
                 errors += 1
                 continue
             
-            # In Meilisearch indexieren
-            print(f"  📥 Indexiere in Meilisearch...")
-            if index_to_meilisearch(doc):
+            text_for_embedding = doc.get("extracted_text") or doc.get("meta_description", "")
+            vector = generate_embedding(text_for_embedding)
+            if not vector:
+                print("  ❌ Kein Embedding erzeugt")
+                errors += 1
+                continue
+
+            payload = doc.copy()
+            payload["file_path"] = payload.pop("current_path", "")
+
+            print("  📥 Indexiere in Qdrant...")
+            if index_to_qdrant(doc["id"], vector, payload):
                 success += 1
             else:
                 errors += 1

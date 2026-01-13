@@ -24,7 +24,7 @@
 - **Action:** Generated `docker-compose.prod.yml` from the verified base compose.
 - **Hardening Applied:**
     - **Bound Ports:** `127.0.0.1:6333` (Qdrant), `127.0.0.1:7700` (Meili).
-    - **Pinned Versions:** `qdrant/qdrant:v1.15.5`, `getmeili/meilisearch:v1.23.0`.
+    - **Pinned Versions:** `qdrant/qdrant:v1.15.5`.
 - **Status:** **DONE**.
 
 ### ✅ 2.2 File System Sanitation

@@ -460,7 +460,7 @@ Neural Search ist eine RAG-basierte Suchoberfläche (Retrieval-Augmented Generat
 │  GET  /api/sources/{id}/similar   ─── Ähnliche Quellen                 │
 │                                                                         │
 │  Abhängigkeiten:                                                        │
-│  ├── Meilisearch (:7700) ─── Volltextsuche                             │
+│  ├── Qdrant (:6333)      ─── Vektorsuche                               │
 │  ├── Ollama (:11434)     ─── LLM-Synthese                              │
 │  ├── Redis (:6379)       ─── Queue-Status                              │
 │  └── Document Processor  ─── GPU-Status                                │
@@ -589,7 +589,6 @@ ui/perplexica/src/
 ├─────────────────────────────────────────────────────────────────────────┤
 │                            STORAGE                                       │
 ├─────────────────────────────────────────────────────────────────────────┤
-│  Meilisearch (:7700) │ Full-Text Search Index                           │
 │  Qdrant (:6333)      │ Vector Database                                  │
 │  LanceDB             │ Embedded Vector Store                            │
 ├─────────────────────────────────────────────────────────────────────────┤

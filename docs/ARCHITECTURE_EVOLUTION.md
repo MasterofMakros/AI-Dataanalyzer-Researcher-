@@ -59,7 +59,7 @@
 
 ### BLUE-001: Hybrid Search (Semantic + Keyword)
 **Beide Analysen:** "Das Herzstück. Mach das so gut wie möglich."
-**Status:** Funktioniert via Qdrant + Meilisearch
+**Status:** Funktioniert via Qdrant
 **Nächster Schritt:**
 - [ ] Cross-encoder Reranking (zerank-1) hinzufügen
 - [ ] Query Expansion mit Synonymen

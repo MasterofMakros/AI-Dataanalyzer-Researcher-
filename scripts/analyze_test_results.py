@@ -170,12 +170,7 @@ Die verarbeiteten Daten werden gespeichert in:
    - MIME-Type
    - Extrahierter Text (Snippet)
 
-2. MEILISEARCH (Volltext-Suche):
-   - Durchsuchbarer Text
-   - Facetten-Filter (Kategorie, Datum, Typ)
-   - Typo-tolerante Suche
-
-3. QDRANT (Vektor-Suche - geplant):
+2. QDRANT (Vektor-Suche):
    - Semantische Aehnlichkeit
    - "Finde aehnliche Dokumente"
 

@@ -121,7 +121,7 @@ function Start-CoreServices {
     docker compose up -d redis
     Start-Sleep -Seconds 2
 
-    docker compose up -d meilisearch tika ollama
+    docker compose up -d tika ollama
     docker compose up -d conductor-api neural-search-api perplexica
 
     Wait-ForService "http://localhost:9998" "Tika" 30
@@ -214,7 +214,6 @@ function Show-Status {
         @{Url = "http://localhost:8010/health"; Name = "Conductor API"},
         @{Url = "http://localhost:8040/health"; Name = "Neural Search API"},
         @{Url = "http://localhost:3100"; Name = "Perplexica UI"},
-        @{Url = "http://localhost:7700/health"; Name = "Meilisearch"},
         @{Url = "http://localhost:9998"; Name = "Tika"},
         @{Url = "http://localhost:8005/health"; Name = "Document Processor"},
         @{Url = "http://localhost:8030/health"; Name = "Universal Router"},

@@ -292,7 +292,7 @@ Write-Host ""
 
 # Container resource usage
 Write-Host "  Container Resource Usage:" -ForegroundColor White
-$keyContainers = @("conductor-universal-router", "conductor-api", "conductor-redis", "conductor-meilisearch")
+$keyContainers = @("conductor-universal-router", "conductor-api", "conductor-redis")
 foreach ($container in $keyContainers) {
     if ($finalContainers.ContainsKey($container)) {
         $stats = $finalContainers[$container]
@@ -346,4 +346,3 @@ if ($successRate -ge 95) {
 Write-Host ""
 
 return $TestResults
-

@@ -63,18 +63,15 @@ print('SPEICHER- UND ZEIT-SCHÄTZUNG')
 print('='*60)
 
 # Speicher-Schätzung
-# Meilisearch: ~1% der Textgröße für Index
 # Qdrant: ~768 floats * 4 bytes * Anzahl Dokumente = ~3KB pro Doc
 # Shadow Ledger: ~1KB pro Datei
 
-meili_size_gb = text_size * 0.01 / 1024  # 1% der Text-Dateigröße
 qdrant_size_gb = (text_count * 3) / 1024 / 1024  # 3KB pro Text-Doc
 ledger_size_gb = (total_files * 1) / 1024 / 1024  # 1KB pro Datei
 
-print(f'Meilisearch Index: ~{meili_size_gb:.2f} GB')
 print(f'Qdrant Vektoren: ~{qdrant_size_gb:.2f} GB (nur Text-Dateien)')
 print(f'Shadow Ledger DB: ~{ledger_size_gb:.2f} GB')
-print(f'GESAMT geschätzt: ~{meili_size_gb + qdrant_size_gb + ledger_size_gb:.2f} GB')
+print(f'GESAMT geschätzt: ~{qdrant_size_gb + ledger_size_gb:.2f} GB')
 
 print()
 print('='*60)

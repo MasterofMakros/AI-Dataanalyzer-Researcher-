@@ -95,7 +95,7 @@ flowchart TB
 │  ┌─────────────────────────────────────────────────────────┐   │
 │  │ 🔵 PASSIVE ZONE: Alles andere (F:/*)                    │   │
 │  │                                                         │   │
-│  │  • Dateien werden NUR INDEXIERT (Qdrant, Meilisearch)  │   │
+│  │  • Dateien werden NUR INDEXIERT (Qdrant)               │   │
 │  │  • Dateien werden NICHT umbenannt                      │   │
 │  │  • Dateien werden NICHT verschoben                     │   │
 │  │  • Volle Suchbarkeit, aber keine Änderung              │   │
@@ -159,7 +159,6 @@ CREATE TABLE IF NOT EXISTS file_metadata (
     
     -- Externe IDs
     qdrant_point_id TEXT,
-    meilisearch_doc_id TEXT,
     nextcloud_file_id INTEGER,
     
     -- Audit

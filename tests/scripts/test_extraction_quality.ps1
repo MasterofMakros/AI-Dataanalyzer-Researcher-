@@ -4,7 +4,7 @@
     Tests extracted content against known ground truth
 
 .DESCRIPTION
-    Queries Meilisearch for indexed documents and validates:
+    Queries Qdrant for indexed documents and validates:
     1. Expected keywords/content are present
     2. Entity extraction accuracy
     3. Structure preservation
@@ -343,4 +343,3 @@ Write-Host ""
 
 # Return results for automation
 return $Results
-

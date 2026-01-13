@@ -19,10 +19,10 @@ Neural Vault besteht aus **16+ Docker-Containern**, die über ein internes Netzw
 │  │   :8888     │  │   :5432     │  │   :6379     │  │   :8081     │        │
 │  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘        │
 │                                                                              │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐        │
-│  │     n8n     │  │   Qdrant    │  │ Meilisearch │  │   Ollama    │        │
-│  │   :5680     │  │   :6335     │  │   :7700     │  │  :11435     │        │
-│  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘        │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐                       │
+│  │     n8n     │  │   Qdrant    │  │   Ollama    │                       │
+│  │   :5680     │  │   :6335     │  │  :11435     │                       │
+│  └─────────────┘  └─────────────┘  └─────────────┘                       │
 │                                                                              │
 │  ┌─────────────────────────────────────────────────────────────────┐        │
 │  │                    BINARY PROCESSING LAYER                       │        │
@@ -42,7 +42,7 @@ Neural Vault besteht aus **16+ Docker-Containern**, die über ein internes Netzw
 │  ┌─────────────────────────────────────────────────────────────────┐        │
 │  │                    CONDUCTOR API (NEU)                           │        │
 │  │                         :8010                                    │        │
-│  │  - Volltextsuche (Meilisearch)                                   │        │
+│  │  - RAG-Suche (Qdrant)                                            │        │
 │  │  - Pattern-of-Life Analyse                                       │        │
 │  │  - Context Headers für RAG                                       │        │
 │  │  - Feedback Tracking                                             │        │
@@ -66,7 +66,6 @@ Neural Vault besteht aus **16+ Docker-Containern**, die über ein internes Netzw
 | redis | redis:7.4-alpine | 6379 | 6379 | 128M | Cache + State |
 | n8n | n8nio/n8n:latest | 5680 | 5678 | 768M | Workflow Engine |
 | qdrant | qdrant/qdrant:latest | 6335 | 6333 | 1G | Vector DB (GRPC: 6336 -> 6334) |
-| meilisearch | getmeili/meilisearch:latest | 7700 | 7700 | 512M | Fulltext Search (legacy, optional) |
 | ollama | ollama/ollama:latest | 11435 | 11434 | 8G | Local LLM |
 | tika | apache/tika:latest | 9998 | 9998 | 1G | Document Parser |
 | whisperx | conductor-whisperx:latest | 9000 | 9000 | 8G | Audio Transkription |
@@ -81,21 +80,6 @@ Neural Vault besteht aus **16+ Docker-Containern**, die über ein internes Netzw
 ## Conductor API Endpoints
 
 Die neue **conductor-api** fasst alle Funktionen in einer REST-API zusammen:
-
-### Suche
-
-```bash
-# Volltextsuche
-curl -X POST http://localhost:8010/search \
-  -H "Content-Type: application/json" \
-  -d '{"query": "Rechnung 2024", "limit": 20}'
-
-# Pattern-of-Life: Dateien von Sonntagen
-curl "http://localhost:8010/search/pattern-of-life?weekday=6&limit=50"
-
-# Pattern-of-Life: Nachts (22-06 Uhr) erstellt
-curl "http://localhost:8010/search/pattern-of-life?hour_min=22&hour_max=6"
-```
 
 ### Extraktion
 
@@ -152,7 +136,6 @@ curl http://localhost:8010/health
 # {
 #   "status": "healthy",
 #   "services": {
-#     "meilisearch": true,
 #     "tika": true,
 #     "redis": true,
 #     "qdrant": true,
@@ -218,7 +201,6 @@ Alle Secrets werden über `.env` konfiguriert:
 # Required
 POSTGRES_PASSWORD=sicheres_passwort
 REDIS_PASSWORD=sicheres_passwort
-MEILI_MASTER_KEY=min_16_zeichen_key
 N8N_ENCRYPTION_KEY=min_32_zeichen_key
 NC_DB_PASSWORD=sicheres_passwort
 NC_DB_ROOT_PASSWORD=sicheres_passwort
@@ -241,9 +223,7 @@ Alle Services kommunizieren über das interne `conductor-net` Bridge-Netzwerk:
 │                     conductor-net (bridge)                       │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                  │
-│   conductor-api ──► meilisearch (http://meilisearch:7700)       │
-│         │                                                        │
-│         ├──────► tika (http://tika:9998)                        │
+│   conductor-api ──► tika (http://tika:9998)                     │
 │         │                                                        │
 │         ├──────► redis (redis://redis:6379)                     │
 │         │                                                        │
@@ -264,7 +244,6 @@ Alle Services kommunizieren über das interne `conductor-net` Bridge-Netzwerk:
 |:-------|:------|:------|
 | `F:/` | `/mnt/data:ro` | Datenpool (Read-Only) |
 | `conductor_api_data` | `/data` | Feedback DB, Cache |
-| `meilisearch_data` | `/meili_data` | Suchindex |
 | `qdrant_data` | `/qdrant/storage` | Vektoren |
 | `ollama_data` | `/root/.ollama` | LLM-Modelle |
 
@@ -300,12 +279,6 @@ docker compose ps
 
 # In Container einloggen
 docker exec -it conductor-api bash
-```
-
-### Meilisearch Index Reset
-
-```bash
-curl -X POST "http://localhost:8010/index/setup?reset=true"
 ```
 
 ### Memory-Probleme

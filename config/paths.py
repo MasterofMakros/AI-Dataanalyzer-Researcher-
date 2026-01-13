@@ -24,7 +24,6 @@ LEDGER_DB_PATH = DATA_DIR / "shadow_ledger.db"
 
 # URLs (Service endpoints)
 TIKA_URL = os.getenv("TIKA_URL", "http://localhost:9998/tika")
-MEILISEARCH_URL = os.getenv("MEILISEARCH_URL", "http://localhost:7700")
 QDRANT_URL = os.getenv("QDRANT_URL", "http://localhost:6335")
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11435")
 NEURAL_WORKER_URL = os.getenv("NEURAL_WORKER_URL", "http://localhost:8005")

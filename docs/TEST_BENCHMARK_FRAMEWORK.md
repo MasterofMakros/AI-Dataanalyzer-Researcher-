@@ -700,71 +700,6 @@ foreach ($test in $embeddingTests) {
 
 ## 7. Phase 4: Indexing Tests
 
-### 7.1 Meilisearch (Fulltext)
-
-```powershell
-# tests/scripts/test_meilisearch.ps1
-
-function Test-MeilisearchIndexing {
-    param([string]$Content, [string]$SearchQuery, [bool]$ShouldFind)
-    
-    $docId = "test-" + (Get-Random)
-    
-    # Dokument indizieren
-    $doc = @{
-        id = $docId
-        content = $Content
-        filename = "test_document.txt"
-    }
-    
-    Invoke-RestMethod -Uri "http://localhost:7700/indexes/documents/documents" `
-        -Method POST `
-        -Body ($doc | ConvertTo-Json) `
-        -ContentType 'application/json' `
-        -Headers @{Authorization = "Bearer masterKey"}
-    
-    Start-Sleep -Seconds 2
-    
-    # Suchen
-    $searchResult = Invoke-RestMethod -Uri "http://localhost:7700/indexes/documents/search" `
-        -Method POST `
-        -Body (@{q = $SearchQuery; limit = 10} | ConvertTo-Json) `
-        -ContentType 'application/json' `
-        -Headers @{Authorization = "Bearer masterKey"}
-    
-    $found = $searchResult.hits | Where-Object { $_.id -eq $docId }
-    
-    # Aufräumen
-    Invoke-RestMethod -Uri "http://localhost:7700/indexes/documents/documents/$docId" `
-        -Method DELETE `
-        -Headers @{Authorization = "Bearer masterKey"}
-    
-    return @{
-        Query = $SearchQuery
-        Found = $null -ne $found
-        Expected = $ShouldFind
-        Success = ($null -ne $found) -eq $ShouldFind
-        ProcessingTime = $searchResult.processingTimeMs
-    }
-}
-
-# Fulltext-Suchtest
-$searchTests = @(
-    @{Content="Die Quartalszahlen zeigen Wachstum"; Query="Quartalszahlen"; ShouldFind=$true},
-    @{Content="Die Quartalszahlen zeigen Wachstum"; Query="Quatralszahlen"; ShouldFind=$true},  # Typo-Toleranz
-    @{Content="Die Quartalszahlen zeigen Wachstum"; Query="Umsatz"; ShouldFind=$false},
-    @{Content="Machine Learning ist wichtig"; Query="maschinelles lernen"; ShouldFind=$false}  # Kein semantischer Match
-)
-
-Write-Host "`n=== MEILISEARCH INDEXING TEST ==="
-
-foreach ($test in $searchTests) {
-    $result = Test-MeilisearchIndexing -Content $test.Content -SearchQuery $test.Query -ShouldFind $test.ShouldFind
-    $status = if ($result.Success) { "✅" } else { "❌" }
-    Write-Host "$status Query='$($result.Query)' Found=$($result.Found) Expected=$($result.Expected) Time=$($result.ProcessingTime)ms"
-}
-```
-
 ### 7.2 Qdrant (Vector)
 
 ```powershell
@@ -1028,7 +963,7 @@ Write-Host "`nE2E Results: $passedTests / $totalTests passed ($([Math]::Round($p
 │  • Fallback für Scanned PDFs: OCR-Pipeline als Alternative                 │
 │  • Hybrid: Docling + Tika für maximale Kompatibilität                      │
 │                                                                             │
-│  🔍 Search (Meilisearch + Qdrant)                                          │
+│  🔍 Search (Qdrant)                                                       │
 │  ─────────────────────────────────                                         │
 │  Empfehlung:                                                               │
 │  • Hybrid Ranking: BM25 + Vector kombinieren (RRF oder Linear)             │
@@ -1113,7 +1048,6 @@ Write-Host "`n[5/7] Running NER Tests..."
 
 # 6. Search Tests
 Write-Host "`n[6/7] Running Search Quality Tests..."
-. .\tests\scripts\test_meilisearch.ps1 -ResultsVar ([ref]$results.Search)
 . .\tests\scripts\test_qdrant.ps1 -ResultsVar ([ref]$results.Search)
 
 # 7. E2E Tests

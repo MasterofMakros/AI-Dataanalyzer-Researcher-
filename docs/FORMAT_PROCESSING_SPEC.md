@@ -28,7 +28,7 @@ Extrahiert:
   - Metadaten: Autor, Erstelldatum, Producer
   - OCR: Wenn Scan erkannt (kein Text-Layer)
   - Handschrift: TrOCR wenn erkannt
-Indexiert in: Meilisearch (Volltext), Qdrant (Chunks)
+Indexiert in: Qdrant (Volltext), Qdrant (Chunks)
 Sortierung: Nach Kategorie (Rechnung→Finanzen, Vertrag→Rechtliches)
 ```
 
@@ -42,7 +42,7 @@ Extrahiert:
   - Kommentare & Änderungen
   - Eingebettete Bilder
   - Metadaten: Autor, Firma, Erstelldatum
-Indexiert in: Meilisearch, Qdrant
+Indexiert in: Qdrant, Qdrant
 ```
 
 ### Excel (.xlsx, .xls) - 16.991 Dateien
@@ -54,7 +54,7 @@ Extrahiert:
   - Formeln (als Referenz)
   - Diagramm-Titel
   - Spaltenüberschriften
-Indexiert in: Meilisearch
+Indexiert in: Qdrant
 Besonderheit: Zahlenformate erhalten (Währung, Datum)
 ```
 
@@ -66,7 +66,7 @@ Extrahiert:
   - Notizen
   - Folientitel
   - Eingebettete Bilder
-Indexiert in: Meilisearch, Qdrant
+Indexiert in: Qdrant, Qdrant
 ```
 
 ### Text (.txt, .md, .rtf) - 21.449 Dateien
@@ -75,7 +75,7 @@ Tools: Native Python, markdown
 Extrahiert:
   - Volltext
   - Markdown-Struktur (bei .md)
-Indexiert in: Meilisearch, Qdrant
+Indexiert in: Qdrant, Qdrant
 ```
 
 ---
@@ -92,7 +92,7 @@ Extrahiert:
   - Anhänge (separat verarbeitet)
   - Thread-ID
   - In-Reply-To
-Indexiert in: Meilisearch (Volltext), SQLite (Metadaten)
+Indexiert in: Qdrant (Volltext), SQLite (Metadaten)
 Sortierung: Nach Absender-Domain, Datum
 ```
 
@@ -193,7 +193,7 @@ Extrahiert:
   - Kapitelmarken (wenn vorhanden)
   - Key-Frame-Beschreibungen (alle 30 Sek)
   - Untertitel (wenn eingebettet)
-Indexiert in: Qdrant (pro Segment), Meilisearch (Volltranskript)
+Indexiert in: Qdrant (pro Segment), Qdrant (Volltranskript)
 Deep-Link: video.mp4?t=125 (Sekunden)
 ```
 

@@ -44,7 +44,6 @@ flowchart LR
 
     subgraph "Storage Layer"
         Qdrant[🧠 Qdrant]
-        Meili[🔎 Meilisearch]
         SQLite[📒 Shadow Ledger]
         HDD[💾 18TB HDD]
     end
@@ -62,7 +61,6 @@ flowchart LR
     TrOCR --> Ollama
     
     Ollama --> Qdrant
-    Ollama --> Meili
     Ollama --> SQLite
     n8n --> HDD
 ```
@@ -78,8 +76,7 @@ flowchart LR
 | **Surya OCR** | OCR für gedruckte Dokumente (97.7%) | 🟡 Planned |
 | **TrOCR** | OCR für Handschrift (96%) | 🟡 Planned |
 | **Ollama** | Lokale LLM-Inferenz (Qwen3:8b) | 🟢 Active |
-| **Qdrant** | Vektor-Datenbank (Semantische Suche) | � Active |
-| **Meilisearch** | Volltext-Suche (E-Mails, Dokumente) | � Active |
+| **Qdrant** | Vektor-Datenbank (Semantische Suche) | 🟢 Active |
 | **SQLite** | Shadow Ledger (Metadaten, Audit) | 🟢 Active |
 | **Immich** | Foto/Video-Management (Gesichtserkennung) | 🟡 Planned |
 
