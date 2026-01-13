@@ -121,7 +121,7 @@ function Start-CoreServices {
     docker compose up -d redis
     Start-Sleep -Seconds 2
 
-    docker compose up -d meilisearch tika ollama
+    docker compose up -d tika ollama
     docker compose up -d conductor-api neural-search-api perplexica
 
     Wait-ForService "http://localhost:9998" "Tika" 30

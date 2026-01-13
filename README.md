@@ -77,16 +77,16 @@ docker compose --profile intelligence up -d
 
 ### Überprüfung
 
-Nach dem Start sind folgende Services verfügbar:
+Nach dem Start sind folgende Services verfügbar (Host-Ports):
 
-| Service | URL | Beschreibung |
-|---------|-----|--------------|
-| Neural Search (Perplexica) | http://localhost:3100 | Web UI mit Local Search |
-| Conductor API | http://localhost:8010 | REST API |
-| Neural Search API | http://localhost:8040 | RAG + LLM Backend |
-| Qdrant | http://localhost:6335 | Vektor-Datenbank |
-| Ollama | http://localhost:11435 | LLM Backend |
-| Orchestrator | http://localhost:8020 | Pipeline Stats |
+| Service | Host-Port (URL) | Container-Port | Beschreibung |
+|---------|------------------|----------------|--------------|
+| Neural Search (Perplexica) | http://localhost:3100 | 3100 | Web UI mit Local Search |
+| Conductor API | http://localhost:8010 | 8000 | REST API |
+| Neural Search API | http://localhost:8040 | 8040 | RAG + LLM Backend |
+| Qdrant | http://localhost:6335 | 6333 | Vektor-Datenbank |
+| Ollama | http://localhost:11435 | 11434 | LLM Backend |
+| Orchestrator | http://localhost:8020 | 8020 | Pipeline Stats |
 
 ---
 
@@ -155,8 +155,9 @@ Die Neural Search UI unterstützt jetzt lokale Dokumentensuche mit drei Modi:
 
 | Dokument | Beschreibung |
 |----------|--------------|
-| [ARCHITECTURE.md](ARCHITECTURE.md) | System-Architektur |
-| [PROJECT_OVERVIEW_2025.md](PROJECT_OVERVIEW_2025.md) | Projekt-Übersicht |
+| [docs/index.md](docs/index.md) | Zentrale Dokumentations-Navigation |
+| [docs/architecture/overview.md](docs/architecture/overview.md) | System-Architektur |
+| [docs/project/overview_2025.md](docs/project/overview_2025.md) | Projekt-Übersicht |
 | [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md) | Aktueller Status |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Beitragsrichtlinien |
 | [SECURITY.md](SECURITY.md) | Sicherheitsrichtlinien |

@@ -78,8 +78,8 @@ flowchart LR
 | **Surya OCR** | OCR für gedruckte Dokumente (97.7%) | 🟡 Planned |
 | **TrOCR** | OCR für Handschrift (96%) | 🟡 Planned |
 | **Ollama** | Lokale LLM-Inferenz (Qwen3:8b) | 🟢 Active |
-| **Qdrant** | Vektor-Datenbank (Semantische Suche) | � Active |
-| **Meilisearch** | Volltext-Suche (E-Mails, Dokumente) | � Active |
+| **Qdrant** | Vektor-Datenbank (Semantische Suche) | 🟢 Active |
+| **Meilisearch** | Volltext-Suche (E-Mails, Dokumente) | 🟠 Deprecated (optional) |
 | **SQLite** | Shadow Ledger (Metadaten, Audit) | 🟢 Active |
 | **Immich** | Foto/Video-Management (Gesichtserkennung) | 🟡 Planned |
 
