@@ -30,10 +30,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Create app directory
 WORKDIR /app
 
+# Version pinning for reproducible builds
+ARG WHISPERX_VERSION=3.7.4
+
 # Install WhisperX from PyPI (handles all dependencies correctly)
 # This installs torch~=2.8.0, pyannote-audio>=3.3.2, etc.
 RUN pip3 install --no-cache-dir --upgrade pip && \
-    pip3 install --no-cache-dir whisperx
+    pip3 install --no-cache-dir "whisperx==${WHISPERX_VERSION}"
 
 # Install additional API dependencies
 RUN pip3 install --no-cache-dir \

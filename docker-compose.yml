@@ -191,7 +191,7 @@ services:
   # ===========================================================================
 
   tika:
-    image: apache/tika:latest
+    image: apache/tika:${TIKA_TAG:-2.9.0}
     container_name: conductor-tika
     restart: unless-stopped
     ports:
@@ -232,7 +232,7 @@ services:
   # Audio-Transkription via Whisper (faster-whisper, WER 6-7%)
   # DEPRECATED: Wird durch whisperx ersetzt (siehe unten)
   whisper:
-    image: fedirz/faster-whisper-server:latest-cuda
+    image: fedirz/faster-whisper-server:${FASTER_WHISPER_CUDA_TAG:-latest-cuda}
     container_name: conductor-whisper
     restart: unless-stopped
     ports:
@@ -262,6 +262,8 @@ services:
     build:
       context: ./infra/docker/whisperx-api
       dockerfile: Dockerfile
+      args:
+        WHISPERX_VERSION: ${WHISPERX_VERSION:-3.7.4}
     image: conductor-whisperx:latest
     container_name: conductor-whisperx
     restart: unless-stopped

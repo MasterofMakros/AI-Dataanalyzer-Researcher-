@@ -470,7 +470,7 @@ services:
   # ===========================================================================
 
   tika:
-    image: apache/tika:latest
+    image: apache/tika:${TIKA_TAG:-2.9.0}
     container_name: conductor-tika
     restart: unless-stopped
     networks:
@@ -487,7 +487,7 @@ services:
 
   # Fast Path: base model, CPU
   whisper-fast:
-    image: fedirz/faster-whisper-server:latest
+    image: fedirz/faster-whisper-server:${FASTER_WHISPER_TAG:-latest}
     container_name: conductor-whisper-fast
     restart: unless-stopped
     environment:
@@ -506,7 +506,7 @@ services:
 
   # Deep Path: large-v3 model, GPU
   whisper-accurate:
-    image: fedirz/faster-whisper-server:latest-cuda
+    image: fedirz/faster-whisper-server:${FASTER_WHISPER_CUDA_TAG:-latest-cuda}
     container_name: conductor-whisper-accurate
     restart: unless-stopped
     environment:
