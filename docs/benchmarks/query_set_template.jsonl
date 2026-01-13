@@ -1,0 +1,4 @@
+{"id":"text-001","modality":"text","query":"Rechnung 2024 MWST","expected_ids":["doc_123"],"notes":"Keyword-heavy"}
+{"id":"text-002","modality":"text","query":"Was waren die wichtigsten Ausgaben im Q3?","expected_ids":["doc_456"],"notes":"Semantic question"}
+{"id":"audio-001","modality":"audio","query":"Telefonat mit Steuerberater","expected_ids":["audio_789"],"notes":"Transcript search"}
+{"id":"video-001","modality":"video","query":"Urlaub 2022 Strand","expected_ids":["video_234"],"notes":"Multimodal / visual context"}
