@@ -16,6 +16,9 @@ und [Semantic Versioning](https://semver.org/lang/de/).
 - **ABT-N01:** Entity Resolution mit Fuzzy Matching ([ADR-020](ADR/ADR-020-entity-resolution.md))
 - **ABT-N02:** Data Narrator für Tabellen ([ADR-021](ADR/ADR-021-data-narrator.md))
 
+### Entfernt
+- Mission Control vollständig entfernt.
+
 ### In Test (EXPERIMENTAL)
 - `neural-worker` Docker Container mit Docling + GLiNER
 - LanceDB als "Neural Spine" für Archiv-Vektoren
