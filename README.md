@@ -87,6 +87,8 @@ Nach dem Start sind folgende Services verfügbar (Host-Ports):
 | Qdrant | http://localhost:6335 | 6333 | Vektor-Datenbank |
 | Ollama | http://localhost:11435 | 11434 | LLM Backend |
 | Orchestrator | http://localhost:8020 | 8020 | Pipeline Stats |
+| Redis | http://localhost:6379 | 6379 | Queue/Cache |
+| Document Processor (GPU) | http://localhost:8005 | 8005 | Docling/Surya/GLiNER |
 
 ---
 
@@ -157,8 +159,10 @@ Die Neural Search UI unterstützt jetzt lokale Dokumentensuche mit drei Modi:
 |----------|--------------|
 | [docs/index.md](docs/index.md) | Zentrale Dokumentations-Navigation |
 | [docs/architecture/overview.md](docs/architecture/overview.md) | System-Architektur |
+| [docs/architecture/service-matrix.md](docs/architecture/service-matrix.md) | Service-Matrix (Ports, Profile, Healthchecks) |
 | [docs/project/overview_2025.md](docs/project/overview_2025.md) | Projekt-Übersicht |
 | [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md) | Aktueller Status |
+| [docs/runbooks/RUNBOOK-001-nextcloud-setup.md](docs/runbooks/RUNBOOK-001-nextcloud-setup.md) | Runbook: Nextcloud Setup |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Beitragsrichtlinien |
 | [SECURITY.md](SECURITY.md) | Sicherheitsrichtlinien |
 

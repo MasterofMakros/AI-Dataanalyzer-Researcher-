@@ -245,7 +245,7 @@ services:
   #   environment:
   #     - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
   #   ports:
-  #     - "3000:3000"
+  #     - "3100:${PERPLEXICA_PORT:-3000}"
   #   volumes:
   #     - grafana_data:/var/lib/grafana
   #   networks:

@@ -1062,7 +1062,7 @@ services:
     container_name: conductor-perplexica
     restart: unless-stopped
     ports:
-      - "3100:3000"    # Main UI
+      - "3100:${PERPLEXICA_PORT:-3000}"    # Main UI
       - "8180:8080"    # SearxNG (internal)
     volumes:
       - perplexica_data:/home/perplexica/data
@@ -1082,7 +1082,7 @@ services:
         limits:
           memory: 1G
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      test: ["CMD", "curl", "-f", "http://localhost:${PERPLEXICA_PORT:-3000}"]
       interval: 30s
       timeout: 10s
       retries: 3

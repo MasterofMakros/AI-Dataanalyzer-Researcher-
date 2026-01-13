@@ -12,7 +12,7 @@ Before making search requests, you'll need to get the available providers and th
 
 #### **GET** `/api/providers`
 
-**Full URL**: `http://localhost:3000/api/providers`
+**Full URL**: `http://localhost:3100/api/providers`
 
 Returns a list of all active providers with their available chat and embedding models.
 
@@ -51,9 +51,9 @@ Use the `id` field as the `providerId` and the `key` field from the models array
 
 #### **POST** `/api/search`
 
-**Full URL**: `http://localhost:3000/api/search`
+**Full URL**: `http://localhost:3100/api/search`
 
-**Note**: Replace `localhost:3000` with your Perplexica instance URL if running on a different host or port
+**Note**: Replace `localhost:3100` with your Perplexica instance URL if running on a different host or port
 
 ### Request
 
@@ -87,12 +87,12 @@ The API accepts a JSON object in the request body, where you define the enabled 
 
 ### Request Parameters
 
-- **`chatModel`** (object, required): Defines the chat model to be used for the query. To get available providers and models, send a GET request to `http://localhost:3000/api/providers`.
+- **`chatModel`** (object, required): Defines the chat model to be used for the query. To get available providers and models, send a GET request to `http://localhost:3100/api/providers`.
 
   - `providerId` (string): The UUID of the provider. You can get this from the `/api/providers` endpoint response.
   - `key` (string): The model key/identifier (e.g., `gpt-4o-mini`, `llama3.1:latest`). Use the `key` value from the provider's `chatModels` array, not the display name.
 
-- **`embeddingModel`** (object, required): Defines the embedding model for similarity-based searching. To get available providers and models, send a GET request to `http://localhost:3000/api/providers`.
+- **`embeddingModel`** (object, required): Defines the embedding model for similarity-based searching. To get available providers and models, send a GET request to `http://localhost:3100/api/providers`.
 
   - `providerId` (string): The UUID of the embedding provider. You can get this from the `/api/providers` endpoint response.
   - `key` (string): The embedding model key (e.g., `text-embedding-3-large`, `nomic-embed-text`). Use the `key` value from the provider's `embeddingModels` array, not the display name.
