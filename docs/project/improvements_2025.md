@@ -125,7 +125,7 @@ GET  /processors        - List capabilities
 **Status**: Implemented
 **Files**: `docker/universal-router/router.py`
 
-- Magic Byte Detection (200+ formats)
+- Magic Byte Detection (Formatanzahl siehe `docs/capabilities/formats.md`)
 - Content-type validation
 - Automatic format routing
 - Port: 8030

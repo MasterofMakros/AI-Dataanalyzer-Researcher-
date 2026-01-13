@@ -2,7 +2,7 @@
 
 **Version:** 1.0.0  
 **Stand:** 11.01.2026  
-**Ziel:** Vollständige Qualitätssicherung aller 124+ unterstützten Formate ohne UI-Tests
+**Ziel:** Vollständige Qualitätssicherung aller unterstützten Formate (Anzahl siehe `docs/capabilities/formats.md`) ohne UI-Tests
 
 ---
 
@@ -145,7 +145,7 @@ F:\AI-Dataanalyzer-Researcher\tests\
 │   ├── images\                  # Bilder mit bekanntem Text
 │   ├── audio\                   # Audio mit Transkripten
 │   └── expected_outputs\        # Erwartete Extraktionsergebnisse
-├── test_files\                   # Testdateien (124+ Formate)
+├── test_files\                   # Testdateien (Formate gemäß `docs/capabilities/formats.md`)
 ├── scripts\                      # Test-Skripte
 │   ├── test_routing.ps1
 │   ├── test_extraction.ps1
