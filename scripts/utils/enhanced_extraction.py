@@ -524,7 +524,7 @@ def prepare_for_indexing(
     add_headers: bool = True
 ) -> Dict[str, Any]:
     """
-    Bereitet ein Dokument für Meilisearch-Indexierung vor.
+    Bereitet ein Dokument für die Indexierung vor.
 
     Fügt hinzu:
     - Zeitstempel-Felder (year_created, month_created, etc.)

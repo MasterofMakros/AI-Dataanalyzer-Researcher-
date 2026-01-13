@@ -18,7 +18,6 @@ Accepted (Cross-Encoder)
 ## Kontext und Problemstellung
 
 Aktuelle Implementierung:
-- Meilisearch für Fulltext (BM25-ähnlich)
 - Qdrant/LanceDB für Vektor-Suche
 - Ergebnisse werden einfach zusammengeführt
 
@@ -56,7 +55,7 @@ hypothese:
   null_hypothese: "Reranking bringt keinen signifikanten Vorteil"
 
 baseline:
-  implementierung: "Meilisearch + LanceDB Fusion"
+  implementierung: "Qdrant + LanceDB Fusion"
   metriken:
     - name: "precision_at_10"
       beschreibung: "Relevante Dokumente in Top 10"
@@ -221,5 +220,4 @@ Basierend auf beiden KI-Analysen: **Option B (Mit Reranking)**
 ## Verknüpfte Dokumente
 
 - A/B Framework: [AB_TEST_FRAMEWORK.md](../AB_TEST_FRAMEWORK.md)
-- Hybrid Search ADR: [ADR-008-hybrid-search.md](./ADR-008-hybrid-search.md)
 - Vector Service: `scripts/vector_service.py`

@@ -17,7 +17,7 @@ import time
 import sqlite3
 from pathlib import Path
 from datetime import datetime
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
@@ -50,7 +50,6 @@ try:
         detect_file_type,
         extract_text_enhanced,
         get_all_supported_extensions as get_enhanced_extensions,
-        prepare_for_indexing,
         FileTypeInfo
     )
     ENHANCED_EXTRACTION_AVAILABLE = True
@@ -119,7 +118,7 @@ except ImportError:
 # Konfiguration
 from config.paths import (
     INBOX_DIR, QUARANTINE_DIR, LEDGER_DB_PATH, BASE_DIR,
-    TIKA_URL, MEILISEARCH_URL, QDRANT_URL, OLLAMA_URL
+    TIKA_URL, QDRANT_URL, OLLAMA_URL
 )
 
 INBOX_PATH = INBOX_DIR
@@ -138,7 +137,6 @@ def load_env():
     return env
 
 ENV = load_env()
-MEILI_KEY = ENV.get("MEILI_MASTER_KEY", "")
 QDRANT_KEY = ENV.get("QDRANT_API_KEY", "")
 TELEGRAM_TOKEN = ENV.get("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHAT_ID = ENV.get("TELEGRAM_CHAT_ID", "")
@@ -385,16 +383,43 @@ def save_to_shadow_ledger(data: Dict[str, Any]):
     conn.commit()
     conn.close()
 
-def index_to_meilisearch(doc: Dict[str, Any]):
-    """Indexiere Dokument in Meilisearch."""
-    headers = {"Authorization": f"Bearer {MEILI_KEY}"}
-    response = requests.post(
-        f"{MEILISEARCH_URL}/indexes/files/documents",
+def generate_embedding(text: str) -> Optional[List[float]]:
+    """Generiere Embedding via Ollama."""
+    if not text:
+        return None
+    try:
+        response = requests.post(
+            f"{OLLAMA_URL}/api/embeddings",
+            json={
+                "model": "nomic-embed-text",
+                "prompt": text[:8000]
+            },
+            timeout=60
+        )
+        if response.status_code == 200:
+            return response.json().get("embedding")
+    except Exception as e:
+        print(f"  ⚠️ Embedding Fehler: {e}")
+    return None
+
+def index_to_qdrant(doc_id: str, vector: List[float], payload: Dict[str, Any]) -> bool:
+    """Indexiere Dokument in Qdrant."""
+    headers = {"api-key": QDRANT_KEY} if QDRANT_KEY else {}
+    response = requests.put(
+        f"{QDRANT_URL}/collections/neural_vault/points",
         headers=headers,
-        json=[doc],
+        json={
+            "points": [
+                {
+                    "id": hash(doc_id) % (2**63),
+                    "vector": vector,
+                    "payload": payload
+                }
+            ]
+        },
         timeout=30
     )
-    return response.status_code in (200, 202)
+    return response.status_code == 200
 
 def process_file(filepath: Path) -> bool:
     """
@@ -592,9 +617,9 @@ def process_file(filepath: Path) -> bool:
         print("  7️⃣ Shadow Ledger speichern...")
         save_to_shadow_ledger(data)
         
-        # 9. Meilisearch indexieren
-        print("  8️⃣ Meilisearch indexieren...")
-        meili_doc = {
+        # 9. Qdrant indexieren
+        print("  8️⃣ Qdrant indexieren...")
+        qdrant_payload = {
             "id": file_hash,
             "original_filename": data["original_filename"],
             "current_filename": new_filename,
@@ -613,12 +638,13 @@ def process_file(filepath: Path) -> bool:
             "mime_type": data.get("mime_type"),
         }
 
-        # Enhanced: prepare_for_indexing für Pattern-of-Life + Context Headers
-        if ENHANCED_EXTRACTION_AVAILABLE:
-            meili_doc = prepare_for_indexing(meili_doc, add_headers=True)
-            print("     → Enhanced indexing mit Pattern-of-Life Feldern")
+        embedding_text = qdrant_payload.get("extracted_text") or qdrant_payload.get("meta_description", "")
+        vector = generate_embedding(embedding_text)
+        if not vector:
+            raise RuntimeError("Kein Embedding erzeugt")
 
-        index_to_meilisearch(meili_doc)
+        qdrant_payload["file_path"] = qdrant_payload.pop("current_path", "")
+        index_to_qdrant(qdrant_payload["id"], vector, qdrant_payload)
         
         print(f"\n  ✅ ERFOLGREICH!")
         print(f"     Von: {filepath.name}")

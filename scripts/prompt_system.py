@@ -35,6 +35,7 @@ from datetime import datetime
 # Diese Datei wird bei LLM-Updates NICHT ueberschrieben
 PROMPT_VERSION = "2.0.0"
 PROMPT_UPDATED = "2025-12-27"
+MAX_TEXT_CHARS = 3000
 
 # Empfohlene Ollama-Parameter fuer minimale Halluzination
 RECOMMENDED_OPTIONS = {
@@ -334,7 +335,7 @@ class PromptRegistry:
             anti_hallucination_rules=ANTI_HALLUCINATION_RULES,
             filename=filename,
             mime_type=mime_type,
-            text_content=text_content[:3000] if text_content else "[Kein Text extrahiert - Binaerdatei]"
+            text_content=text_content[:MAX_TEXT_CHARS] if text_content else "[Kein Text extrahiert - Binaerdatei]"
         )
     
     def get_ollama_options(self, strict: bool = True) -> Dict[str, Any]:

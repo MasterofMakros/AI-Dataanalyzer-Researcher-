@@ -7,10 +7,8 @@ Läuft als Docker-Container und verbindet alle Services.
 
 Endpoints:
 - /health - Health Check
-- /search - Meilisearch Suche mit Context Headers
 - /feedback - User-Korrektur Tracking
 - /extract - Tika HTML→Markdown Extraktion
-- /index - Meilisearch Index-Operationen
 - /stats - Statistiken und Metriken
 """
 
@@ -46,8 +44,6 @@ except ImportError:
 # =============================================================================
 
 # Service URLs (Docker internal network)
-MEILISEARCH_URL = os.getenv("MEILISEARCH_URL", "http://meilisearch:7700")
-MEILISEARCH_KEY = os.getenv("MEILI_MASTER_KEY", "")
 TIKA_URL = os.getenv("TIKA_URL", "http://tika:9998/tika")
 REDIS_HOST = os.getenv("REDIS_HOST", "redis")
 REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
@@ -59,29 +55,9 @@ OLLAMA_URL = os.getenv("OLLAMA_URL", "http://ollama:11434")
 DATA_DIR = Path(os.getenv("DATA_DIR", "/data"))
 FEEDBACK_DB_PATH = DATA_DIR / "feedback_tracker.db"
 
-# Index configuration
-INDEX_NAME = "files"
-
-
 # =============================================================================
 # PYDANTIC MODELS
 # =============================================================================
-
-class SearchRequest(BaseModel):
-    query: str = Field(..., min_length=1, max_length=1000)
-    filters: Optional[str] = None
-    sort: Optional[List[str]] = None
-    limit: int = Field(default=20, ge=1, le=100)
-    offset: int = Field(default=0, ge=0)
-    attributes_to_retrieve: Optional[List[str]] = None
-
-
-class SearchResult(BaseModel):
-    hits: List[Dict[str, Any]]
-    total: int
-    processing_time_ms: int
-    query: str
-
 
 class FeedbackRequest(BaseModel):
     file_hash: str
@@ -113,10 +89,6 @@ class ExtractResult(BaseModel):
     metadata: Optional[Dict[str, Any]] = None
     success: bool
     error: Optional[str] = None
-
-
-class IndexDocumentRequest(BaseModel):
-    documents: List[Dict[str, Any]]
 
 
 class HealthStatus(BaseModel):
@@ -615,237 +587,6 @@ class FeedbackTracker:
 
 
 # =============================================================================
-# MEILISEARCH CLIENT
-# =============================================================================
-
-class MeilisearchClient:
-    """Client für Meilisearch-Operationen."""
-
-    def __init__(self, url: str = None, api_key: str = None):
-        self.url = url or MEILISEARCH_URL
-        self.api_key = api_key or MEILISEARCH_KEY
-        self.headers = {
-            "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json"
-        }
-
-    def health(self) -> bool:
-        try:
-            response = requests.get(f"{self.url}/health", timeout=5)
-            return response.status_code == 200
-        except Exception:
-            return False
-
-    def search(
-        self,
-        query: str,
-        filters: Optional[str] = None,
-        sort: Optional[List[str]] = None,
-        limit: int = 20,
-        offset: int = 0,
-        attributes_to_retrieve: Optional[List[str]] = None
-    ) -> Dict[str, Any]:
-        payload = {
-            "q": query,
-            "limit": limit,
-            "offset": offset
-        }
-
-        if filters:
-            payload["filter"] = filters
-        if sort:
-            payload["sort"] = sort
-        if attributes_to_retrieve:
-            payload["attributesToRetrieve"] = attributes_to_retrieve
-
-        response = requests.post(
-            f"{self.url}/indexes/{INDEX_NAME}/search",
-            headers=self.headers,
-            json=payload,
-            timeout=30
-        )
-
-        if response.status_code == 200:
-            result = response.json()
-            return {
-                "hits": result.get("hits", []),
-                "total": result.get("estimatedTotalHits", 0),
-                "processing_time_ms": result.get("processingTimeMs", 0),
-                "query": query
-            }
-
-        raise HTTPException(status_code=response.status_code, detail=response.text)
-
-    def index_documents(self, documents: List[Dict[str, Any]]) -> Dict[str, Any]:
-        # Prepare documents with timestamp fields
-        prepared = [self._prepare_document(doc) for doc in documents]
-
-        response = requests.post(
-            f"{self.url}/indexes/{INDEX_NAME}/documents",
-            headers=self.headers,
-            json=prepared,
-            timeout=60
-        )
-
-        if response.status_code in (200, 202):
-            return response.json()
-
-        raise HTTPException(status_code=response.status_code, detail=response.text)
-
-    def _prepare_document(self, doc: Dict[str, Any]) -> Dict[str, Any]:
-        """Bereitet ein Dokument für die Indexierung vor."""
-        result = doc.copy()
-
-        for field, ts_field in [
-            ("file_created", "file_created_timestamp"),
-            ("file_modified", "file_modified_timestamp"),
-            ("indexed_at", "indexed_at_timestamp")
-        ]:
-            if field in doc and doc[field]:
-                try:
-                    dt = datetime.fromisoformat(doc[field].replace("Z", "+00:00"))
-                    result[ts_field] = int(dt.timestamp())
-
-                    if field == "file_created":
-                        result["year_created"] = dt.year
-                        result["month_created"] = dt.month
-                        result["weekday_created"] = dt.weekday()
-                        result["hour_created"] = dt.hour
-                except Exception:
-                    pass
-
-        if "entities" in doc and isinstance(doc["entities"], dict):
-            flat_parts = []
-            for key, value in doc["entities"].items():
-                if isinstance(value, list):
-                    flat_parts.extend([str(v) for v in value])
-                elif value:
-                    flat_parts.append(str(value))
-            result["entities_flat"] = " ".join(flat_parts)
-
-        if "extension" in doc:
-            ext = doc["extension"].lower().lstrip(".")
-            type_mapping = {
-                "pdf": "pdf",
-                "docx": "document", "doc": "document", "txt": "document",
-                "xlsx": "spreadsheet", "xls": "spreadsheet", "csv": "spreadsheet",
-                "jpg": "image", "jpeg": "image", "png": "image",
-                "mp3": "audio", "wav": "audio", "m4a": "audio",
-                "mp4": "video", "mkv": "video", "avi": "video",
-                "eml": "email", "msg": "email"
-            }
-            result["source_type"] = type_mapping.get(ext, "other")
-
-        return result
-
-    def get_stats(self) -> Optional[Dict]:
-        try:
-            response = requests.get(
-                f"{self.url}/indexes/{INDEX_NAME}/stats",
-                headers=self.headers,
-                timeout=10
-            )
-            if response.status_code == 200:
-                return response.json()
-        except Exception:
-            pass
-        return None
-
-    def setup_index(self, reset: bool = False) -> bool:
-        """Konfiguriert den Index mit optimalen Einstellungen."""
-        if reset:
-            try:
-                requests.delete(
-                    f"{self.url}/indexes/{INDEX_NAME}",
-                    headers=self.headers,
-                    timeout=10
-                )
-            except Exception:
-                pass
-
-        # Create index
-        try:
-            requests.post(
-                f"{self.url}/indexes",
-                headers=self.headers,
-                json={"uid": INDEX_NAME, "primaryKey": "id"},
-                timeout=10
-            )
-        except Exception:
-            pass
-
-        # Configure settings
-        settings = {
-            "searchableAttributes": [
-                "original_filename",
-                "current_filename",
-                "extracted_text",
-                "meta_description",
-                "tags",
-                "category",
-                "subcategory",
-                "entities_flat"
-            ],
-            "filterableAttributes": [
-                "category",
-                "subcategory",
-                "extension",
-                "mime_type",
-                "file_created_timestamp",
-                "file_modified_timestamp",
-                "indexed_at_timestamp",
-                "file_size",
-                "confidence",
-                "status",
-                "source_type",
-                "year_created",
-                "month_created",
-                "weekday_created",
-                "hour_created"
-            ],
-            "sortableAttributes": [
-                "file_created_timestamp",
-                "file_modified_timestamp",
-                "indexed_at_timestamp",
-                "file_size",
-                "confidence",
-                "original_filename"
-            ],
-            "rankingRules": [
-                "words",
-                "typo",
-                "proximity",
-                "attribute",
-                "sort",
-                "exactness",
-                "confidence:desc"
-            ],
-            "typoTolerance": {
-                "enabled": True,
-                "minWordSizeForTypos": {"oneTypo": 4, "twoTypos": 8},
-                "disableOnAttributes": ["id", "sha256", "extension"]
-            },
-            "synonyms": {
-                "rechnung": ["invoice", "bill", "beleg"],
-                "vertrag": ["contract", "agreement", "kontrakt"],
-                "foto": ["photo", "bild", "image"],
-                "video": ["film", "clip", "aufnahme"],
-                "email": ["e-mail", "mail", "nachricht"],
-                "dokument": ["document", "datei", "file"]
-            }
-        }
-
-        response = requests.patch(
-            f"{self.url}/indexes/{INDEX_NAME}/settings",
-            headers=self.headers,
-            json=settings,
-            timeout=30
-        )
-
-        return response.status_code in (200, 202)
-
-
-# =============================================================================
 # FASTAPI APPLICATION
 # =============================================================================
 
@@ -869,7 +610,6 @@ app.add_middleware(
 # Global instances
 tika_extractor = TikaExtractor()
 feedback_tracker = FeedbackTracker()
-meilisearch = MeilisearchClient()
 
 
 # =============================================================================
@@ -880,7 +620,6 @@ meilisearch = MeilisearchClient()
 async def health_check():
     """Health Check für alle Services."""
     services = {
-        "meilisearch": meilisearch.health(),
         "tika": False,
         "redis": False,
         "qdrant": False,
@@ -929,53 +668,6 @@ async def health_check():
     )
 
 
-@app.post("/search", response_model=SearchResult)
-async def search(request: SearchRequest):
-    """Volltextsuche mit Meilisearch."""
-    return meilisearch.search(
-        query=request.query,
-        filters=request.filters,
-        sort=request.sort,
-        limit=request.limit,
-        offset=request.offset,
-        attributes_to_retrieve=request.attributes_to_retrieve
-    )
-
-
-@app.get("/search/pattern-of-life")
-async def pattern_of_life_search(
-    year: Optional[int] = None,
-    month: Optional[int] = Query(None, ge=1, le=12),
-    weekday: Optional[int] = Query(None, ge=0, le=6),
-    hour_min: Optional[int] = Query(None, ge=0, le=23),
-    hour_max: Optional[int] = Query(None, ge=0, le=23),
-    category: Optional[str] = None,
-    limit: int = 50
-):
-    """Pattern-of-Life Suche: Dateien nach Erstellungszeitmustern filtern."""
-    filters = []
-
-    if year:
-        filters.append(f"year_created = {year}")
-    if month:
-        filters.append(f"month_created = {month}")
-    if weekday is not None:
-        filters.append(f"weekday_created = {weekday}")
-    if hour_min is not None:
-        filters.append(f"hour_created >= {hour_min}")
-    if hour_max is not None:
-        filters.append(f"hour_created <= {hour_max}")
-    if category:
-        filters.append(f'category = "{category}"')
-
-    filter_str = " AND ".join(filters) if filters else None
-
-    return meilisearch.search(
-        query="*",
-        filters=filter_str,
-        sort=["file_created_timestamp:desc"],
-        limit=limit
-    )
 
 
 @app.post("/feedback", response_model=Dict[str, Any])
@@ -1058,30 +750,6 @@ async def extract_with_context(
     }
 
 
-@app.post("/index/documents")
-async def index_documents(request: IndexDocumentRequest):
-    """Indexiert Dokumente in Meilisearch."""
-    return meilisearch.index_documents(request.documents)
-
-
-@app.post("/index/setup")
-async def setup_index(reset: bool = False):
-    """Konfiguriert den Meilisearch-Index."""
-    success = meilisearch.setup_index(reset=reset)
-
-    if success:
-        return {"success": True, "message": "Index erfolgreich konfiguriert"}
-
-    raise HTTPException(status_code=500, detail="Index-Setup fehlgeschlagen")
-
-
-@app.get("/index/stats")
-async def get_index_stats():
-    """Statistiken des Meilisearch-Index."""
-    stats = meilisearch.get_stats()
-    if stats:
-        return stats
-    raise HTTPException(status_code=503, detail="Meilisearch nicht erreichbar")
 
 
 @app.get("/chunk/wrap")
@@ -1303,14 +971,6 @@ async def stream_source_media(
 async def startup():
     """Initialisierung beim Start."""
     DATA_DIR.mkdir(parents=True, exist_ok=True)
-
-    # Warte auf Meilisearch und konfiguriere Index
-    import time
-    for _ in range(30):
-        if meilisearch.health():
-            meilisearch.setup_index()
-            break
-        time.sleep(1)
 
 
 if __name__ == "__main__":

@@ -4,7 +4,7 @@
 
 ---
 
-## Projektstatus: 100% Komplett ✅
+## Projektstatus: Core abgeschlossen, Roadmap offen ✅
 
 ### Abgeschlossene Komponenten
 
@@ -77,19 +77,19 @@ infra/docker/
 
 ## Service-Ports
 
-| Service | Port | Beschreibung |
-|---------|------|--------------|
-| Perplexica UI | 3100 | Search Frontend |
-| Conductor API | 8010 | Legacy API |
-| Neural Search API | 8040 | RAG + LLM |
-| Orchestrator | 8020 | Job Management |
-| Universal Router | 8030 | File Routing |
-| Document Processor | 8005 | GPU Processing |
-| Redis | 6379 | Queue/Cache |
-| Ollama | 11434 | LLM |
-| Qdrant | 6333 | Vector Store |
-| Tika | 9998 | Text Extraction |
-| WhisperX | 9000 | Audio Transcription |
+| Service | Host-Port | Container-Port | Beschreibung |
+|---------|-----------|----------------|--------------|
+| Perplexica UI | 3100 | 3100 | Search Frontend |
+| Conductor API | 8010 | 8000 | Legacy API |
+| Neural Search API | 8040 | 8040 | RAG + LLM |
+| Orchestrator | 8020 | 8020 | Job Management |
+| Universal Router | 8030 | 8030 | File Routing |
+| Document Processor | 8005 | 8005 | GPU Processing |
+| Redis | 6379 | 6379 | Queue/Cache |
+| Ollama | 11435 | 11434 | LLM |
+| Qdrant | 6335 | 6333 | Vector Store |
+| Tika | 9998 | 9998 | Text Extraction |
+| WhisperX | 9000 | 9000 | Audio Transcription |
 
 ---
 

@@ -49,7 +49,6 @@ SERVICES = {
     "tika": "http://localhost:9998",
     "ollama": "http://localhost:11435",
     "parser": "http://localhost:8002",
-    "meilisearch": "http://localhost:7700",
     "qdrant": "http://localhost:6335",
 }
 

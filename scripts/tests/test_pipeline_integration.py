@@ -50,7 +50,6 @@ class ServiceConfig:
     ORCHESTRATOR = os.getenv("ORCHESTRATOR_URL", "http://localhost:8020")
     WHISPERX = os.getenv("WHISPERX_URL", "http://localhost:9000")
     TIKA = os.getenv("TIKA_URL", "http://localhost:9998")
-    MEILISEARCH = os.getenv("MEILISEARCH_URL", "http://localhost:7700")
     API = os.getenv("API_URL", "http://localhost:8000")
 
 
@@ -461,7 +460,6 @@ def run_tests(test_dir: Path, services: List[str] = None, verbose: bool = False)
         ("Orchestrator", ServiceConfig.ORCHESTRATOR),
         ("WhisperX", ServiceConfig.WHISPERX),
         ("Tika", ServiceConfig.TIKA),
-        ("Meilisearch", ServiceConfig.MEILISEARCH),
         ("API", ServiceConfig.API),
     ]
 

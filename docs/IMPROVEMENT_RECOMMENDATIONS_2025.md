@@ -18,7 +18,6 @@ Nach umfassender Analyse des Projekts und Vergleich mit aktuellen 2025-Benchmark
 | **P1** | Document Parser | Tika + Docling | Tika → **Docling-first** | +5% Table Accuracy |
 | **P2** | LLM | Qwen3:8b | **Qwen3:8b** (bestätigt) | Bereits optimal |
 | **P2** | Vector DB | Qdrant | **Qdrant** (bestätigt) | Bereits optimal |
-| **P3** | Search | Meilisearch | **Meilisearch** (bestätigt) | Bereits optimal |
 
 ---
 
@@ -105,7 +104,7 @@ whisper-api:
           - capabilities: [gpu]
 ```
 
-**Neue Felder in Meilisearch:**
+**Neue Felder im Index (Qdrant Payload):**
 ```json
 {
   "transcript_segments": [
@@ -257,25 +256,6 @@ Qdrant ist für den Use Case optimal:
 
 ---
 
-## 7. Search Engine Bestätigung: Meilisearch (P3 - Bestätigt)
-
-### Benchmark-Ergebnis (Search Engine 2025)
-
-| Engine | Indexing Speed | Query Latency | Typo-Toleranz | RAM |
-|--------|---------------|---------------|---------------|-----|
-| **Meilisearch** | **7x schneller** | 1-5ms | Exzellent | 1-2GB |
-| Typesense | 1x (Baseline) | 1-5ms | Exzellent | 1-2GB |
-| Elasticsearch | 1x (Baseline) | 5-20ms | Gut | 4-8GB |
-
-### Empfehlung: **Keine Änderung**
-
-Meilisearch ist optimal:
-- Schnellste Indexierung
-- Geringe RAM-Nutzung
-- Typo-Toleranz = perfekt für Suche nach Dateinamen/Entitäten
-
----
-
 ## 8. Docker-Architektur-Optimierungen
 
 ### 8.1 Aktueller Stand
@@ -386,10 +366,10 @@ Phase 3: worker-scaling (Horizontal)
 ┌─────────────────────────────────────────────────────────────┐
 │                    INDEX LAYER                              │
 │                                                             │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐         │
-│  │ Meilisearch │  │ Qdrant      │  │ LanceDB     │         │
-│  │ (BM25)      │  │ (Hot Vec)   │  │ (Cold Vec)  │         │
-│  └─────────────┘  └─────────────┘  └─────────────┘         │
+│  ┌─────────────┐  ┌─────────────┐                          │
+│  │ Qdrant      │  │ LanceDB     │                          │
+│  │ (Hot Vec)   │  │ (Cold Vec)  │                          │
+│  └─────────────┘  └─────────────┘                          │
 │                                                             │
 │  ┌─────────────┐                                           │
 │  │ PostgreSQL  │  ◄── Shadow Ledger Migration (optional)   │
@@ -442,7 +422,7 @@ class ABTestRunner:
 
 | Metrik | Aktuell | Ziel | Messung |
 |--------|---------|------|---------|
-| Search Latency (P95) | 1-2s | <1s | Meilisearch Logs |
+| Search Latency (P95) | 1-2s | <1s | Qdrant Logs |
 | Retrieval Precision@10 | ~75% | >85% | Manuelle Stichprobe |
 | OCR Accuracy | 87% | >95% | Invoice Test Set |
 | Table Extraction F1 | 75% | >95% | Docling Benchmark |
@@ -532,7 +512,6 @@ gantt
 ### Bestätigt als optimal (P2-P3)
 5. **Qwen3:8b** ✓
 6. **Qdrant** ✓
-7. **Meilisearch** ✓
 
 ### Architektur-Änderungen
 - Container-Konsolidierung: 15 → 12 Container
@@ -547,10 +526,6 @@ gantt
 - [Qdrant Benchmarks](https://qdrant.tech/benchmarks/)
 - [LiquidMetal AI Comparison](https://liquidmetal.ai/casesAndBlogs/vector-comparison/)
 - [Firecrawl Best Vector DBs 2025](https://www.firecrawl.dev/blog/best-vector-databases-2025)
-
-### Search Engines
-- [Meilisearch vs Typesense](https://www.meilisearch.com/blog/meilisearch-vs-typesense)
-- [Typesense Comparison](https://typesense.org/docs/overview/comparison-with-alternatives.html)
 
 ### Whisper Variants
 - [Modal Choosing Whisper Variants](https://modal.com/blog/choosing-whisper-variants)

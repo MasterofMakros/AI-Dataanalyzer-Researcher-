@@ -77,16 +77,18 @@ docker compose --profile intelligence up -d
 
 ### Überprüfung
 
-Nach dem Start sind folgende Services verfügbar:
+Nach dem Start sind folgende Services verfügbar (Host-Ports):
 
-| Service | URL | Beschreibung |
-|---------|-----|--------------|
-| Neural Search (Perplexica) | http://localhost:3100 | Web UI mit Local Search |
-| Conductor API | http://localhost:8010 | REST API |
-| Neural Search API | http://localhost:8040 | RAG + LLM Backend |
-| Qdrant | http://localhost:6335 | Vektor-Datenbank |
-| Ollama | http://localhost:11435 | LLM Backend |
-| Orchestrator | http://localhost:8020 | Pipeline Stats |
+| Service | Host-Port (URL) | Container-Port | Beschreibung |
+|---------|------------------|----------------|--------------|
+| Neural Search (Perplexica) | http://localhost:3100 | 3100 | Web UI mit Local Search |
+| Conductor API | http://localhost:8010 | 8000 | REST API |
+| Neural Search API | http://localhost:8040 | 8040 | RAG + LLM Backend |
+| Qdrant | http://localhost:6335 | 6333 | Vektor-Datenbank |
+| Ollama | http://localhost:11435 | 11434 | LLM Backend |
+| Orchestrator | http://localhost:8020 | 8020 | Pipeline Stats |
+| Redis | redis://localhost:6379 | 6379 | Queue/Cache |
+| Document Processor (GPU) | http://localhost:8005 | 8005 | Docling/Surya/GLiNER |
 
 ---
 
@@ -129,6 +131,8 @@ Eine vollständige Übersicht aller eingesetzten Komponenten und Versionen gibt 
 
 ## Neue Features (v2.0)
 
+Status & Roadmap: siehe [docs/ui_feature_roadmap.md](docs/ui_feature_roadmap.md).
+
 ### Local Search mit Optimization Modes
 
 Die Neural Search UI unterstützt jetzt lokale Dokumentensuche mit drei Modi:
@@ -155,9 +159,14 @@ Die Neural Search UI unterstützt jetzt lokale Dokumentensuche mit drei Modi:
 
 | Dokument | Beschreibung |
 |----------|--------------|
-| [ARCHITECTURE.md](ARCHITECTURE.md) | System-Architektur |
-| [PROJECT_OVERVIEW_2025.md](PROJECT_OVERVIEW_2025.md) | Projekt-Übersicht |
+| [docs/index.md](docs/index.md) | Zentrale Dokumentations-Navigation |
+| [docs/architecture/overview.md](docs/architecture/overview.md) | System-Architektur |
+| [docs/architecture/service-matrix.md](docs/architecture/service-matrix.md) | Service-Matrix (Ports, Profile, Healthchecks) |
+| [docs/project/overview_2025.md](docs/project/overview_2025.md) | Projekt-Übersicht |
 | [docs/PROJECT_STATUS.md](docs/PROJECT_STATUS.md) | Aktueller Status |
+| [docs/runbooks/RUNBOOK-001-nextcloud-setup.md](docs/runbooks/RUNBOOK-001-nextcloud-setup.md) | Runbook: Nextcloud Setup |
+| [docs/runbooks/RUNBOOK-002-local-dev.md](docs/runbooks/RUNBOOK-002-local-dev.md) | Runbook: Local Dev |
+| [docs/runbooks/RUNBOOK-003-troubleshooting.md](docs/runbooks/RUNBOOK-003-troubleshooting.md) | Runbook: Troubleshooting |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Beitragsrichtlinien |
 | [SECURITY.md](SECURITY.md) | Sicherheitsrichtlinien |
 

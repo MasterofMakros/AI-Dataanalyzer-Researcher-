@@ -128,7 +128,7 @@ ANLEITUNG:
 | Frage | Antwort |
 | :--- | :--- |
 | Indexiert in Qdrant? | [ ] Ja / [ ] Nein / [ ] Geplant |
-| Indexiert in Meilisearch? | [ ] Ja / [ ] Nein / [ ] Geplant |
+| Indexiert in Qdrant? | [ ] Ja / [ ] Nein / [ ] Geplant |
 | OCR-Verarbeitung nötig? | [ ] Ja / [ ] Nein |
 | Whisper-Transkription nötig? | [ ] Ja / [ ] Nein |
 

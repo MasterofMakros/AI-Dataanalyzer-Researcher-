@@ -308,7 +308,7 @@ graph TB
     end
 
     subgraph INDEX["INDEX"]
-        Q --> R[Meilisearch]
+        Q --> R[Qdrant]
         R --> S[Qdrant Vectors]
     end
 

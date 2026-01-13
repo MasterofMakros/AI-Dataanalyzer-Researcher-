@@ -71,11 +71,10 @@ und [Semantic Versioning](https://semver.org/lang/de/).
   - 6 automatische Prüfungen vor File-Move
   - Quarantäne-System für unsichere Dateien
 - **Shadow Ledger** für Datei-Tracking
-- **Hybrid Search** (BM25 + Vektor) via Meilisearch + Qdrant
+- **Hybrid Search** (BM25 + Vektor) via Qdrant
 
 ### Dokumentation
 - ADR-007: File Processing Quality
-- ADR-008: Hybrid Search Strategy
 
 ---
 
@@ -117,7 +116,7 @@ und [Semantic Versioning](https://semver.org/lang/de/).
 ### Initialer Release
 - Docker Compose Stack mit Basis-Services
   - PostgreSQL, Redis, n8n
-  - Qdrant, Meilisearch, Tika, Ollama
+  - Qdrant, Tika, Ollama
 - Basis-Dokumentation
   - VISION.md, DOCUMENTATION_STANDARD.md
   - Erste ADRs (001-005)

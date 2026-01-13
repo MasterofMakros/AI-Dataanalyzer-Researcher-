@@ -16,7 +16,7 @@
 *   **CI/CD:** **Active.** `.github/workflows/ci.yml` exists and covers Frontend Lint/Build and Backend Tests.
 *   **Security:** **Sanitized.** No hardcoded secrets found in `docs/_legacy`. `.env.example` provides secure templates.
 *   **Legacy Code:** **Managed.** `docs/_legacy` exists but is clearly separated. Deprecated features are marked in `CHANGELOG.md` and feature flags.
-*   **Observation:** Test coverage is low for a production system of this size (only 7 tests). Feature "Meilisearch Initial Index" is listed as a manual step in `PROJECT_STATUS.md`.
+*   **Observation:** Test coverage is low for a production system of this size (only 7 tests).
 
 ---
 
@@ -27,7 +27,7 @@
 | **Local AI Processing** | **Implemented** | `docker-compose.yml` (services: ollama, document-processor) | Verified service definitions present. |
 | **Multi-Modal Extract** | **Implemented** | `docker/document-processor/` (Docling, Surya, GLiNER) | Docker build context exists. |
 | **Neural Search UI** | **Implemented** | `ui/perplexica/` (React App) | `package.json` found, build script present. |
-| **RAG Pipeline** | **Implemented** | `docker/neural-search-api/` | Service defined in compose, depends on Qdrant/Meili. |
+| **RAG Pipeline** | **Implemented** | `docker/neural-search-api/` | Service defined in compose, depends on Qdrant. |
 | **Universal Routing** | **Implemented** | `docker/universal-router/router.py` | Service `universal-router` on port 8030. |
 | **CI Automation** | **Implemented** | `.github/workflows/ci.yml` | Workflow file exists and parses correctly. |
 | **Auto-Ingest** | **Partial** | `n8n` container defined, but specific workflows not verified in repo. | Container exists, workflows external/volume-mounted? |
@@ -39,7 +39,6 @@
 
 | Conflict | Evidence | Impact | Fix / Decision |
 | :--- | :--- | :--- | :--- |
-| **Project Status vs. Automation** | `PROJECT_STATUS.md` lists "Meilisearch Initial Index" as "Open (15 min)" manual task. | Medium. First-run experience requires manual `curl` commands. | **Decision:** Automate index creation in `start_pipeline.sh` (init flag). |
 | **Legacy Docs Presence** | `docs/_legacy` folder exists. | Low. Confusion potential if referenced. | **Fix:** Kept as "Archive". No active reference found in README. |
 | **Missing Workflows** | `n8n` service exists but no `.json` workflow exports in repo. | Medium. "Auto-Ingest" feature relies on unversioned data. | **Action:** Export reference workflows to `config/n8n_workflows/`. |
 
@@ -61,11 +60,6 @@
 ---
 
 ## 5. Concrete Action Plan (Next Steps)
-
-### P1: Automate Initialization (Enhance Setup)
-*   **Goal:** Eliminate manual "Meilisearch Initial Index" step.
-*   **Status:** ✅ **RESOLVED** (Implemented in `start_pipeline.ps1` via `setup_meilisearch_index.py`)
-*   **Verification:** `Initialize-SearchIndex` function added to startup scripts.
 
 ### P1: Export Default Workflows
 *   **Goal:** Version control for n8n pipelines.

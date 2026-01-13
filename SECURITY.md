@@ -48,7 +48,7 @@ Conductor wurde mit folgenden Sicherheitsprinzipien entwickelt:
 
 - `.env` Datei enthaelt Secrets und ist in `.gitignore`
 - `.env.example` enthaelt nur Platzhalter
-- Meilisearch/Qdrant API Keys sind standardmaessig gesetzt
+- Qdrant API Keys sind standardmaessig gesetzt
 
 ### Datenzugriff
 

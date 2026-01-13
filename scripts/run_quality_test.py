@@ -29,7 +29,8 @@ from config.paths import TEST_SUITE_DIR, BASE_DIR
 TEST_DIR = TEST_SUITE_DIR
 TIKA_URL = "http://localhost:9998"
 OLLAMA_URL = "http://localhost:11435"
-MEILISEARCH_URL = "http://localhost:7700"
+QDRANT_URL = "http://localhost:6335"
+QDRANT_COLLECTION = "neural_vault"
 
 # Load .env
 def load_env():
@@ -43,7 +44,6 @@ def load_env():
     return env
 
 ENV = load_env()
-MEILI_KEY = ENV.get("MEILI_MASTER_KEY", "")
 
 @dataclass
 class EnhancedTestResult:
@@ -291,7 +291,7 @@ def check_hallucination(classification: dict, original_text: str, filename: str)
 
 def check_rag_retrieval(text_snippet: str, expected_filename: str) -> tuple:
     """Teste ob Dokument ueber Suche gefunden werden kann."""
-    if not MEILI_KEY or len(text_snippet) < 20:
+    if len(text_snippet) < 20:
         return False, -1, ""
     
     # Extrahiere Suchbegriffe aus Text
@@ -304,17 +304,26 @@ def check_rag_retrieval(text_snippet: str, expected_filename: str) -> tuple:
     
     try:
         response = requests.post(
-            f"{MEILISEARCH_URL}/indexes/files/search",
-            json={"q": query, "limit": 10},
-            headers={"Authorization": f"Bearer {MEILI_KEY}"},
+            f"{QDRANT_URL}/collections/{QDRANT_COLLECTION}/points/scroll",
+            json={
+                "limit": 1,
+                "with_payload": True,
+                "with_vector": False,
+                "filter": {
+                    "should": [
+                        {"key": "filename", "match": {"value": expected_filename}},
+                        {"key": "original_filename", "match": {"value": expected_filename}}
+                    ],
+                    "minimum_should_match": 1
+                }
+            },
             timeout=10
         )
-        
+
         if response.ok:
-            results = response.json().get("hits", [])
-            for i, hit in enumerate(results):
-                if expected_filename in hit.get("filename", ""):
-                    return True, i + 1, query
+            results = response.json().get("result", {}).get("points", [])
+            if results:
+                return True, 1, query
     except:
         pass
     
@@ -478,7 +487,7 @@ def process_file_enhanced(filepath: Path) -> EnhancedTestResult:
     result.semantic_similarity, result.key_terms_preserved = \
         calculate_semantic_preservation(text, summary)
     
-    # 8. RAG Retrieval (optional, wenn Meilisearch laeuft)
+    # 8. RAG Retrieval (optional, wenn Qdrant laeuft)
     if text:
         result.rag_retrievable, result.rag_rank, result.rag_query_used = \
             check_rag_retrieval(text, filepath.name)
@@ -591,7 +600,7 @@ def generate_enhanced_report(results: List[EnhancedTestResult]):
         if avg_info_loss > 0.3:
             f.write("### Informationsverlust reduzieren\n")
             f.write("1. Alle Zahlen und Daten explizit extrahieren\n")
-            f.write("2. Volltext in Meilisearch indexieren (nicht nur Summary)\n")
+            f.write("2. Volltext in Qdrant indexieren (nicht nur Summary)\n")
             f.write("3. OCR fuer gescannte Dokumente aktivieren\n\n")
         
         if avg_grounding < 0.7:

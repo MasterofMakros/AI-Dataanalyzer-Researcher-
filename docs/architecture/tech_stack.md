@@ -24,7 +24,6 @@
 | **File System** | **Nextcloud** | Web/Mobile/Desktop access, External Storage für F:/ | [ADR-006](docs/ADR/ADR-006-nextcloud-integration.md) |
 | **Photos/Video** | **Immich** | Google Photos alternative, local face/object recognition | - |
 | **Vector DB** | **Qdrant** | 10-30ms Latency, Hybrid Search, Rust-basiert | [ADR-001](docs/ADR/ADR-001-vector-database.md) |
-| **Fulltext Search** | **Meilisearch** | 10x lighter than Elasticsearch, ideal für E-Mails | - |
 | **Ledger** | **SQLite** | "Shadow Ledger" für Datei-Tracking & Original-Namen | [ADR-006](docs/ADR/ADR-006-nextcloud-integration.md) |
 
 ---
@@ -121,7 +120,6 @@ YYYY-MM-DD_Category_Entity_Description.ext
 | `qdrant` | qdrant/qdrant | 6333, 6334 |
 | `ollama` | ollama/ollama | 11434 |
 | `tika` | apache/tika | 9998 |
-| `meilisearch` | getmeili/meilisearch | 7700 |
 
 ---
 
