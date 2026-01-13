@@ -18,7 +18,7 @@ Conductor ist ein **vollständig lokales** System zur automatischen Organisation
 
 - **Neural Search UI** - Perplexity-ähnliche Suchoberfläche mit KI-generierten Antworten
 - **RAG Pipeline** - Retrieval-Augmented Generation mit Quellenverweisen
-- **Multi-Modal Processing** - 127+ Dateiformate: PDF, Audio, Video, Bilder, E-Mails
+- **Multi-Modal Processing** - 127+ Dateiformate (siehe docs/capabilities/formats.md): PDF, Audio, Video, Bilder, E-Mails
 - **Local Search** - Semantische Suche in lokalen Dokumenten mit Optimization Modes
 - **Media Preview** - Video/Audio-Player mit Timecode-Navigation und Transkript-Overlay
 - **Automatische Klassifizierung** - KI-basierte Dokumentenkategorisierung
@@ -151,7 +151,7 @@ Die Neural Search UI unterstützt jetzt lokale Dokumentensuche mit drei Modi:
 
 ### Format Icons
 
-127+ Dateiformate mit passenden Icons für die Research-Visualisierung.
+127+ Dateiformate mit passenden Icons für die Research-Visualisierung (siehe docs/capabilities/formats.md).
 
 ---
 
