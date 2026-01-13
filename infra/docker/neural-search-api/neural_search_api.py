@@ -35,11 +35,13 @@ logger = logging.getLogger("neural-search")
 # Environment Configuration
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://ollama:11434")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.2")
+OLLAMA_EMBED_MODEL = os.getenv("OLLAMA_EMBED_MODEL", "nomic-embed-text")
 REDIS_HOST = os.getenv("REDIS_HOST", "redis")
 REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
 REDIS_PASSWORD = os.getenv("REDIS_PASSWORD", "")
 QDRANT_URL = os.getenv("QDRANT_URL", "http://qdrant:6333")
 QDRANT_COLLECTION = os.getenv("QDRANT_COLLECTION", "neural_vault")
+QDRANT_API_KEY = os.getenv("QDRANT_API_KEY", "")
 
 # Search Configuration
 MAX_SOURCES = int(os.getenv("MAX_SOURCES", "8"))
@@ -265,7 +267,11 @@ def convert_hit_to_source(hit: dict, index: int) -> Source:
     # Calculate confidence from payload or position
     confidence = payload.get('confidence')
     if confidence is None:
-        confidence = min(99, max(70, 100 - (index * 3)))
+        score = hit.get('score')
+        if score is not None:
+            confidence = min(99, max(70, score * 100))
+        else:
+            confidence = min(99, max(70, 100 - (index * 3)))
 
     source_type = detect_source_type(filename, metadata)
 
@@ -314,11 +320,57 @@ def convert_hit_to_source(hit: dict, index: int) -> Source:
     return source
 
 
-async def search_qdrant(query: str, limit: int = 8) -> List[dict]:
-    """Search documents in Qdrant (baseline scroll fallback)."""
+async def generate_query_embedding(query: str) -> Optional[List[float]]:
+    """Generate embedding for query using Ollama."""
     try:
         response = await http_client.post(
+            f"{OLLAMA_URL}/api/embeddings",
+            json={
+                "model": OLLAMA_EMBED_MODEL,
+                "prompt": query[:8000]
+            },
+            timeout=30.0
+        )
+        if response.status_code == 200:
+            return response.json().get("embedding")
+        logger.warning(f"Ollama embedding failed: {response.status_code}")
+    except Exception as e:
+        logger.error(f"Ollama embedding failed: {e}")
+    return None
+
+
+async def search_qdrant(query: str, limit: int = 8) -> List[dict]:
+    """Search documents in Qdrant using vector search with scroll fallback."""
+    try:
+        headers = {"api-key": QDRANT_API_KEY} if QDRANT_API_KEY else {}
+        query = query.strip()
+        if query:
+            embedding = await generate_query_embedding(query)
+        else:
+            embedding = None
+
+        if embedding:
+            response = await http_client.post(
+                f"{QDRANT_URL}/collections/{QDRANT_COLLECTION}/points/search",
+                headers=headers,
+                json={
+                    "vector": embedding,
+                    "limit": limit,
+                    "with_payload": True,
+                    "with_vector": False,
+                    "score_threshold": MIN_CONFIDENCE
+                },
+                timeout=10.0
+            )
+            if response.status_code == 200:
+                data = response.json()
+                return data.get("result", [])
+            logger.warning(f"Qdrant search failed: {response.status_code}")
+            return []
+
+        response = await http_client.post(
             f"{QDRANT_URL}/collections/{QDRANT_COLLECTION}/points/scroll",
+            headers=headers,
             json={
                 "limit": limit,
                 "with_payload": True,
