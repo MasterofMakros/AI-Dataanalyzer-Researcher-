@@ -24,7 +24,7 @@ Neural Vault is an intelligence-grade document processing system designed for hi
          |                       |                       |
 +--------v--------+    +--------v--------+    +--------v--------+
 |   REST API      |    |  Perplexica UI   |    |  Universal      |
-|   (Port 8000)   |    |  (Port 3100)     |    |  Router (8030)  |
+|   (Port 8010)   |    |  (Port 3100)     |    |  Router (8030)  |
 +-----------------+    +------------------+    +--------+--------+
                                                         |
                                                +--------v--------+

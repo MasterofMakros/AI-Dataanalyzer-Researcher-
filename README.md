@@ -81,14 +81,24 @@ Nach dem Start sind folgende Services verfügbar (Host-Ports):
 
 | Service | Host-Port (URL) | Container-Port | Beschreibung |
 |---------|------------------|----------------|--------------|
-| Neural Search (Perplexica) | http://localhost:3100 | 3100 | Web UI mit Local Search |
+| Traefik Dashboard | http://localhost:8888 | 8888 | Reverse Proxy UI (intern) |
+| n8n | http://localhost:5680 | 5678 | Workflow Engine |
+| Neural Search (Perplexica) | http://localhost:3100 | 3000 | Web UI mit Local Search |
+| Neural Search (SearxNG) | http://localhost:8180 | 8080 | Metasuche (intern) |
 | Conductor API | http://localhost:8010 | 8000 | REST API |
 | Neural Search API | http://localhost:8040 | 8040 | RAG + LLM Backend |
-| Qdrant | http://localhost:6335 | 6333 | Vektor-Datenbank |
-| Ollama | http://localhost:11435 | 11434 | LLM Backend |
+| Universal Router | http://localhost:8030 | 8030 | File Routing |
 | Orchestrator | http://localhost:8020 | 8020 | Pipeline Stats |
-| Redis | http://localhost:6379 | 6379 | Queue/Cache |
-| Document Processor (GPU) | http://localhost:8005 | 8005 | Docling/Surya/GLiNER |
+| Document Processor (GPU/CPU) | http://localhost:8005 | 8000 | Docling/Surya/GLiNER |
+| WhisperX | http://localhost:9000 | 9000 | Audio Transcription |
+| Surya OCR | http://localhost:9999 | 8000 | OCR Service |
+| Tika | http://localhost:9998 | 9998 | Text Extraction |
+| Scientific Parser | http://localhost:8050 | 8050 | Table/Text Parsing |
+| Metadata Extractor | http://localhost:8015 | 8000 | ExifTool Wrapper |
+| Qdrant (REST) | http://localhost:6335 | 6333 | Vektor-Datenbank |
+| Qdrant (gRPC) | http://localhost:6336 | 6334 | gRPC Endpoint |
+| Ollama | http://localhost:11435 | 11434 | LLM Backend |
+| Nextcloud | http://localhost:8081 | 80 | Filesync UI |
 
 ---
 

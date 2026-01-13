@@ -87,17 +87,24 @@ infra/docker/
 
 | Service | Host-Port | Container-Port | Beschreibung |
 |---------|-----------|----------------|--------------|
-| Perplexica UI | 3100 | 3100 | Search Frontend |
-| Conductor API | 8010 | 8000 | Legacy API |
+| Traefik Dashboard | 8888 | 8888 | Reverse Proxy UI |
+| n8n | 5680 | 5678 | Workflow Engine |
+| Perplexica UI | 3100 | 3000 | Search Frontend |
+| Perplexica SearxNG | 8180 | 8080 | Metasuche |
+| Conductor API | 8010 | 8000 | REST API |
 | Neural Search API | 8040 | 8040 | RAG + LLM |
-| Orchestrator | 8020 | 8020 | Job Management |
 | Universal Router | 8030 | 8030 | File Routing |
-| Document Processor | 8005 | 8005 | GPU Processing |
-| Redis | 6379 | 6379 | Queue/Cache |
-| Ollama | 11435 | 11434 | LLM |
-| Qdrant | 6335 | 6333 | Vector Store |
-| Tika | 9998 | 9998 | Text Extraction |
+| Orchestrator | 8020 | 8020 | Job Management |
+| Document Processor | 8005 | 8000 | GPU/CPU Processing |
 | WhisperX | 9000 | 9000 | Audio Transcription |
+| Surya OCR | 9999 | 8000 | OCR Service |
+| Tika | 9998 | 9998 | Text Extraction |
+| Scientific Parser | 8050 | 8050 | Table/Text Parsing |
+| Metadata Extractor | 8015 | 8000 | ExifTool Wrapper |
+| Qdrant (REST) | 6335 | 6333 | Vector Store |
+| Qdrant (gRPC) | 6336 | 6334 | gRPC Endpoint |
+| Ollama | 11435 | 11434 | LLM |
+| Nextcloud | 8081 | 80 | Filesync UI |
 
 ---
 
