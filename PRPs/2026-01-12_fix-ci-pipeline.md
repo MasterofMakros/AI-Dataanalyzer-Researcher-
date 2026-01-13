@@ -1,5 +1,7 @@
 # PRP: Fix CI/CD Pipeline
 
+Status: planned
+
 ## Goal
 - Fix the failing GitHub Actions Workflow (`.github/workflows/ci.yml`).
 - Align CI with the new repository structure (Frontend: `ui/perplexica`).

@@ -1,5 +1,7 @@
 # PRP: Documentation Consolidation (Cole-Style)
 
+Status: planned
+
 ## Context
 Root directory has ~25 Markdown files, causing navigation overhead. Goal: minimal root (~10 files), everything else in `docs/`.
 
