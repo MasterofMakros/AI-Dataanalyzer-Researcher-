@@ -90,6 +90,16 @@ Nach dem Start sind folgende Services verfügbar:
 
 ---
 
+## Komponenten-Updates
+
+Für Tika und WhisperX sind Versionen über `.env` pins gesetzt, damit Updates gezielt
+aus GitHub-Releases übernommen werden können. Eine kurze Anleitung steht in
+`docs/COMPONENT_UPDATES.md` inklusive Update-Skript und Workflow.
+Eine vollständige Übersicht aller eingesetzten Komponenten und Versionen gibt es in
+`docs/COMPONENT_VERSION_INVENTORY.md`.
+
+---
+
 ## Architektur
 
 ```
