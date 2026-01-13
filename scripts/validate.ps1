@@ -49,7 +49,21 @@ if (-not $Quick) {
     }
 }
 
-# 4. Frontend Build Check
+# 4. Frontend Lint Check
+if (-not $Quick) {
+    Test-Step "Frontend Lint Check" {
+        if (Test-Path "./ui/perplexica/package.json") {
+            Push-Location ./ui/perplexica
+            npm run lint --if-present
+            if ($LASTEXITCODE -ne 0) { throw "npm lint failed" }
+            Pop-Location
+        } else {
+            Write-Host "SKIP: ui/perplexica not found" -ForegroundColor Yellow
+        }
+    }
+}
+
+# 5. Frontend Build Check
 if (-not $Quick) {
     Test-Step "Frontend Build Check" {
         if (Test-Path "./ui/perplexica/package.json") {
@@ -63,7 +77,7 @@ if (-not $Quick) {
     }
 }
 
-# 5. Docker Compose Validation
+# 6. Docker Compose Validation
 if (-not $SkipDocker) {
     Test-Step "Docker Compose Config" {
         docker compose config --quiet
@@ -71,7 +85,7 @@ if (-not $SkipDocker) {
     }
 }
 
-# 6. Smoke Test (if containers running)
+# 7. Smoke Test (if containers running)
 if (-not $SkipDocker) {
     Test-Step "Smoke Test" {
         $containers = docker ps --format "{{.Names}}" 2>$null
@@ -94,4 +108,3 @@ if ($script:failures -eq 0) {
     Write-Host "❌ VALIDATION FAILED ($script:failures issues)" -ForegroundColor Red
     exit 1
 }
-

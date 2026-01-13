@@ -234,6 +234,23 @@ curl -N http://localhost:3100/api/neural-search/stream \
 
 ---
 
+## Validation Scope (scripts/validate.*)
+
+Die lokalen Validate-Skripte prüfen:
+- Doctor check (Umgebung/Prereqs)
+- Python compile check
+- Backend Tests (`pytest tests/`)
+- Frontend Lint (`npm run lint --if-present`)
+- Frontend Build (`npm run build --if-present`)
+- Docker Compose config validation
+- Smoke tests (nur wenn Container laufen)
+
+Optional:
+- `--quick`/`-Quick`: Überspringt UI build/lint + Backend Tests.
+- `--skip-docker`/`-SkipDocker`: Überspringt Docker config + Smoke tests.
+
+---
+
 ## Wichtige Konventionen
 
 ### Code-Style
