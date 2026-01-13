@@ -63,7 +63,7 @@ Neural Vault is an intelligence-grade document processing system designed for hi
 **Purpose**: Intelligent file type detection and routing
 
 **Capabilities**:
-- Magic byte detection (200+ formats)
+- Magic byte detection (Formatanzahl siehe `docs/capabilities/formats.md`)
 - MIME type validation
 - Content-based routing decisions
 - Extension fallback

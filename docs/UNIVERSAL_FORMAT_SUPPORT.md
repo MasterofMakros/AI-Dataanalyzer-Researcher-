@@ -1,6 +1,6 @@
 # Universal Format Support
 
-> Neural Vault unterstützt **200+ Dateiformate** in 15 Kategorien
+> Neural Vault unterstützt die in `docs/capabilities/formats.md` dokumentierte Anzahl an Dateiformaten in 15 Kategorien
 > Stand: 29.12.2025
 
 ---
@@ -35,7 +35,7 @@
 
 ---
 
-## Format-Matrix: 200+ Formate
+## Format-Matrix: siehe `docs/capabilities/formats.md`
 
 ### Kategorie 1: Dokumente (30 Formate)
 
@@ -522,7 +522,7 @@ Der Router öffnet ZIP-Archive und prüft den Inhalt:
 
 | Service | Formate | Port |
 |:--------|:--------|:-----|
-| **universal-router** | Alle 200+ | 8030 |
+| **universal-router** | Alle (siehe `docs/capabilities/formats.md`) | 8030 |
 | **tika** | Dokumente (30) | 9998 |
 | **whisper-fast** | Audio Fast (20) | 9001 |
 | **whisper-accurate** | Audio Deep (20) | 9002 |
