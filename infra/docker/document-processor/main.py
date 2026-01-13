@@ -40,7 +40,7 @@ logger = logging.getLogger("document-processor")
 # Configuration
 DEVICE = os.getenv("PROCESSOR_DEVICE", "cuda" if torch.cuda.is_available() else "cpu")
 GLINER_MODEL = os.getenv("GLINER_MODEL", "urchade/gliner_small-v2.1")
-EMBED_MODEL = os.getenv("EMBED_MODEL", "intfloat/multilingual-e5-large")
+EMBED_MODEL = os.getenv("EMBED_MODEL", "Alibaba-NLP/gte-Qwen3-Embedding-0.6B")
 SURYA_LANGS = os.getenv("SURYA_LANGS", "de,en").split(",")
 LANCEDB_PATH = os.getenv("LANCEDB_PATH", "/data/lancedb")
 

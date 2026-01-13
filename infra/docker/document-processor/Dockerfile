@@ -50,7 +50,7 @@ COPY main.py .
 # Environment defaults
 ENV PROCESSOR_DEVICE=cuda
 ENV GLINER_MODEL=urchade/gliner_small-v2.1
-ENV EMBED_MODEL=intfloat/multilingual-e5-large
+ENV EMBED_MODEL=Alibaba-NLP/gte-Qwen3-Embedding-0.6B
 ENV SURYA_BATCH_SIZE=4
 ENV SURYA_LANGS=de,en
 ENV LANCEDB_PATH=/data/lancedb
