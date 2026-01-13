@@ -131,6 +131,8 @@ Eine vollständige Übersicht aller eingesetzten Komponenten und Versionen gibt 
 
 ## Neue Features (v2.0)
 
+Status & Roadmap: siehe [docs/ui_feature_roadmap.md](docs/ui_feature_roadmap.md).
+
 ### Local Search mit Optimization Modes
 
 Die Neural Search UI unterstützt jetzt lokale Dokumentensuche mit drei Modi:
