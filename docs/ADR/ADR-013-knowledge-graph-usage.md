@@ -196,7 +196,7 @@ Basierend auf beiden KI-Analysen: **Option B (Related Documents)**
 
 | Frage | Antwort |
 | :--- | :--- |
-| Passt zur Vision (VISION.md)? | [x] Ja - Fokus auf Kernnutzen |
+| Passt zur Vision ([product/vision.md](../product/vision.md))? | [x] Ja - Fokus auf Kernnutzen |
 | Verstößt gegen Non-Goals? | [ ] Nein |
 | Erfordert Runbook-Update? | [ ] Nein |
 

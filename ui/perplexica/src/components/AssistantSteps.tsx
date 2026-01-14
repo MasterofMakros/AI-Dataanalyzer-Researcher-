@@ -324,7 +324,9 @@ const AssistantSteps = ({
                             <span className="text-xs text-black/50 dark:text-white/50">
                               {synthesisComplete
                                 ? 'Antwort bereit'
-                                : 'Formuliere Antwort'}
+                                : loading
+                                  ? 'Formuliere Antwort'
+                                  : 'Antwort wird erstellt'}
                             </span>
                           )}
                         </div>
@@ -391,6 +393,7 @@ const AssistantSteps = ({
                                   href={url}
                                   target="_blank"
                                   className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-medium bg-light-100 dark:bg-dark-100 text-black/70 dark:text-white/70 border border-light-200 dark:border-dark-200"
+                                  rel="noreferrer"
                                 >
                                   {faviconUrl && (
                                     <img
@@ -430,6 +433,7 @@ const AssistantSteps = ({
                                   href={url}
                                   target="_blank"
                                   className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-medium bg-light-100 dark:bg-dark-100 text-black/70 dark:text-white/70 border border-light-200 dark:border-dark-200"
+                                  rel="noreferrer"
                                 >
                                   {faviconUrl && (
                                     <img

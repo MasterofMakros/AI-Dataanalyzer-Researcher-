@@ -279,7 +279,7 @@ Basierend auf Claude-Analyse: **Option B (Profiles)**
 
 | Frage | Antwort |
 | :--- | :--- |
-| Passt zur Vision (VISION.md)? | [x] Ja - Effizienz ist Kernziel |
+| Passt zur Vision ([product/vision.md](../product/vision.md))? | [x] Ja - Effizienz ist Kernziel |
 | Verstößt gegen Non-Goals? | [ ] Nein |
 | Erfordert Runbook-Update? | [x] Ja - Profile-Nutzung dokumentieren |
 

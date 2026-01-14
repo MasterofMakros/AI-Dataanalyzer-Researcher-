@@ -217,7 +217,7 @@ Basierend auf Gemini-Analyse: **Option B (Circuit Breaker)**
 
 | Frage | Antwort |
 | :--- | :--- |
-| Passt zur Vision (VISION.md)? | [x] Ja - Robustheit ist Kernziel |
+| Passt zur Vision ([product/vision.md](../product/vision.md))? | [x] Ja - Robustheit ist Kernziel |
 | Verstößt gegen Non-Goals? | [ ] Nein |
 | Erfordert Runbook-Update? | [x] Ja - Circuit Breaker States dokumentieren |
 

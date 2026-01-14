@@ -235,12 +235,12 @@ F:\conductor\scripts\update_ollama_models.ps1 -TestNotification
 
 ## 📚 Weiterführende Dokumentation
 
-- [VISION.md](VISION.md) - Projektziele & Non-Goals
-- [tech-stack.md](tech-stack.md) - Alle Technologien
-- [DATA_STRATEGY_DEEP_DIVE.md](DATA_STRATEGY_DEEP_DIVE.md) - Legacy-Daten Strategie
-- [docs/ADR/](docs/ADR/) - Architecture Decision Records
-- [docs/runbooks/](docs/runbooks/) - Betriebsanleitungen
-- [docs/UAT_PLAN.md](docs/UAT_PLAN.md) - Testplan
+- [Vision](../product/vision.md) - Projektziele & Non-Goals
+- [Tech Stack](../architecture/tech_stack.md) - Alle Technologien
+- [Data Strategy](../strategy/data_strategy.md) - Legacy-Daten Strategie
+- [ADR](../ADR/) - Architecture Decision Records
+- [Runbooks](../runbooks/) - Betriebsanleitungen
+- [UAT Plan](../UAT_PLAN.md) - Testplan
 
 ---
 

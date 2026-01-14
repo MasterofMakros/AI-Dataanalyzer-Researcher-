@@ -251,7 +251,7 @@ Basierend auf beiden KI-Analysen: **Option B (Evidence Board)**
 
 | Frage | Antwort |
 | :--- | :--- |
-| Passt zur Vision (VISION.md)? | [x] Ja - "Benutzerfreundliche Suche" |
+| Passt zur Vision ([product/vision.md](../product/vision.md))? | [x] Ja - "Benutzerfreundliche Suche" |
 | Verstößt gegen Non-Goals? | [ ] Nein |
 | Erfordert Runbook-Update? | [x] Ja - Frontend-Stack dokumentieren |
 

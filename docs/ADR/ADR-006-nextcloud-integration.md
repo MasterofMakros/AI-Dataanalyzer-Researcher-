@@ -366,7 +366,7 @@ def determine_target_folder(category, date):
 
 | Frage | Antwort |
 | :--- | :--- |
-| Passt zur Vision (VISION.md)? | ✅ Ja - "Zero-Touch Organization" |
+| Passt zur Vision ([product/vision.md](../product/vision.md))? | ✅ Ja - "Zero-Touch Organization" |
 | Verstößt gegen Non-Goals? | ✅ Nein |
 | Erfordert Runbook-Update? | ✅ Ja → RUNBOOK-001 erstellen |
 
@@ -377,4 +377,4 @@ def determine_target_folder(category, date):
 - [ADR-004: Document ETL Pipeline](./ADR-004-document-etl.md)
 - [ADR-005: OCR Strategy](./ADR-005-ocr-strategy.md)
 - [RUNBOOK-001: Nextcloud Setup](../runbooks/RUNBOOK-001-nextcloud-setup.md)
-- [PROJECT_OVERVIEW_2025.md](../PROJECT_OVERVIEW_2025.md)
+- [Project Overview 2025](../project/overview_2025.md)

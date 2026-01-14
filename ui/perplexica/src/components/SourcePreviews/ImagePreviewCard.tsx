@@ -67,11 +67,9 @@ const ImagePreviewCard = ({
           </p>
         </div>
       ) : (
-        snippet && (
-          <p className="text-xs text-black/60 dark:text-white/60 line-clamp-2">
-            {snippet}
-          </p>
-        )
+        <p className="text-xs text-black/60 dark:text-white/60 line-clamp-2">
+          {snippet}
+        </p>
       )}
 
       {sourceLabel && (

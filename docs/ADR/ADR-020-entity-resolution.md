@@ -253,7 +253,7 @@ Basierend auf Gemini-Analyse: **Option B (Fuzzy Resolution)**
 
 | Frage | Antwort |
 | :--- | :--- |
-| Passt zur Vision (VISION.md)? | [x] Ja - Intelligente Verknüpfung ist Kernziel |
+| Passt zur Vision ([product/vision.md](../product/vision.md))? | [x] Ja - Intelligente Verknüpfung ist Kernziel |
 | Verstößt gegen Non-Goals? | [ ] Nein |
 | Erfordert Runbook-Update? | [x] Ja - Resolution-Threshold dokumentieren |
 

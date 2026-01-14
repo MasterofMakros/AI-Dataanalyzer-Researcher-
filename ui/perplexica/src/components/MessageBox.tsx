@@ -102,6 +102,7 @@ const MessageBox = ({
           | 'image',
         textSnippet: s.content,
         confidence: s.metadata?.confidence || 0.5,
+        evidenceId: s.metadata?.evidenceId,
         timecodeStart: evidence?.timecodeStart ?? s.metadata?.timecodeStart,
         timecodeEnd: evidence?.timecodeEnd ?? s.metadata?.timecodeEnd,
         timestampStart: evidence?.timestampStart ?? s.metadata?.timestampStart,

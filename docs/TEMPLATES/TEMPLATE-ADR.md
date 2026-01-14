@@ -125,7 +125,7 @@ Beschreibe in 2-3 Sätzen:
 
 | Frage | Antwort |
 | :--- | :--- |
-| Passt zur Vision (VISION.md)? | [ ] Ja / [ ] Nein |
+| Passt zur Vision ([product/vision.md](../product/vision.md))? | [ ] Ja / [ ] Nein |
 | Verstößt gegen Non-Goals? | [ ] Ja / [ ] Nein |
 | Erfordert Runbook-Update? | [ ] Ja / [ ] Nein |
 

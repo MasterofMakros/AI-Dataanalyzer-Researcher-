@@ -273,7 +273,7 @@ Für reines Homelab-System ohne externe Zugriffe: Nicht notwendig.
 
 | Frage | Antwort |
 | :--- | :--- |
-| Passt zur Vision (VISION.md)? | [x] Ja - "Privacy-First" impliziert Sicherheit |
+| Passt zur Vision ([product/vision.md](../product/vision.md))? | [x] Ja - "Privacy-First" impliziert Sicherheit |
 | Verstößt gegen Non-Goals? | [ ] Nein |
 | Erfordert Runbook-Update? | [x] Ja - Canary-Wartung dokumentieren |
 
