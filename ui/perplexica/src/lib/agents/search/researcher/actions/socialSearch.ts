@@ -37,6 +37,7 @@ const socialSearchAction: ResearchAction<typeof schema> = {
     );
 
     if (researchBlock && researchBlock.type === 'research') {
+      researchBlock.data.phase = 'search';
       researchBlock.data.subSteps.push({
         type: 'searching',
         id: crypto.randomUUID(),
@@ -48,6 +49,11 @@ const socialSearchAction: ResearchAction<typeof schema> = {
           op: 'replace',
           path: '/data/subSteps',
           value: researchBlock.data.subSteps,
+        },
+        {
+          op: 'replace',
+          path: '/data/phase',
+          value: researchBlock.data.phase,
         },
       ]);
     }
@@ -68,6 +74,7 @@ const socialSearchAction: ResearchAction<typeof schema> = {
           title: r.title,
           url: r.url,
         },
+        evidence: [],
       }));
 
       results.push(...resultChunks);
@@ -78,6 +85,7 @@ const socialSearchAction: ResearchAction<typeof schema> = {
         researchBlock.type === 'research'
       ) {
         searchResultsEmitted = true;
+        researchBlock.data.phase = 'reading';
 
         researchBlock.data.subSteps.push({
           id: searchResultsBlockId,
@@ -90,6 +98,11 @@ const socialSearchAction: ResearchAction<typeof schema> = {
             op: 'replace',
             path: '/data/subSteps',
             value: researchBlock.data.subSteps,
+          },
+          {
+            op: 'replace',
+            path: '/data/phase',
+            value: researchBlock.data.phase,
           },
         ]);
       } else if (
@@ -106,12 +119,18 @@ const socialSearchAction: ResearchAction<typeof schema> = {
         ] as SearchResultsResearchBlock;
 
         subStep.reading.push(...resultChunks);
+        researchBlock.data.phase = 'reading';
 
         additionalConfig.session.updateBlock(additionalConfig.researchBlockId, [
           {
             op: 'replace',
             path: '/data/subSteps',
             value: researchBlock.data.subSteps,
+          },
+          {
+            op: 'replace',
+            path: '/data/phase',
+            value: researchBlock.data.phase,
           },
         ]);
       }

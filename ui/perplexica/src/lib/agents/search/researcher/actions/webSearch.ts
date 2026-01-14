@@ -92,6 +92,7 @@ const webSearchAction: ResearchAction<typeof actionSchema> = {
     );
 
     if (researchBlock && researchBlock.type === 'research') {
+      researchBlock.data.phase = 'search';
       researchBlock.data.subSteps.push({
         id: crypto.randomUUID(),
         type: 'searching',
@@ -103,6 +104,11 @@ const webSearchAction: ResearchAction<typeof actionSchema> = {
           op: 'replace',
           path: '/data/subSteps',
           value: researchBlock.data.subSteps,
+        },
+        {
+          op: 'replace',
+          path: '/data/phase',
+          value: researchBlock.data.phase,
         },
       ]);
     }
@@ -121,6 +127,7 @@ const webSearchAction: ResearchAction<typeof actionSchema> = {
           title: r.title,
           url: r.url,
         },
+        evidence: [],
       }));
 
       results.push(...resultChunks);
@@ -131,6 +138,7 @@ const webSearchAction: ResearchAction<typeof actionSchema> = {
         researchBlock.type === 'research'
       ) {
         searchResultsEmitted = true;
+        researchBlock.data.phase = 'reading';
 
         researchBlock.data.subSteps.push({
           id: searchResultsBlockId,
@@ -143,6 +151,11 @@ const webSearchAction: ResearchAction<typeof actionSchema> = {
             op: 'replace',
             path: '/data/subSteps',
             value: researchBlock.data.subSteps,
+          },
+          {
+            op: 'replace',
+            path: '/data/phase',
+            value: researchBlock.data.phase,
           },
         ]);
       } else if (
@@ -159,12 +172,18 @@ const webSearchAction: ResearchAction<typeof actionSchema> = {
         ] as SearchResultsResearchBlock;
 
         subStep.reading.push(...resultChunks);
+        researchBlock.data.phase = 'reading';
 
         additionalConfig.session.updateBlock(additionalConfig.researchBlockId, [
           {
             op: 'replace',
             path: '/data/subSteps',
             value: researchBlock.data.subSteps,
+          },
+          {
+            op: 'replace',
+            path: '/data/phase',
+            value: researchBlock.data.phase,
           },
         ]);
       }

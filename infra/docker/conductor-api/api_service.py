@@ -810,7 +810,12 @@ class SourcePreview(BaseModel):
     ocr_text: Optional[str] = None
     # Metadaten
     file_path: str
+    folder: Optional[str] = None
+    file_extension: Optional[str] = None
+    file_created: Optional[str] = None
+    file_modified: Optional[str] = None
     indexed_at: Optional[str] = None
+    tags: List[str] = []
 
 class RAGSearchResult(BaseModel):
     """Ergebnis der RAG-Suche mit Quellen."""
@@ -881,7 +886,12 @@ async def rag_local_search(request: LocalSearchRequest):
                     thumbnail_url=f"/sources/{point.get('id')}/thumbnail" if source_type == "image" else None,
                     ocr_text=payload.get("ocr_text"),
                     file_path=payload.get("file_path", ""),
-                    indexed_at=payload.get("indexed_at")
+                    folder=str(Path(payload.get("file_path", "")).parent) if payload.get("file_path") else None,
+                    file_extension=payload.get("extension") or Path(payload.get("filename", "")).suffix.lower(),
+                    file_created=payload.get("file_created"),
+                    file_modified=payload.get("file_modified"),
+                    indexed_at=payload.get("indexed_at"),
+                    tags=payload.get("tags", []) or []
                 )
                 sources.append(source)
                 
@@ -920,6 +930,13 @@ async def get_source_details(source_id: str):
                 "id": source_id,
                 "filename": payload.get("filename"),
                 "file_path": payload.get("file_path"),
+                "folder": str(Path(payload.get("file_path", "")).parent)
+                if payload.get("file_path")
+                else None,
+                "file_extension": payload.get("extension")
+                or Path(payload.get("filename", "")).suffix.lower(),
+                "file_created": payload.get("file_created"),
+                "file_modified": payload.get("file_modified"),
                 "text": payload.get("text"),
                 "source_type": payload.get("source_type"),
                 "timecodes": payload.get("timecodes", []),
@@ -927,7 +944,8 @@ async def get_source_details(source_id: str):
                 "total_pages": payload.get("total_pages"),
                 "confidence": payload.get("confidence"),
                 "extraction_method": payload.get("extraction_method"),
-                "indexed_at": payload.get("indexed_at")
+                "indexed_at": payload.get("indexed_at"),
+                "tags": payload.get("tags", []) or []
             }
             
     except Exception as e:

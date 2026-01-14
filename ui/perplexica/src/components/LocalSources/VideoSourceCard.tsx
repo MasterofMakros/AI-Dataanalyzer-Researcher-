@@ -36,22 +36,24 @@ const VideoSourceCard = ({ source, index, onClick }: VideoSourceCardProps) => {
                 </p>
             </div>
 
-            {/* Timecode badge */}
-            {source.timecodeStart && (
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                        <span className="bg-red-500/10 text-red-400 text-xs px-2 py-1 rounded-md font-mono">
-                            {source.timecodeStart}
-                        </span>
-                        {source.timecodeEnd && (
-                            <span className="text-xs text-black/40 dark:text-white/40">
-                                → {source.timecodeEnd}
-                            </span>
-                        )}
+            {/* Timecode preview */}
+            <div className="relative rounded-md overflow-hidden bg-black/10 dark:bg-white/10 h-20">
+                {source.thumbnailUrl ? (
+                    <img
+                        src={source.thumbnailUrl}
+                        alt={source.filename}
+                        className="w-full h-full object-cover"
+                    />
+                ) : (
+                    <div className="flex items-center justify-center w-full h-full text-black/30 dark:text-white/30 text-xs">
+                        Videovorschau
                     </div>
-                    <Play size={12} className="text-red-400" />
+                )}
+                <div className="absolute bottom-1 right-1 bg-black/70 text-white text-[10px] px-1.5 py-0.5 rounded font-mono">
+                    {source.timecodeStart ?? '00:00'}
+                    {source.timecodeEnd ? ` → ${source.timecodeEnd}` : ''}
                 </div>
-            )}
+            </div>
 
             {/* Text snippet */}
             <p className="text-xs text-black/60 dark:text-white/60 line-clamp-2">

@@ -7,11 +7,65 @@ import {
   TransitionChild,
 } from '@headlessui/react';
 import { File } from 'lucide-react';
-import { Fragment, useState } from 'react';
+import { Fragment, useMemo, useState } from 'react';
 import { Chunk } from '@/lib/types';
+import {
+  AudioPreviewCard,
+  ImagePreviewCard,
+  PdfPreviewCard,
+  VideoPreviewCard,
+} from './SourcePreviews';
+
+const audioExtensions = ['mp3', 'wav', 'm4a', 'aac', 'flac', 'ogg'];
+const videoExtensions = ['mp4', 'mov', 'webm', 'mkv', 'avi'];
+const imageExtensions = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'tiff'];
+
+const getFileExtension = (value?: string) => {
+  if (!value) return '';
+  const cleaned = value.split('?')[0]?.split('#')[0] ?? value;
+  const match = cleaned.match(/\.([a-z0-9]+)$/i);
+  return match ? match[1].toLowerCase() : '';
+};
+
+const getSourceType = (source: Chunk) => {
+  const metadataType = source.metadata?.type || source.metadata?.mimeType;
+  if (typeof metadataType === 'string') {
+    if (metadataType.includes('pdf')) return 'pdf';
+    if (metadataType.includes('audio')) return 'audio';
+    if (metadataType.includes('video')) return 'video';
+    if (metadataType.includes('image')) return 'image';
+  }
+
+  const extension =
+    getFileExtension(source.metadata?.url) ||
+    getFileExtension(source.metadata?.title);
+
+  if (extension === 'pdf') return 'pdf';
+  if (audioExtensions.includes(extension)) return 'audio';
+  if (videoExtensions.includes(extension)) return 'video';
+  if (imageExtensions.includes(extension)) return 'image';
+
+  return 'web';
+};
+
+const getSourceLabel = (source: Chunk) => {
+  const url = source.metadata?.url || '';
+  if (url.includes('file_id://')) return 'Uploaded File';
+  if (!url) return undefined;
+  return url.replace(/.+\/\/|www\.|\..+/g, '');
+};
 
 const MessageSources = ({ sources }: { sources: Chunk[] }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const previewSources = useMemo(
+    () =>
+      sources.map((source) => ({
+        source,
+        type: getSourceType(source),
+      })),
+    [sources],
+  );
 
   const closeModal = () => {
     setIsDialogOpen(false);
@@ -23,49 +77,87 @@ const MessageSources = ({ sources }: { sources: Chunk[] }) => {
     document.body.classList.add('overflow-hidden-scrollable');
   };
 
-  const renderPreview = (
-    source: Chunk,
-    index: number,
-    className?: string,
-  ) => {
-    const url = source.metadata.url ?? '';
-    const title = source.metadata.title || url || 'Untitled';
-    const rawSnippet = source.content?.trim() ?? '';
-    const snippet =
-      rawSnippet.length > 120 ? `${rawSnippet.slice(0, 117)}...` : rawSnippet;
-    const timecodeStart = source.metadata.timecodeStart;
-    const timecodeEnd = source.metadata.timecodeEnd;
-    const page = source.metadata.page;
-    const totalPages = source.metadata.totalPages;
-    const isFile = url.includes('file_id://');
-    const displayHost = isFile
-      ? 'Uploaded File'
-      : url.replace(/.+\/\/|www.|\..+/g, '');
+  const renderPreviewCard = (source: Chunk, type: string, index: number) => {
+    const title = source.metadata?.title || 'Untitled source';
+    const href = source.metadata?.url;
+    const snippet = source.content;
+    const sourceLabel = getSourceLabel(source);
 
-    return (
-      <a
-        className={`bg-light-100 hover:bg-light-200 dark:bg-dark-100 dark:hover:bg-dark-200 transition duration-200 rounded-lg p-3 flex flex-col space-y-2 font-medium ${className ?? ''}`}
-        key={index}
-        href={url}
-        target="_blank"
-      >
+    if (type === 'pdf') {
+      return (
+        <PdfPreviewCard
+          key={index}
+          title={title}
+          href={href}
+          snippet={snippet}
+          pageNumber={source.metadata?.page}
+          totalPages={source.metadata?.totalPages}
+          sourceLabel={sourceLabel}
+          index={index}
+        />
+      );
+    }
+
+    if (type === 'audio') {
+      return (
+        <AudioPreviewCard
+          key={index}
+          title={title}
+          href={href}
+          snippet={snippet}
+          timecodeStart={source.metadata?.timecodeStart}
+          timecodeEnd={source.metadata?.timecodeEnd}
+          sourceLabel={sourceLabel}
+          index={index}
+        />
+      );
+    }
+
+    if (type === 'video') {
+      return (
+        <VideoPreviewCard
+          key={index}
+          title={title}
+          href={href}
+          snippet={snippet}
+          timecodeStart={source.metadata?.timecodeStart}
+          timecodeEnd={source.metadata?.timecodeEnd}
+          thumbnailUrl={source.metadata?.thumbnailUrl}
+          sourceLabel={sourceLabel}
+          index={index}
+        />
+      );
+    }
+
+    if (type === 'image') {
+      return (
+        <ImagePreviewCard
+          key={index}
+          title={title}
+          href={href}
+          snippet={snippet}
+          ocrText={source.metadata?.ocrText}
+          thumbnailUrl={source.metadata?.thumbnailUrl}
+          sourceLabel={sourceLabel}
+          index={index}
+        />
+      );
+    }
+
+    const fallbackContent = (
+      <>
         <p className="dark:text-white text-xs overflow-hidden whitespace-nowrap text-ellipsis">
           {title}
         </p>
-        {snippet && (
-          <p className="text-[11px] text-black/60 dark:text-white/60 line-clamp-2">
-            {snippet}
-          </p>
-        )}
         <div className="flex flex-row items-center justify-between">
           <div className="flex flex-row items-center space-x-1">
-            {isFile ? (
+            {href?.includes('file_id://') ? (
               <div className="bg-dark-200 hover:bg-dark-100 transition duration-200 flex items-center justify-center w-6 h-6 rounded-full">
                 <File size={12} className="text-white/70" />
               </div>
             ) : (
               <img
-                src={`https://s2.googleusercontent.com/s2/favicons?domain_url=${url}`}
+                src={`https://s2.googleusercontent.com/s2/favicons?domain_url=${href}`}
                 width={16}
                 height={16}
                 alt="favicon"
@@ -73,7 +165,7 @@ const MessageSources = ({ sources }: { sources: Chunk[] }) => {
               />
             )}
             <p className="text-xs text-black/50 dark:text-white/50 overflow-hidden whitespace-nowrap text-ellipsis">
-              {displayHost}
+              {getSourceLabel(source)}
             </p>
           </div>
           <div className="flex flex-row items-center space-x-1 text-black/50 dark:text-white/50 text-xs">
@@ -81,37 +173,46 @@ const MessageSources = ({ sources }: { sources: Chunk[] }) => {
             <span>{index + 1}</span>
           </div>
         </div>
-        {(page || timecodeStart) && (
-          <div className="flex flex-wrap items-center gap-2 text-[10px] text-black/50 dark:text-white/50">
-            {page && (
-              <span>
-                Seite {page}
-                {totalPages ? `/${totalPages}` : ''}
-              </span>
-            )}
-            {timecodeStart && (
-              <span>
-                {timecodeStart}
-                {timecodeEnd ? `–${timecodeEnd}` : ''}
-              </span>
-            )}
-          </div>
-        )}
+      </>
+    );
+
+    if (!href) {
+      return (
+        <div
+          className="bg-light-100 dark:bg-dark-100 rounded-lg p-3 flex flex-col space-y-2 font-medium"
+          key={index}
+        >
+          {fallbackContent}
+        </div>
+      );
+    }
+
+    return (
+      <a
+        className="bg-light-100 hover:bg-light-200 dark:bg-dark-100 dark:hover:bg-dark-200 transition duration-200 rounded-lg p-3 flex flex-col space-y-2 font-medium"
+        key={index}
+        href={href}
+        target="_blank"
+        rel="noreferrer"
+      >
+        {fallbackContent}
       </a>
     );
   };
 
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
-      {sources.slice(0, 3).map((source, i) => renderPreview(source, i))}
+      {previewSources.slice(0, 3).map(({ source, type }, i) =>
+        renderPreviewCard(source, type, i),
+      )}
       {sources.length > 3 && (
         <button
           onClick={openModal}
           className="bg-light-100 hover:bg-light-200 dark:bg-dark-100 dark:hover:bg-dark-200 transition duration-200 rounded-lg p-3 flex flex-col space-y-2 font-medium"
         >
           <div className="flex flex-row items-center space-x-1">
-            {sources.slice(3, 6).map((source, i) => {
-              return source.metadata.url === 'File' ? (
+            {previewSources.slice(3, 6).map(({ source }, i) => {
+              return source.metadata?.url?.includes('file_id://') ? (
                 <div
                   key={i}
                   className="bg-dark-200 hover:bg-dark-100 transition duration-200 flex items-center justify-center w-6 h-6 rounded-full"
@@ -121,7 +222,7 @@ const MessageSources = ({ sources }: { sources: Chunk[] }) => {
               ) : (
                 <img
                   key={i}
-                  src={`https://s2.googleusercontent.com/s2/favicons?domain_url=${source.metadata.url}`}
+                  src={`https://s2.googleusercontent.com/s2/favicons?domain_url=${source.metadata?.url}`}
                   width={16}
                   height={16}
                   alt="favicon"
@@ -148,17 +249,13 @@ const MessageSources = ({ sources }: { sources: Chunk[] }) => {
                 leaveFrom="opacity-100 scale-200"
                 leaveTo="opacity-0 scale-95"
               >
-                <DialogPanel className="w-full max-w-md transform rounded-2xl bg-light-secondary dark:bg-dark-secondary border border-light-200 dark:border-dark-200 p-6 text-left align-middle shadow-xl transition-all">
+                <DialogPanel className="w-full max-w-4xl transform rounded-2xl bg-light-secondary dark:bg-dark-secondary border border-light-200 dark:border-dark-200 p-6 text-left align-middle shadow-xl transition-all">
                   <DialogTitle className="text-lg font-medium leading-6 dark:text-white">
                     Sources
                   </DialogTitle>
-                  <div className="grid grid-cols-2 gap-2 overflow-auto max-h-[300px] mt-2 pr-2">
-                    {sources.map((source, i) =>
-                      renderPreview(
-                        source,
-                        i,
-                        'bg-light-secondary hover:bg-light-200 dark:bg-dark-secondary dark:hover:bg-dark-200 border border-light-200 dark:border-dark-200',
-                      ),
+                  <div className="grid grid-cols-2 gap-2 overflow-auto max-h-[70vh] mt-4 pr-2">
+                    {previewSources.map(({ source, type }, i) =>
+                      renderPreviewCard(source, type, i),
                     )}
                   </div>
                 </DialogPanel>
