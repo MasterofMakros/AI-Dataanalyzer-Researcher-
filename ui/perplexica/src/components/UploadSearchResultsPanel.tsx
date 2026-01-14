@@ -25,6 +25,11 @@ const DATE_PRESETS = [
   { id: 'older', label: 'Älter', days: 36500 },
 ];
 
+const TAG_MATCH_OPTIONS = [
+  { id: 'any', label: 'Mindestens ein Tag' },
+  { id: 'all', label: 'Alle Tags' },
+];
+
 const parseParam = (value: string | null) =>
   value ? value.split(',').map((item) => item.trim()).filter(Boolean) : [];
 
@@ -68,18 +73,38 @@ const UploadSearchResultsPanel = ({ results }: { results: UploadResult[] }) => {
   const [selectedDates, setSelectedDates] = useState<string[]>([]);
   const [selectedFolders, setSelectedFolders] = useState<string[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [tagMatchMode, setTagMatchMode] = useState<'any' | 'all'>('any');
 
   useEffect(() => {
     setSelectedTypes(parseParam(searchParams.get('uploadTypes')));
     setSelectedDates(parseParam(searchParams.get('uploadDates')));
     setSelectedFolders(parseParam(searchParams.get('uploadFolders')));
     setSelectedTags(parseParam(searchParams.get('uploadTags')));
+    const nextTagMode = searchParams.get('uploadTagMode');
+    if (nextTagMode === 'all' || nextTagMode === 'any') {
+      setTagMatchMode(nextTagMode);
+    } else {
+      setTagMatchMode('any');
+    }
   }, [searchParams]);
 
   const updateParam = (key: string, values: string[]) => {
     const params = new URLSearchParams(searchParams.toString());
     if (values.length > 0) {
       params.set(key, values.join(','));
+    } else {
+      params.delete(key);
+    }
+    const queryString = params.toString();
+    router.replace(queryString ? `${pathname}?${queryString}` : pathname, {
+      scroll: false,
+    });
+  };
+
+  const updateScalarParam = (key: string, value?: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value) {
+      params.set(key, value);
     } else {
       params.delete(key);
     }
@@ -128,6 +153,9 @@ const UploadSearchResultsPanel = ({ results }: { results: UploadResult[] }) => {
     ).sort();
   }, [normalizedResults]);
 
+  const topFolders = useMemo(() => folders.slice(0, 2), [folders]);
+  const topTags = useMemo(() => tags.slice(0, 2), [tags]);
+
   const filteredResults = useMemo(() => {
     return normalizedResults.filter((result) => {
       const hasType =
@@ -136,7 +164,9 @@ const UploadSearchResultsPanel = ({ results }: { results: UploadResult[] }) => {
         selectedFolders.length === 0 || selectedFolders.includes(result.folder);
       const hasTag =
         selectedTags.length === 0 ||
-        result.tags.some((tag) => selectedTags.includes(tag));
+        (tagMatchMode === 'all'
+          ? selectedTags.every((tag) => result.tags.includes(tag))
+          : result.tags.some((tag) => selectedTags.includes(tag)));
       const hasDate =
         selectedDates.length === 0 ||
         (result.uploadedAt &&
@@ -144,18 +174,33 @@ const UploadSearchResultsPanel = ({ results }: { results: UploadResult[] }) => {
 
       return hasType && hasFolder && hasTag && hasDate;
     });
-  }, [normalizedResults, selectedTypes, selectedFolders, selectedTags, selectedDates]);
+  }, [
+    normalizedResults,
+    selectedTypes,
+    selectedFolders,
+    selectedTags,
+    selectedDates,
+    tagMatchMode,
+  ]);
 
   const clearAll = () => {
     setSelectedTypes([]);
     setSelectedDates([]);
     setSelectedFolders([]);
     setSelectedTags([]);
+    setTagMatchMode('any');
     updateParam('uploadTypes', []);
     updateParam('uploadDates', []);
     updateParam('uploadFolders', []);
     updateParam('uploadTags', []);
+    updateScalarParam('uploadTagMode');
   };
+
+  const hasActiveFilters =
+    selectedTypes.length > 0 ||
+    selectedDates.length > 0 ||
+    selectedFolders.length > 0 ||
+    selectedTags.length > 0;
 
   return (
     <div className="rounded-lg border border-light-200 dark:border-dark-200 bg-light-100 dark:bg-dark-100 p-3 space-y-4">
@@ -213,10 +258,122 @@ const UploadSearchResultsPanel = ({ results }: { results: UploadResult[] }) => {
             {type}
           </button>
         ))}
+        {topFolders.map((folder) => (
+          <button
+            key={folder}
+            type="button"
+            onClick={() => {
+              const next = toggleValue(selectedFolders, folder);
+              setSelectedFolders(next);
+              updateParam('uploadFolders', next);
+            }}
+            className={cn(
+              'rounded-full border px-2 py-0.5',
+              selectedFolders.includes(folder)
+                ? 'border-sky-500 text-sky-600 dark:text-sky-300'
+                : 'border-black/10 dark:border-white/10',
+            )}
+          >
+            {folder}
+          </button>
+        ))}
+        {topTags.map((tag) => (
+          <button
+            key={tag}
+            type="button"
+            onClick={() => {
+              const next = toggleValue(selectedTags, tag);
+              setSelectedTags(next);
+              updateParam('uploadTags', next);
+            }}
+            className={cn(
+              'rounded-full border px-2 py-0.5',
+              selectedTags.includes(tag)
+                ? 'border-sky-500 text-sky-600 dark:text-sky-300'
+                : 'border-black/10 dark:border-white/10',
+            )}
+          >
+            #{tag}
+          </button>
+        ))}
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[240px_1fr]">
         <div className="space-y-4">
+          {hasActiveFilters && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-xs font-semibold text-black/70 dark:text-white/70">
+                <Filter className="h-3.5 w-3.5" />
+                <span>Aktive Filter</span>
+              </div>
+              <div className="flex flex-wrap gap-2 text-xs">
+                {selectedTypes.map((type) => (
+                  <button
+                    key={`type-${type}`}
+                    type="button"
+                    onClick={() => {
+                      const next = selectedTypes.filter((item) => item !== type);
+                      setSelectedTypes(next);
+                      updateParam('uploadTypes', next);
+                    }}
+                    className="inline-flex items-center gap-1 rounded-full border border-sky-200 bg-sky-50 px-2 py-0.5 text-sky-700 dark:border-sky-500/40 dark:bg-sky-900/40 dark:text-sky-200"
+                  >
+                    {type}
+                    <span aria-hidden>×</span>
+                  </button>
+                ))}
+                {selectedDates.map((range) => {
+                  const label =
+                    DATE_PRESETS.find((preset) => preset.id === range)?.label || range;
+                  return (
+                    <button
+                      key={`date-${range}`}
+                      type="button"
+                      onClick={() => {
+                        const next = selectedDates.filter((item) => item !== range);
+                        setSelectedDates(next);
+                        updateParam('uploadDates', next);
+                      }}
+                      className="inline-flex items-center gap-1 rounded-full border border-sky-200 bg-sky-50 px-2 py-0.5 text-sky-700 dark:border-sky-500/40 dark:bg-sky-900/40 dark:text-sky-200"
+                    >
+                      {label}
+                      <span aria-hidden>×</span>
+                    </button>
+                  );
+                })}
+                {selectedFolders.map((folder) => (
+                  <button
+                    key={`folder-${folder}`}
+                    type="button"
+                    onClick={() => {
+                      const next = selectedFolders.filter((item) => item !== folder);
+                      setSelectedFolders(next);
+                      updateParam('uploadFolders', next);
+                    }}
+                    className="inline-flex items-center gap-1 rounded-full border border-sky-200 bg-sky-50 px-2 py-0.5 text-sky-700 dark:border-sky-500/40 dark:bg-sky-900/40 dark:text-sky-200"
+                  >
+                    {folder}
+                    <span aria-hidden>×</span>
+                  </button>
+                ))}
+                {selectedTags.map((tag) => (
+                  <button
+                    key={`tag-${tag}`}
+                    type="button"
+                    onClick={() => {
+                      const next = selectedTags.filter((item) => item !== tag);
+                      setSelectedTags(next);
+                      updateParam('uploadTags', next);
+                    }}
+                    className="inline-flex items-center gap-1 rounded-full border border-sky-200 bg-sky-50 px-2 py-0.5 text-sky-700 dark:border-sky-500/40 dark:bg-sky-900/40 dark:text-sky-200"
+                  >
+                    #{tag}
+                    <span aria-hidden>×</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-xs font-semibold text-black/70 dark:text-white/70">
               <Filter className="h-3.5 w-3.5" />
@@ -317,6 +474,28 @@ const UploadSearchResultsPanel = ({ results }: { results: UploadResult[] }) => {
                 <span className="text-xs text-black/40 dark:text-white/40">
                   Keine Tags gefunden
                 </span>
+              )}
+              {selectedTags.length > 0 && (
+                <div className="flex flex-wrap gap-2 text-[11px] text-black/50 dark:text-white/50">
+                  {TAG_MATCH_OPTIONS.map((option) => (
+                    <button
+                      key={option.id}
+                      type="button"
+                      onClick={() => {
+                        setTagMatchMode(option.id as 'any' | 'all');
+                        updateScalarParam('uploadTagMode', option.id);
+                      }}
+                      className={cn(
+                        'rounded-full border px-2 py-0.5',
+                        tagMatchMode === option.id
+                          ? 'border-sky-500 text-sky-600 dark:text-sky-300'
+                          : 'border-black/10 dark:border-white/10',
+                      )}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
               )}
               {tags.map((tag) => (
                 <button

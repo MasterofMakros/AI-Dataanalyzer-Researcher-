@@ -17,7 +17,6 @@ import {
 } from '@headlessui/react';
 import { Database, X } from 'lucide-react';
 import { LocalSource } from '@/lib/types';
-import MediaPlayerModal from './MediaPlayerModal';
 import {
   AudioPreviewCard,
   ImagePreviewCard,

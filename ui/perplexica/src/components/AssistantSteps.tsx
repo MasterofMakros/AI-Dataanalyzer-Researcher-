@@ -11,7 +11,7 @@ import {
   UploadCloud,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ResearchBlock, ResearchBlockSubStep, ResearchPhase } from '@/lib/types';
 import { useChat } from '@/lib/hooks/useChat';
 import FormatIcon from './LocalSources/FormatIcon';
@@ -79,6 +79,7 @@ const AssistantSteps = ({
   status: 'answering' | 'completed' | 'error';
   isLast: boolean;
 }) => {
+  const { researchEnded } = useChat();
   const [isExpanded, setIsExpanded] = useState(
     isLast && status === 'answering' ? true : false,
   );
@@ -215,8 +216,9 @@ const AssistantSteps = ({
   return (
     <div className="rounded-lg bg-light-secondary/80 dark:bg-dark-secondary/80 border border-light-200 dark:border-dark-200 overflow-hidden shadow-sm">
       <button
-        onClick={() => setIsExpanded(!isExpanded)}
+        onClick={() => setIsExpanded((prev) => !prev)}
         className="w-full flex items-center justify-between p-3 hover:bg-light-200/70 dark:hover:bg-dark-200/70 transition duration-200"
+        type="button"
       >
         <div className="flex flex-wrap items-center gap-3">
           <div className="rounded-full p-2 bg-cyan-100 text-cyan-800 dark:bg-cyan-500/20 dark:text-cyan-200">
@@ -234,8 +236,10 @@ const AssistantSteps = ({
         </div>
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-black dark:text-white">
-            Research Progress ({block.data.subSteps.length}{' '}
-            {block.data.subSteps.length === 1 ? 'step' : 'steps'})
+            ({subSteps.length} {subSteps.length === 1 ? 'Step' : 'Steps'})
+          </span>
+          <span className="text-[11px] px-2 py-0.5 rounded-full bg-light-100 dark:bg-dark-100 text-black/60 dark:text-white/60 border border-light-200 dark:border-dark-200">
+            {ROADMAP_PHASE_LABELS[activePhase]}
           </span>
           {currentPhase && (
             <span className="text-[11px] px-2 py-0.5 rounded-full bg-light-100 dark:bg-dark-100 text-black/60 dark:text-white/60 border border-light-200 dark:border-dark-200">
@@ -373,7 +377,7 @@ const AssistantSteps = ({
 
                         {phase.id === 'search' && searchResults.length > 0 && (
                           <div className="flex flex-wrap gap-1.5 mt-2">
-                            {searchResults.slice(0, 4).map((result, idx) => {
+                            {searchResults.slice(0, maxPreviewItems).map((result, idx) => {
                               const url = result.metadata.url || '';
                               const title = result.metadata.title || 'Untitled';
                               const domain = url ? new URL(url).hostname : '';
@@ -412,7 +416,7 @@ const AssistantSteps = ({
 
                         {phase.id === 'reading' && readingSources.length > 0 && (
                           <div className="flex flex-wrap gap-1.5 mt-2">
-                            {readingSources.slice(0, 4).map((result, idx) => {
+                            {readingSources.slice(0, maxPreviewItems).map((result, idx) => {
                               const url = result.metadata.url || '';
                               const title = result.metadata.title || 'Untitled';
                               const domain = url ? new URL(url).hostname : '';
