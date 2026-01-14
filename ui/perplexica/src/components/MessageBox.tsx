@@ -170,6 +170,7 @@ const MessageBox = ({
               answer={parsedMessage}
               sources={sources}
               localSources={localSources}
+              claims={section.claims}
             />
           )}
 
