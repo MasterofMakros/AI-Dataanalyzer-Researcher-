@@ -32,6 +32,10 @@ jobs:
         echo '{"version":1,"setupComplete":false,"preferences":{},"personalization":{},"modelProviders":[],"search":{"searxngURL":""}}' > data/config.json
         touch data/db.sqlite
 
+    - name: Lint
+      working-directory: ./ui/perplexica
+      run: npm run lint
+
     - name: Build
       working-directory: ./ui/perplexica
       run: npm run build

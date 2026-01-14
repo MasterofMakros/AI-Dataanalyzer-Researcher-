@@ -17,6 +17,14 @@ import {
 } from '@headlessui/react';
 import { Database, Filter, X } from 'lucide-react';
 import { LocalSource } from '@/lib/types';
+import MediaPlayerModal from './MediaPlayerModal';
+import {
+    AudioPreviewCard,
+    ImagePreviewCard,
+    PdfPreviewCard,
+    SourcePreviewModal,
+    VideoPreviewCard,
+} from '../SourcePreviews';
 import VideoSourceCard from './VideoSourceCard';
 import AudioSourceCard from './AudioSourceCard';
 import DocumentSourceCard from './DocumentSourceCard';
@@ -27,16 +35,27 @@ interface LocalMessageSourcesProps {
     sources: LocalSource[];
     query: string;
     onSourceClick?: (source: LocalSource) => void;
+    query?: string;
 }
 
-const LocalMessageSources = ({ sources, query, onSourceClick }: LocalMessageSourcesProps) => {
+const LocalMessageSources = ({ sources, onSourceClick, query = '' }: LocalMessageSourcesProps) => {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [selectedSource, setSelectedSource] = useState<LocalSource | null>(null);
+    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+    const [isMediaOpen, setIsMediaOpen] = useState(false);
+const LocalMessageSources = ({ sources, query, onSourceClick }: LocalMessageSourcesProps) => {
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
+    const [selectedMediaSource, setSelectedMediaSource] = useState<LocalSource | null>(null);
+    const [selectedMediaSource, setSelectedMediaSource] = useState<LocalSource | null>(
+        null,
+    );
     const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
     const [selectedFolders, setSelectedFolders] = useState<string[]>([]);
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const [dateFrom, setDateFrom] = useState('');
     const [dateTo, setDateTo] = useState('');
+    const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
 
     const closeModal = () => {
         setIsDialogOpen(false);
@@ -58,6 +77,16 @@ const LocalMessageSources = ({ sources, query, onSourceClick }: LocalMessageSour
         if (onSourceClick) {
             onSourceClick(source);
         }
+
+        closeModal();
+
+        if (source.sourceType === 'audio' || source.sourceType === 'video') {
+            setIsPreviewOpen(false);
+            setIsMediaOpen(true);
+        } else {
+            setIsMediaOpen(false);
+            setIsPreviewOpen(true);
+        }
     };
 
     const renderSourceCard = (source: LocalSource, index: number) => {
@@ -69,14 +98,14 @@ const LocalMessageSources = ({ sources, query, onSourceClick }: LocalMessageSour
 
         switch (source.sourceType) {
             case 'video':
-                return <VideoSourceCard key={source.id} {...props} />;
+                return <VideoPreviewCard key={source.id} {...props} />;
             case 'audio':
-                return <AudioSourceCard key={source.id} {...props} />;
+                return <AudioPreviewCard key={source.id} {...props} />;
             case 'image':
-                return <ImageSourceCard key={source.id} {...props} />;
+                return <ImagePreviewCard key={source.id} {...props} />;
             case 'document':
             default:
-                return <DocumentSourceCard key={source.id} {...props} />;
+                return <PdfPreviewCard key={source.id} {...props} />;
         }
     };
 
@@ -212,6 +241,7 @@ const LocalMessageSources = ({ sources, query, onSourceClick }: LocalMessageSour
                 <button
                     onClick={openModal}
                     className="inline-flex items-center gap-1 text-xs text-blue-500 hover:text-blue-400 transition"
+                    data-testid="local-sources-filter-button"
                 >
                     <Filter size={12} />
                     Filter
@@ -278,7 +308,10 @@ const LocalMessageSources = ({ sources, query, onSourceClick }: LocalMessageSour
                                     </div>
 
                                     <div className="flex flex-col gap-4 lg:flex-row">
-                                        <div className="lg:w-56 shrink-0 space-y-4 text-xs text-black/70 dark:text-white/70">
+                                        <div
+                                            className="lg:w-56 shrink-0 space-y-4 text-xs text-black/70 dark:text-white/70"
+                                            data-testid="local-sources-filter-panel"
+                                        >
                                             <div className="flex items-center justify-between">
                                                 <span className="font-semibold text-black/80 dark:text-white/80">
                                                     Filter
@@ -293,7 +326,7 @@ const LocalMessageSources = ({ sources, query, onSourceClick }: LocalMessageSour
                                                 )}
                                             </div>
 
-                                            <div className="space-y-2">
+                                            <div className="space-y-2" data-testid="filter-group-type">
                                                 <p className="font-medium text-black/80 dark:text-white/80">
                                                     Dateityp
                                                 </p>
@@ -307,6 +340,8 @@ const LocalMessageSources = ({ sources, query, onSourceClick }: LocalMessageSour
                                                         <label
                                                             key={type}
                                                             className="flex items-center gap-2"
+                                                            data-filter-group="type"
+                                                            data-filter-value={type}
                                                         >
                                                             <input
                                                                 type="checkbox"
@@ -331,7 +366,7 @@ const LocalMessageSources = ({ sources, query, onSourceClick }: LocalMessageSour
                                                 </div>
                                             </div>
 
-                                            <div className="space-y-2">
+                                            <div className="space-y-2" data-testid="filter-group-date">
                                                 <p className="font-medium text-black/80 dark:text-white/80">
                                                     Datum
                                                 </p>
@@ -346,6 +381,7 @@ const LocalMessageSources = ({ sources, query, onSourceClick }: LocalMessageSour
                                                             onChange={(event) =>
                                                                 setDateFrom(event.target.value)
                                                             }
+                                                            data-testid="filter-date-from"
                                                             className="rounded-md border border-black/20 dark:border-white/20 bg-transparent px-2 py-1 text-xs"
                                                         />
                                                     </label>
@@ -359,13 +395,14 @@ const LocalMessageSources = ({ sources, query, onSourceClick }: LocalMessageSour
                                                             onChange={(event) =>
                                                                 setDateTo(event.target.value)
                                                             }
+                                                            data-testid="filter-date-to"
                                                             className="rounded-md border border-black/20 dark:border-white/20 bg-transparent px-2 py-1 text-xs"
                                                         />
                                                     </label>
                                                 </div>
                                             </div>
 
-                                            <div className="space-y-2">
+                                            <div className="space-y-2" data-testid="filter-group-folder">
                                                 <p className="font-medium text-black/80 dark:text-white/80">
                                                     Ordner
                                                 </p>
@@ -379,6 +416,8 @@ const LocalMessageSources = ({ sources, query, onSourceClick }: LocalMessageSour
                                                         <label
                                                             key={folder}
                                                             className="flex items-center gap-2"
+                                                            data-filter-group="folder"
+                                                            data-filter-value={folder}
                                                         >
                                                             <input
                                                                 type="checkbox"
@@ -405,7 +444,7 @@ const LocalMessageSources = ({ sources, query, onSourceClick }: LocalMessageSour
                                                 </div>
                                             </div>
 
-                                            <div className="space-y-2">
+                                            <div className="space-y-2" data-testid="filter-group-tags">
                                                 <p className="font-medium text-black/80 dark:text-white/80">
                                                     Tags
                                                 </p>
@@ -419,6 +458,8 @@ const LocalMessageSources = ({ sources, query, onSourceClick }: LocalMessageSour
                                                         <label
                                                             key={tag}
                                                             className="flex items-center gap-2"
+                                                            data-filter-group="tag"
+                                                            data-filter-value={tag}
                                                         >
                                                             <input
                                                                 type="checkbox"
@@ -443,7 +484,10 @@ const LocalMessageSources = ({ sources, query, onSourceClick }: LocalMessageSour
                                                 </div>
                                             </div>
 
-                                            <div className="text-[11px] text-black/50 dark:text-white/50">
+                                            <div
+                                                className="text-[11px] text-black/50 dark:text-white/50"
+                                                data-testid="local-sources-result-count"
+                                            >
                                                 {filteredSources.length} Treffer
                                             </div>
                                         </div>
@@ -467,6 +511,16 @@ const LocalMessageSources = ({ sources, query, onSourceClick }: LocalMessageSour
                 </Dialog>
             </Transition>
 
+            <SourcePreviewModal
+                isOpen={isPreviewOpen}
+                onClose={() => setIsPreviewOpen(false)}
+                source={selectedSource}
+            />
+
+            <MediaPlayerModal
+                isOpen={isMediaOpen}
+                onClose={() => setIsMediaOpen(false)}
+                source={selectedSource}
             <MediaPlayerModal
                 isOpen={isMediaModalOpen}
                 onClose={() => setIsMediaModalOpen(false)}

@@ -19,6 +19,8 @@ import psutil
 import random
 import string
 
+from config.paths import BASE_DIR
+
 @dataclass
 class DBResult:
     name: str
@@ -42,8 +44,6 @@ def generate_test_data(n_rows: int) -> List[tuple]:
         data.append((
             i,
             f"file_{i}.{''.join(random.choices(string.ascii_lowercase, k=3))}",
-from config.paths import BASE_DIR
-# ...
             f"{BASE_DIR}/test/path/{i % 100}/{i % 1000}/",
             random.randint(100, 10_000_000),  # filesize
             random.choice(["pdf", "docx", "jpg", "mp4", "txt"]),
