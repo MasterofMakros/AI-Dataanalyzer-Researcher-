@@ -12,7 +12,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { ResearchBlock, ResearchBlockSubStep } from '@/lib/types';
 import { useChat } from '@/lib/hooks/useChat';
-import FormatIcon from './LocalSources/FormatIcon';
+import UploadSearchResultsPanel from './UploadSearchResultsPanel';
 
 const getStepIcon = (step: ResearchBlockSubStep) => {
   if (step.type === 'reasoning') {
@@ -226,41 +226,8 @@ const AssistantSteps = ({
 
                       {step.type === 'upload_search_results' &&
                         step.results.length > 0 && (
-                          <div className="mt-1.5 grid gap-3 lg:grid-cols-3">
-                            {step.results.slice(0, 4).map((result, idx) => {
-                              const title =
-                                (result.metadata &&
-                                  (result.metadata.title ||
-                                    result.metadata.fileName)) ||
-                                'Untitled document';
-
-                              // Extract file extension for format-specific icon
-                              const fileName = result.metadata?.fileName || result.metadata?.title || '';
-                              const ext = fileName.includes('.')
-                                ? fileName.split('.').pop()?.toLowerCase() || ''
-                                : '';
-
-                              return (
-                                <div
-                                  key={idx}
-                                  className="flex flex-row space-x-3 rounded-lg border border-light-200 dark:border-dark-200 bg-light-100 dark:bg-dark-100 p-2 cursor-pointer"
-                                >
-                                  <div className="mt-0.5 h-10 w-10 rounded-md bg-cyan-100 text-cyan-800 dark:bg-sky-500 dark:text-cyan-50 flex items-center justify-center">
-                                    <FormatIcon format={ext} size={20} />
-                                  </div>
-                                  <div className="flex flex-col justify-center">
-                                    <p className="text-[13px] text-black dark:text-white line-clamp-1">
-                                      {title}
-                                    </p>
-                                    {ext && (
-                                      <span className="text-[10px] text-black/50 dark:text-white/50 uppercase">
-                                        {ext}
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
-                              );
-                            })}
+                          <div className="mt-2">
+                            <UploadSearchResultsPanel results={step.results} />
                           </div>
                         )}
                     </div>
