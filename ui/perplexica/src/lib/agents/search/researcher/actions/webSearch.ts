@@ -121,6 +121,7 @@ const webSearchAction: ResearchAction<typeof actionSchema> = {
           title: r.title,
           url: r.url,
         },
+        evidence: [],
       }));
 
       results.push(...resultChunks);

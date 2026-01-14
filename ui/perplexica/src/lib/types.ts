@@ -34,6 +34,15 @@ export type Message =
 export type Chunk = {
   content: string;
   metadata: Record<string, any>;
+  evidence?: Evidence[];
+};
+
+export type Evidence = {
+  page?: number;
+  bbox?: [number, number, number, number];
+  timecodeStart?: string;
+  timecodeEnd?: string;
+  timestamp?: number;
 };
 
 export type TextBlock = {
@@ -159,4 +168,3 @@ export type HybridSearchResult = {
   localSources: LocalSource[];
   combinedAnswer?: string;
 };
-

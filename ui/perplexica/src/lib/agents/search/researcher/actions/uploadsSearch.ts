@@ -1,6 +1,7 @@
 import z from 'zod';
 import { ResearchAction } from '../../types';
 import UploadStore from '@/lib/uploads/store';
+import { mergeEvidence } from '@/lib/utils/evidence';
 
 const schema = z.object({
   queries: z
@@ -68,6 +69,10 @@ const uploadsSearchAction: ResearchAction<typeof schema> = {
           const existingResult = results[existingIndex];
 
           existingResult.content += `\n\n${result.content}`;
+          existingResult.evidence = mergeEvidence(
+            existingResult.evidence,
+            result.evidence,
+          );
 
           return undefined;
         }

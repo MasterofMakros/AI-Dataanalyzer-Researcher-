@@ -3,6 +3,7 @@ import { ActionRegistry } from './actions';
 import { getResearcherPrompt } from '@/lib/prompts/search/researcher';
 import SessionManager from '@/lib/session';
 import { Message, ReasoningResearchBlock } from '@/lib/types';
+import { mergeEvidence } from '@/lib/utils/evidence';
 import formatChatHistoryAsString from '@/lib/utils/formatHistory';
 import { ToolCall } from '@/lib/models/types';
 
@@ -199,6 +200,10 @@ class Researcher {
           const existingResult = searchResults[existingIndex];
 
           existingResult.content += `\n\n${result.content}`;
+          existingResult.evidence = mergeEvidence(
+            existingResult.evidence,
+            result.evidence,
+          );
 
           return undefined;
         }

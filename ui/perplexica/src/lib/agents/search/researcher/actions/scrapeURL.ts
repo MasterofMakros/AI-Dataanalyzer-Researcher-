@@ -61,6 +61,7 @@ const scrapeURLAction: ResearchAction<typeof schema> = {
                     url,
                     title: title,
                   },
+                  evidence: [],
                 },
               ],
             });
@@ -94,6 +95,7 @@ const scrapeURLAction: ResearchAction<typeof schema> = {
                 url,
                 title: title,
               },
+              evidence: [],
             });
 
             additionalConfig.session.updateBlock(
@@ -116,6 +118,7 @@ const scrapeURLAction: ResearchAction<typeof schema> = {
               url,
               title: title,
             },
+            evidence: [],
           });
         } catch (error) {
           results.push({
@@ -124,6 +127,7 @@ const scrapeURLAction: ResearchAction<typeof schema> = {
               url,
               title: `Error fetching ${url}`,
             },
+            evidence: [],
           });
         }
       }),
