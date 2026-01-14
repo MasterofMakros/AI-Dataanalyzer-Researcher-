@@ -217,6 +217,7 @@ const LocalMessageSources = ({ sources, query, onSourceClick }: LocalMessageSour
                 <button
                     onClick={openModal}
                     className="inline-flex items-center gap-1 text-xs text-blue-500 hover:text-blue-400 transition"
+                    data-testid="local-sources-filter-button"
                 >
                     <Filter size={12} />
                     Filter
@@ -283,7 +284,10 @@ const LocalMessageSources = ({ sources, query, onSourceClick }: LocalMessageSour
                                     </div>
 
                                     <div className="flex flex-col gap-4 lg:flex-row">
-                                        <div className="lg:w-56 shrink-0 space-y-4 text-xs text-black/70 dark:text-white/70">
+                                        <div
+                                            className="lg:w-56 shrink-0 space-y-4 text-xs text-black/70 dark:text-white/70"
+                                            data-testid="local-sources-filter-panel"
+                                        >
                                             <div className="flex items-center justify-between">
                                                 <span className="font-semibold text-black/80 dark:text-white/80">
                                                     Filter
@@ -298,7 +302,7 @@ const LocalMessageSources = ({ sources, query, onSourceClick }: LocalMessageSour
                                                 )}
                                             </div>
 
-                                            <div className="space-y-2">
+                                            <div className="space-y-2" data-testid="filter-group-type">
                                                 <p className="font-medium text-black/80 dark:text-white/80">
                                                     Dateityp
                                                 </p>
@@ -312,6 +316,8 @@ const LocalMessageSources = ({ sources, query, onSourceClick }: LocalMessageSour
                                                         <label
                                                             key={type}
                                                             className="flex items-center gap-2"
+                                                            data-filter-group="type"
+                                                            data-filter-value={type}
                                                         >
                                                             <input
                                                                 type="checkbox"
@@ -336,7 +342,7 @@ const LocalMessageSources = ({ sources, query, onSourceClick }: LocalMessageSour
                                                 </div>
                                             </div>
 
-                                            <div className="space-y-2">
+                                            <div className="space-y-2" data-testid="filter-group-date">
                                                 <p className="font-medium text-black/80 dark:text-white/80">
                                                     Datum
                                                 </p>
@@ -351,6 +357,7 @@ const LocalMessageSources = ({ sources, query, onSourceClick }: LocalMessageSour
                                                             onChange={(event) =>
                                                                 setDateFrom(event.target.value)
                                                             }
+                                                            data-testid="filter-date-from"
                                                             className="rounded-md border border-black/20 dark:border-white/20 bg-transparent px-2 py-1 text-xs"
                                                         />
                                                     </label>
@@ -364,13 +371,14 @@ const LocalMessageSources = ({ sources, query, onSourceClick }: LocalMessageSour
                                                             onChange={(event) =>
                                                                 setDateTo(event.target.value)
                                                             }
+                                                            data-testid="filter-date-to"
                                                             className="rounded-md border border-black/20 dark:border-white/20 bg-transparent px-2 py-1 text-xs"
                                                         />
                                                     </label>
                                                 </div>
                                             </div>
 
-                                            <div className="space-y-2">
+                                            <div className="space-y-2" data-testid="filter-group-folder">
                                                 <p className="font-medium text-black/80 dark:text-white/80">
                                                     Ordner
                                                 </p>
@@ -384,6 +392,8 @@ const LocalMessageSources = ({ sources, query, onSourceClick }: LocalMessageSour
                                                         <label
                                                             key={folder}
                                                             className="flex items-center gap-2"
+                                                            data-filter-group="folder"
+                                                            data-filter-value={folder}
                                                         >
                                                             <input
                                                                 type="checkbox"
@@ -410,7 +420,7 @@ const LocalMessageSources = ({ sources, query, onSourceClick }: LocalMessageSour
                                                 </div>
                                             </div>
 
-                                            <div className="space-y-2">
+                                            <div className="space-y-2" data-testid="filter-group-tags">
                                                 <p className="font-medium text-black/80 dark:text-white/80">
                                                     Tags
                                                 </p>
@@ -424,6 +434,8 @@ const LocalMessageSources = ({ sources, query, onSourceClick }: LocalMessageSour
                                                         <label
                                                             key={tag}
                                                             className="flex items-center gap-2"
+                                                            data-filter-group="tag"
+                                                            data-filter-value={tag}
                                                         >
                                                             <input
                                                                 type="checkbox"
@@ -448,7 +460,10 @@ const LocalMessageSources = ({ sources, query, onSourceClick }: LocalMessageSour
                                                 </div>
                                             </div>
 
-                                            <div className="text-[11px] text-black/50 dark:text-white/50">
+                                            <div
+                                                className="text-[11px] text-black/50 dark:text-white/50"
+                                                data-testid="local-sources-result-count"
+                                            >
                                                 {filteredSources.length} Treffer
                                             </div>
                                         </div>

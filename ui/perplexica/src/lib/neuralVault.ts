@@ -34,7 +34,12 @@ export interface LocalSource {
   ocrText?: string;
   // Metadata
   filePath: string;
+  folder?: string;
+  fileExtension?: string;
+  fileCreated?: string;
+  fileModified?: string;
   indexedAt?: string;
+  tags?: string[];
 }
 
 export interface LocalSearchResult {
