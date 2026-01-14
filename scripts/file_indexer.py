@@ -68,7 +68,7 @@ def extract_text_tika(filepath: Path) -> Optional[str]:
         if response.status_code == 200:
             return response.text.strip()
     except Exception as e:
-        print(f"  ⚠️ Tika Fehler: {e}")
+        print(f"  WARN Tika Fehler: {e}")
     return None
 
 def generate_embedding(text: str) -> Optional[List[float]]:
@@ -87,7 +87,7 @@ def generate_embedding(text: str) -> Optional[List[float]]:
         if response.status_code == 200:
             return response.json().get("embedding")
     except Exception as e:
-        print(f"  ⚠️ Embedding Fehler: {e}")
+        print(f"  WARN Embedding Fehler: {e}")
     return None
 
 def classify_with_ollama(text: str, filename: str) -> Dict[str, Any]:
@@ -121,7 +121,7 @@ Antworte mit exakt diesem JSON-Format:
             result = response.json().get("response", "{}")
             return json.loads(result)
     except Exception as e:
-        print(f"  ⚠️ Classification Fehler: {e}")
+        print(f"  WARN Classification Fehler: {e}")
     
     return {
         "category": "Sonstiges",
@@ -166,13 +166,13 @@ def process_file(filepath: Path) -> Optional[Dict]:
     
     # Text extrahieren für unterstützte Formate
     if filepath.suffix.lower() in TEXT_EXTENSIONS:
-        print(f"  📄 Extrahiere Text...")
+        print("  INFO Extrahiere Text...")
         text = extract_text_tika(filepath)
         if text:
             doc["extracted_text"] = text[:50000]  # Limit
             
             # Klassifizieren
-            print(f"  🤖 Klassifiziere...")
+            print("  INFO Klassifiziere...")
             classification = classify_with_ollama(text, filepath.name)
             doc.update(classification)
     else:
@@ -187,10 +187,10 @@ def main(path: str, limit: int = 100):
     """Hauptfunktion: Indexiere Dateien."""
     root = Path(path)
     if not root.exists():
-        print(f"❌ Pfad existiert nicht: {path}")
+        print(f"FAIL Pfad existiert nicht: {path}")
         sys.exit(1)
     
-    print(f"🚀 Starte Indexierung: {path}")
+    print(f"START Indexierung: {path}")
     print(f"   Limit: {limit} Dateien")
     print("-" * 50)
     
@@ -212,28 +212,28 @@ def main(path: str, limit: int = 100):
             text_for_embedding = doc.get("extracted_text") or doc.get("meta_description", "")
             vector = generate_embedding(text_for_embedding)
             if not vector:
-                print("  ❌ Kein Embedding erzeugt")
+                print("  FAIL Kein Embedding erzeugt")
                 errors += 1
                 continue
 
             payload = doc.copy()
             payload["file_path"] = payload.pop("current_path", "")
 
-            print("  📥 Indexiere in Qdrant...")
+            print("  INFO Indexiere in Qdrant...")
             if index_to_qdrant(doc["id"], vector, payload):
                 success += 1
             else:
                 errors += 1
                 
         except Exception as e:
-            print(f"  ❌ Fehler: {e}")
+            print(f"  FAIL Fehler: {e}")
             errors += 1
     
     duration = time.time() - start_time
     rate = success / duration if duration > 0 else 0
     
     print("\n" + "=" * 50)
-    print(f"✅ FERTIG!")
+    print("DONE")
     print(f"   Erfolgreich: {success}/{total}")
     print(f"   Fehler: {errors}")
     print(f"   Dauer: {duration:.1f}s")

@@ -70,7 +70,7 @@ Test-Step "Python Compile Check" {
 if (-not $Quick) {
     Test-Step "Backend Tests (pytest)" {
         if (Test-Path "./tests") {
-            pytest tests/ --tb=short -q
+            python -m pytest tests/ --tb=short -q
             if ($LASTEXITCODE -ne 0) { throw "pytest failed" }
         } else {
             Write-Host "SKIP: tests/ not found" -ForegroundColor Yellow
@@ -101,6 +101,7 @@ if (-not $Quick) {
             Push-Location ./ui/perplexica
             $env:NEXT_PUBLIC_API_URL = "http://localhost:3001"
             $env:NEXT_PUBLIC_WS_URL = "ws://localhost:3001"
+            $env:BROWSERSLIST_IGNORE_OLD_DATA = "1"
             npm run build --if-present 2>&1 | Out-Null
             if ($LASTEXITCODE -ne 0) { throw "npm build failed" }
             Pop-Location

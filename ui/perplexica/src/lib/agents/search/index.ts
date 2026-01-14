@@ -7,10 +7,9 @@ import { WidgetExecutor } from './widgets';
 import db from '@/lib/db';
 import { chats, messages } from '@/lib/db/schema';
 import { and, eq, gt } from 'drizzle-orm';
-import { Claim, ClaimBlock, TextBlock } from '@/lib/types';
+import { Claim, ClaimBlock, ResearchBlock, TextBlock } from '@/lib/types';
 import { getClaimsPrompt } from '@/lib/prompts/search/claims';
 import { z } from 'zod';
-import { ResearchBlock, TextBlock } from '@/lib/types';
 
 class SearchAgent {
   async searchAsync(session: SessionManager, input: SearchAgentInput) {
@@ -219,7 +218,9 @@ class SearchAgent {
           ),
         });
 
-        const claimsResponse = await input.config.llm.generateObject({
+        const claimsResponse = await input.config.llm.generateObject<
+          typeof claimsSchema
+        >({
           schema: claimsSchema,
           messages: [
             {

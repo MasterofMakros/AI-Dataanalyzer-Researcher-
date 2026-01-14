@@ -124,10 +124,6 @@ const EvidenceBoard = ({
 
       const evidenceId = metadata.evidenceId ?? index + 1;
 
-      const evidenceId = metadata.evidenceId ?? index + 1;
-
-      const evidenceId = metadata.evidenceId ?? index + 1;
-
       return {
         id: `${metadata.url || 'web'}-${index}`,
         title,
@@ -184,8 +180,11 @@ const EvidenceBoard = ({
 
   const evidenceLookup = useMemo(() => {
     const entries = evidenceItems
-      .filter((item) => item.evidenceId !== undefined)
-      .map((item) => [item.evidenceId as number, item]);
+      .filter(
+        (item): item is EvidenceItem & { evidenceId: number } =>
+          item.evidenceId !== undefined,
+      )
+      .map((item) => [item.evidenceId, item] as const);
     return new Map(entries);
   }, [evidenceItems]);
 
@@ -478,59 +477,77 @@ const EvidenceBoard = ({
               {claims.map((claim) => {
                 const claimEvidence = claim.evidenceIds
                   .map((id) => evidenceLookup.get(id))
-                  .filter(Boolean);
+                  .filter(
+                    (item): item is EvidenceItem & { evidenceId: number } =>
+                      Boolean(item),
+                  );
 
                 return (
-                <div
-                  key={claim.id}
-                  className="rounded-md border border-light-200 dark:border-dark-200 bg-light-secondary dark:bg-dark-secondary p-3"
-                >
-                  <p className="text-sm text-black dark:text-white">
-                    {claim.text}
-                  </p>
-                  <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-black/60 dark:text-white/60">
-                    <span
-                      className={cn(
-                        'rounded-full px-2 py-0.5',
-                        claim.verified && claimEvidence.length > 0
-                          ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-300'
-                          : 'bg-amber-500/10 text-amber-600 dark:text-amber-300',
+                  <div
+                    key={claim.id}
+                    className="rounded-md border border-light-200 dark:border-dark-200 bg-light-secondary dark:bg-dark-secondary p-3"
+                  >
+                    <p className="text-sm text-black dark:text-white">
+                      {claim.text}
+                    </p>
+                    <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-black/60 dark:text-white/60">
+                      <span
+                        className={cn(
+                          'rounded-full px-2 py-0.5',
+                          claim.verified && claimEvidence.length > 0
+                            ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-300'
+                            : 'bg-amber-500/10 text-amber-600 dark:text-amber-300',
+                        )}
+                      >
+                        {claim.verified && claimEvidence.length > 0
+                          ? 'Verifiziert'
+                          : 'Unverifiziert'}
+                      </span>
+                      {claimEvidence.length > 0 ? (
+                        claimEvidence.map((evidence) => {
+                          const anchor = evidence.evidenceId
+                            ? `#evidence-${evidence.evidenceId}`
+                            : evidence.url;
+                          const label = evidence.evidenceId
+                            ? `E${evidence.evidenceId}`
+                            : evidence.title ??
+                              evidence.url ??
+                              evidence.filePath ??
+                              'Quelle';
+
+                          if (!anchor) {
+                            return (
+                              <span
+                                key={evidence.id}
+                                className="rounded-full border border-light-200 dark:border-dark-200 bg-light-100 dark:bg-dark-100 px-2 py-0.5"
+                              >
+                                {label}
+                              </span>
+                            );
+                          }
+
+                          const isExternal = Boolean(evidence.url);
+                          return (
+                            <a
+                              key={evidence.id}
+                              href={anchor}
+                              target={isExternal ? '_blank' : undefined}
+                              rel={isExternal ? 'noreferrer' : undefined}
+                              className="rounded-full border border-blue-500/20 bg-light-100 dark:bg-dark-100 px-2 py-0.5 text-blue-600 dark:text-blue-300 hover:border-blue-500/40"
+                            >
+                              {label}
+                            </a>
+                          );
+                        })
+                      ) : (
+                        <span className="text-xs text-black/50 dark:text-white/50">
+                          Keine Quellen verknüpft
+                        </span>
                       )}
-                    >
-                      {claim.verified && claimEvidence.length > 0
-                        ? 'Verifiziert'
-                        : 'Unverifiziert'}
-                    </span>
-                    {claimEvidence.length > 0 ? (
-                      claimEvidence.map((evidence) => {
-                        const anchor = evidence?.evidenceId
-                          ? `#evidence-${evidence.evidenceId}`
-                          : evidence?.url;
-                        const label = evidence?.evidenceId
-                          ? `E${evidence.evidenceId}`
-                          : evidence?.title;
-                        return (
-                          <a
-                            key={evidence.id}
-                            href={evidence.url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="text-blue-500 hover:text-blue-600"
-                          >
-                            {evidence.title ?? `Quelle ${evidence.index}`}
-                          </a>
-                        ) : (
-                          <span key={evidence.id}>
-                            {evidence.title ?? `Quelle ${evidence.index}`}
-                          </span>
-                        ),
-                      )
-                    ) : (
-                      <span>Keine Quellen verknüpft</span>
-                    )}
+                    </div>
                   </div>
-                </div>
-              )})}
+                );
+              })}
             </div>
           </div>
         </div>

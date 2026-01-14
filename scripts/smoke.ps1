@@ -21,8 +21,8 @@ if ($Overlay) {
 
 $runningServices = & docker compose @composeArgs ps --services --status running 2>$null
 if (-not $runningServices) {
-    Write-Host "❌ No running services detected." -ForegroundColor Red
-    Write-Host "💡 TIP: Start the stack first:" -ForegroundColor Cyan
+    Write-Host "FAIL: No running services detected." -ForegroundColor Red
+    Write-Host "TIP: Start the stack first:" -ForegroundColor Cyan
     Write-Host "   docker compose up -d" -ForegroundColor White
     exit 1
 }
@@ -50,12 +50,12 @@ $failed = 0
 $skipped = 0
 $checked = 0
 
-Write-Host "`n🔍 CONDUCTOR SMOKE TEST" -ForegroundColor Cyan
+Write-Host "`nCONDUCTOR SMOKE TEST" -ForegroundColor Cyan
 Write-Host "=" * 50
 
 foreach ($ep in $endpoints) {
     if (-not $runningSet.Contains($ep.Service)) {
-        Write-Host "⚠️  $($ep.Name)" -ForegroundColor Yellow -NoNewline
+        Write-Host "WARN $($ep.Name)" -ForegroundColor Yellow -NoNewline
         Write-Host " (Service not running)" -ForegroundColor DarkGray
         $skipped++
         continue
@@ -65,22 +65,22 @@ foreach ($ep in $endpoints) {
     try {
         $response = Invoke-WebRequest -Uri $ep.URL -TimeoutSec 5 -UseBasicParsing -ErrorAction Stop
         if ($response.StatusCode -eq $ep.Expected) {
-            Write-Host "✅ $($ep.Name)" -ForegroundColor Green -NoNewline
+            Write-Host "OK   $($ep.Name)" -ForegroundColor Green -NoNewline
             Write-Host " ($($ep.URL))" -ForegroundColor DarkGray
             $passed++
         } else {
-            Write-Host "⚠️  $($ep.Name)" -ForegroundColor Yellow -NoNewline
+            Write-Host "WARN $($ep.Name)" -ForegroundColor Yellow -NoNewline
             Write-Host " (Status: $($response.StatusCode), Expected: $($ep.Expected))" -ForegroundColor DarkGray
             $skipped++
         }
     } catch {
         $errorMsg = $_.Exception.Message
         if ($errorMsg -match "Unable to connect|Connection refused|timeout") {
-            Write-Host "❌ $($ep.Name)" -ForegroundColor Red -NoNewline
+            Write-Host "FAIL $($ep.Name)" -ForegroundColor Red -NoNewline
             Write-Host " (Not reachable)" -ForegroundColor DarkGray
             $failed++
         } else {
-            Write-Host "⚠️  $($ep.Name)" -ForegroundColor Yellow -NoNewline
+            Write-Host "WARN $($ep.Name)" -ForegroundColor Yellow -NoNewline
             Write-Host " ($errorMsg)" -ForegroundColor DarkGray
             $skipped++
         }
@@ -94,15 +94,15 @@ Write-Host ", $failed failed" -ForegroundColor Red -NoNewline
 Write-Host ", $skipped skipped" -ForegroundColor Yellow
 
 if ($checked -eq 0) {
-    Write-Host "`n❌ No running services matched smoke targets." -ForegroundColor Red
+    Write-Host "`nFAIL: No running services matched smoke targets." -ForegroundColor Red
     exit 1
 }
 
 if ($failed -gt 0) {
-    Write-Host "`n💡 TIP: Make sure services are running with:" -ForegroundColor Cyan
+    Write-Host "`nTIP: Make sure services are running with:" -ForegroundColor Cyan
     Write-Host "   docker compose up -d" -ForegroundColor White
     exit 1
 }
 
-Write-Host "`n✅ All critical services are reachable!" -ForegroundColor Green
+Write-Host "`nOK: All critical services are reachable!" -ForegroundColor Green
 exit 0

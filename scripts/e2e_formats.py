@@ -102,9 +102,9 @@ def sha256_file(path: Path) -> str:
     return h.hexdigest()
 
 
-def http_get(url: str, timeout: int = 5) -> Tuple[bool, str]:
+def http_get(url: str, timeout: int = 5, headers: Optional[Dict] = None) -> Tuple[bool, str]:
     try:
-        resp = requests.get(url, timeout=timeout)
+        resp = requests.get(url, headers=headers or {}, timeout=timeout)
         return resp.status_code == 200, f"status={resp.status_code}"
     except Exception as exc:
         return False, str(exc)
@@ -320,13 +320,28 @@ def qdrant_retrieval_fallback(
     return {"status": "fail", "matched_on": "none", "details": msg}
 
 
+def prepare_subprocess_env(env: Dict) -> Dict:
+    merged = env.copy()
+    repo_root = str(REPO_ROOT)
+    existing = merged.get("PYTHONPATH", "")
+    if existing:
+        merged["PYTHONPATH"] = repo_root + os.pathsep + existing
+    else:
+        merged["PYTHONPATH"] = repo_root
+    merged.setdefault("PYTHONUTF8", "1")
+    merged.setdefault("PYTHONIOENCODING", "utf-8")
+    return merged
+
+
 def run_subprocess(cmd: List[str], env: Dict) -> Tuple[int, str]:
     result = subprocess.run(
         cmd,
         cwd=str(REPO_ROOT),
-        env=env,
+        env=prepare_subprocess_env(env),
         capture_output=True,
         text=True,
+        encoding="utf-8",
+        errors="replace",
     )
     stdout = (result.stdout or "")[-2000:]
     stderr = (result.stderr or "")[-2000:]
@@ -529,7 +544,12 @@ def build_samples(mode: str) -> List[Dict]:
     return [s for s in samples if mode in s["modes"]]
 
 
-def check_prereqs(search_url: str, qdrant_url: str, overlay: bool) -> Tuple[bool, List[str]]:
+def check_prereqs(
+    search_url: str,
+    qdrant_url: str,
+    qdrant_headers: Dict,
+    overlay: bool,
+) -> Tuple[bool, List[str]]:
     messages = []
     ok = True
 
@@ -538,7 +558,7 @@ def check_prereqs(search_url: str, qdrant_url: str, overlay: bool) -> Tuple[bool
         ok = False
         messages.append(f"search_endpoint_unreachable: {search_msg} ({search_url})")
 
-    q_ok, q_msg = http_get(f"{qdrant_url}/collections", timeout=5)
+    q_ok, q_msg = http_get(f"{qdrant_url}/collections", timeout=5, headers=qdrant_headers)
     if not q_ok:
         ok = False
         messages.append(f"qdrant_unreachable: {q_msg}")
@@ -578,7 +598,12 @@ def main() -> int:
     qdrant_api_key = args.qdrant_api_key or os.environ.get("QDRANT_API_KEY", "")
     qdrant_headers = {"api-key": qdrant_api_key} if qdrant_api_key else {}
 
-    prereq_ok, prereq_msgs = check_prereqs(args.search_url, args.qdrant_url, args.mode == "overlay")
+    prereq_ok, prereq_msgs = check_prereqs(
+        args.search_url,
+        args.qdrant_url,
+        qdrant_headers,
+        args.mode == "overlay",
+    )
     if not prereq_ok:
         print("Prerequisites missing:")
         for msg in prereq_msgs:

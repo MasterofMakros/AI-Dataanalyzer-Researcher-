@@ -13,7 +13,7 @@ werden explizit so markiert, da sie bei Updates unkontrolliert springen können.
 | redis | `redis` | `7.4-alpine` | `docker-compose.yml` |
 | n8n | `n8nio/n8n` | `latest` (floating) | `docker-compose.yml` |
 | qdrant | `qdrant/qdrant` | `latest` (floating) | `docker-compose.yml` |
-| tika | `apache/tika` | `${TIKA_TAG:-2.9.0}` | `docker-compose.yml`, `.env.example` |
+| tika | `apache/tika` | `${TIKA_TAG:-3.2.3.0}` | `docker-compose.yml`, `.env.example` |
 | ollama | `ollama/ollama` | `latest` (floating) | `docker-compose.yml` |
 | whisper (legacy) | `fedirz/faster-whisper-server` | `${FASTER_WHISPER_CUDA_TAG:-latest-cuda}` | `docker-compose.yml`, `.env.example` |
 | whisperx | build: `infra/docker/whisperx-api` | `WHISPERX_VERSION` (PyPI pin) | `docker-compose.yml`, `.env.example`, `Dockerfile` |
@@ -44,7 +44,7 @@ werden explizit so markiert, da sie bei Updates unkontrolliert springen können.
 | orchestrator | build: `infra/docker/orchestrator` | base image `python:3.11-slim` | `docker-compose.intelligence.yml`, Dockerfile |
 | special-parser | build: `infra/docker/special-parser` | base image `python:3.11-slim` | `docker-compose.intelligence.yml`, Dockerfile |
 | worker-* | build: `infra/docker/workers` | base image `python:3.11-slim` | `docker-compose.intelligence.yml`, Dockerfile |
-| tika | `apache/tika` | `${TIKA_TAG:-2.9.0}` | `docker-compose.intelligence.yml`, `.env.example` |
+| tika | `apache/tika` | `${TIKA_TAG:-3.2.3.0}` | `docker-compose.intelligence.yml`, `.env.example` |
 | whisper-fast | `fedirz/faster-whisper-server` | `${FASTER_WHISPER_TAG:-latest}` | `docker-compose.intelligence.yml`, `.env.example` |
 | whisper-accurate | `fedirz/faster-whisper-server` | `${FASTER_WHISPER_CUDA_TAG:-latest-cuda}` | `docker-compose.intelligence.yml`, `.env.example` |
 | ffmpeg | `jrottenberg/ffmpeg` | `7-ubuntu` | `docker-compose.intelligence.yml` |

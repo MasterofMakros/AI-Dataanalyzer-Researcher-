@@ -27,7 +27,7 @@ import ThinkBox from './ThinkBox';
 import { useChat, Section } from '@/lib/hooks/useChat';
 import Citation from './MessageRenderer/Citation';
 import AssistantSteps from './AssistantSteps';
-import { ResearchBlock } from '@/lib/types';
+import { Chunk, ResearchBlock } from '@/lib/types';
 import Renderer from './Widgets/Renderer';
 import CodeBlock from './MessageRenderer/CodeBlock';
 import EvidenceBoard from './EvidenceBoard';
@@ -78,13 +78,19 @@ const MessageBox = ({
   );
 
   const allSources = sourceBlocks.flatMap((block) => block.data);
-  const allSourcesWithIds = allSources.map((source, index) => ({
-    ...source,
-    metadata: {
-      ...source.metadata,
-      evidenceId: index + 1,
-    },
-  }));
+  type SourceWithEvidenceId = Chunk & {
+    metadata: Record<string, any> & { evidenceId: number };
+  };
+
+  const allSourcesWithIds: SourceWithEvidenceId[] = allSources.map(
+    (source, index) => ({
+      ...source,
+      metadata: {
+        ...source.metadata,
+        evidenceId: index + 1,
+      },
+    }),
+  );
 
   // Separate web sources from local sources (Neural Vault)
   const sources = allSourcesWithIds.filter((s) => !s.metadata?.sourceType);

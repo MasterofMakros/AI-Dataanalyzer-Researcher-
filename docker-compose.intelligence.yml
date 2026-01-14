@@ -467,7 +467,7 @@ services:
   # ===========================================================================
 
   tika:
-    image: apache/tika:${TIKA_TAG:-2.9.0}
+    image: apache/tika:${TIKA_TAG:-3.2.3.0}
     container_name: conductor-tika
     restart: unless-stopped
     networks:
@@ -656,6 +656,7 @@ services:
       <<: *common-env
       TIKA_URL: http://tika:9998/tika
       QDRANT_URL: http://qdrant:6333
+      QDRANT_API_KEY: ${QDRANT_API_KEY}
       ORCHESTRATOR_URL: http://orchestrator:8020
     depends_on:
       - redis

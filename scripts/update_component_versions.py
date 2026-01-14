@@ -28,7 +28,7 @@ class Component:
 
 
 COMPONENTS: List[Component] = [
-    Component(name="Apache Tika", repo="apache/tika", env_key="TIKA_TAG", default="2.9.0"),
+    Component(name="Apache Tika", repo="apache/tika", env_key="TIKA_TAG", default="3.2.3.0"),
     Component(name="WhisperX", repo="m-bain/whisperX", env_key="WHISPERX_VERSION", default="3.7.4"),
 ]
 

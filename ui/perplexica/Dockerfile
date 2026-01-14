@@ -11,6 +11,7 @@ COPY tsconfig.json next.config.mjs next-env.d.ts postcss.config.js drizzle.confi
 COPY src ./src
 COPY public ./public
 COPY drizzle ./drizzle
+COPY scripts ./scripts
 
 RUN mkdir -p /home/perplexica/data
 RUN yarn build
