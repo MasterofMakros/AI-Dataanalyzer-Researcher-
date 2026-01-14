@@ -93,7 +93,6 @@ const extractClaims = (text: string) => {
   return sentences.slice(0, 3);
 };
 
-const EvidenceBoard = ({ answer, sources, localSources }: EvidenceBoardProps) => {
 const EvidenceBoard = ({
   answer,
   sources,

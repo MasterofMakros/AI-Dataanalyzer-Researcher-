@@ -1,6 +1,6 @@
 /**
  * Local Message Sources Component
- * 
+ *
  * Renders local sources from Neural Vault with appropriate cards
  * based on source type (video, audio, document, image).
  */
@@ -18,44 +18,34 @@ import {
 import { Database, Filter, X } from 'lucide-react';
 import { LocalSource } from '@/lib/types';
 import MediaPlayerModal from './MediaPlayerModal';
-import {
-    AudioPreviewCard,
-    ImagePreviewCard,
-    PdfPreviewCard,
-    SourcePreviewModal,
-    VideoPreviewCard,
-} from '../SourcePreviews';
+import { SourcePreviewModal } from '../SourcePreviews';
 import VideoSourceCard from './VideoSourceCard';
 import AudioSourceCard from './AudioSourceCard';
 import DocumentSourceCard from './DocumentSourceCard';
 import ImageSourceCard from './ImageSourceCard';
-import MediaPlayerModal from './MediaPlayerModal';
 
 interface LocalMessageSourcesProps {
     sources: LocalSource[];
     query: string;
     onSourceClick?: (source: LocalSource) => void;
-    query?: string;
 }
 
-const LocalMessageSources = ({ sources, onSourceClick, query = '' }: LocalMessageSourcesProps) => {
+const LocalMessageSources = ({
+    sources,
+    query,
+    onSourceClick,
+}: LocalMessageSourcesProps) => {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const [selectedSource, setSelectedSource] = useState<LocalSource | null>(null);
-    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-    const [isMediaOpen, setIsMediaOpen] = useState(false);
-const LocalMessageSources = ({ sources, query, onSourceClick }: LocalMessageSourcesProps) => {
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
-    const [selectedMediaSource, setSelectedMediaSource] = useState<LocalSource | null>(null);
-    const [selectedMediaSource, setSelectedMediaSource] = useState<LocalSource | null>(
+    const [selectedSource, setSelectedSource] = useState<LocalSource | null>(
         null,
     );
+    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+    const [isMediaOpen, setIsMediaOpen] = useState(false);
     const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
     const [selectedFolders, setSelectedFolders] = useState<string[]>([]);
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const [dateFrom, setDateFrom] = useState('');
     const [dateTo, setDateTo] = useState('');
-    const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
 
     const closeModal = () => {
         setIsDialogOpen(false);
@@ -68,16 +58,7 @@ const LocalMessageSources = ({ sources, query, onSourceClick }: LocalMessageSour
     };
 
     const handleSourceClick = (source: LocalSource) => {
-        if (source.sourceType === 'audio' || source.sourceType === 'video') {
-            setSelectedSource(source);
-            setIsMediaModalOpen(true);
-            setIsDialogOpen(false);
-            document.body.classList.remove('overflow-hidden-scrollable');
-        }
-        if (onSourceClick) {
-            onSourceClick(source);
-        }
-
+        setSelectedSource(source);
         closeModal();
 
         if (source.sourceType === 'audio' || source.sourceType === 'video') {
@@ -86,6 +67,10 @@ const LocalMessageSources = ({ sources, query, onSourceClick }: LocalMessageSour
         } else {
             setIsMediaOpen(false);
             setIsPreviewOpen(true);
+        }
+
+        if (onSourceClick) {
+            onSourceClick(source);
         }
     };
 
@@ -98,14 +83,14 @@ const LocalMessageSources = ({ sources, query, onSourceClick }: LocalMessageSour
 
         switch (source.sourceType) {
             case 'video':
-                return <VideoPreviewCard key={source.id} {...props} />;
+                return <VideoSourceCard key={source.id} {...props} />;
             case 'audio':
-                return <AudioPreviewCard key={source.id} {...props} />;
+                return <AudioSourceCard key={source.id} {...props} />;
             case 'image':
-                return <ImagePreviewCard key={source.id} {...props} />;
+                return <ImageSourceCard key={source.id} {...props} />;
             case 'document':
             default:
-                return <PdfPreviewCard key={source.id} {...props} />;
+                return <DocumentSourceCard key={source.id} {...props} />;
         }
     };
 
@@ -196,7 +181,8 @@ const LocalMessageSources = ({ sources, query, onSourceClick }: LocalMessageSour
                     }
                 }
                 if (dateTo) {
-                    const toTime = new Date(dateTo).getTime() + 24 * 60 * 60 * 1000 - 1;
+                    const toTime =
+                        new Date(dateTo).getTime() + 24 * 60 * 60 * 1000 - 1;
                     if (!Number.isNaN(toTime) && sourceTime > toTime) {
                         return false;
                     }
@@ -340,27 +326,94 @@ const LocalMessageSources = ({ sources, query, onSourceClick }: LocalMessageSour
                                                         <label
                                                             key={type}
                                                             className="flex items-center gap-2"
-                                                            data-filter-group="type"
-                                                            data-filter-value={type}
                                                         >
                                                             <input
                                                                 type="checkbox"
-                                                                className="rounded border-black/30 dark:border-white/30"
                                                                 checked={selectedTypes.includes(type)}
                                                                 onChange={(event) => {
-                                                                    if (event.target.checked) {
-                                                                        setSelectedTypes((prev) => [
-                                                                            ...prev,
-                                                                            type,
-                                                                        ]);
-                                                                    } else {
-                                                                        setSelectedTypes((prev) =>
-                                                                            prev.filter((item) => item !== type),
-                                                                        );
-                                                                    }
+                                                                    setSelectedTypes((prev) =>
+                                                                        event.target.checked
+                                                                            ? [...prev, type]
+                                                                            : prev.filter(
+                                                                                  (value) =>
+                                                                                      value !== type,
+                                                                              ),
+                                                                    );
                                                                 }}
+                                                                className="rounded border-light-200 dark:border-dark-200"
                                                             />
-                                                            <span className="uppercase">{type}</span>
+                                                            <span>{type}</span>
+                                                        </label>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            <div className="space-y-2" data-testid="filter-group-folder">
+                                                <p className="font-medium text-black/80 dark:text-white/80">
+                                                    Ordner
+                                                </p>
+                                                <div className="space-y-1">
+                                                    {folderOptions.length === 0 && (
+                                                        <p className="text-xs text-black/40 dark:text-white/40">
+                                                            Keine Ordner verfügbar
+                                                        </p>
+                                                    )}
+                                                    {folderOptions.map((folder) => (
+                                                        <label
+                                                            key={folder}
+                                                            className="flex items-center gap-2"
+                                                        >
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={selectedFolders.includes(folder)}
+                                                                onChange={(event) => {
+                                                                    setSelectedFolders((prev) =>
+                                                                        event.target.checked
+                                                                            ? [...prev, folder]
+                                                                            : prev.filter(
+                                                                                  (value) =>
+                                                                                      value !== folder,
+                                                                              ),
+                                                                    );
+                                                                }}
+                                                                className="rounded border-light-200 dark:border-dark-200"
+                                                            />
+                                                            <span className="truncate" title={folder}>
+                                                                {folder}
+                                                            </span>
+                                                        </label>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            <div className="space-y-2" data-testid="filter-group-tag">
+                                                <p className="font-medium text-black/80 dark:text-white/80">
+                                                    Tags
+                                                </p>
+                                                <div className="space-y-1">
+                                                    {tagOptions.length === 0 && (
+                                                        <p className="text-xs text-black/40 dark:text-white/40">
+                                                            Keine Tags verfügbar
+                                                        </p>
+                                                    )}
+                                                    {tagOptions.map((tag) => (
+                                                        <label key={tag} className="flex items-center gap-2">
+                                                            <input
+                                                                type="checkbox"
+                                                                checked={selectedTags.includes(tag)}
+                                                                onChange={(event) => {
+                                                                    setSelectedTags((prev) =>
+                                                                        event.target.checked
+                                                                            ? [...prev, tag]
+                                                                            : prev.filter(
+                                                                                  (value) =>
+                                                                                      value !== tag,
+                                                                              ),
+                                                                    );
+                                                                }}
+                                                                className="rounded border-light-200 dark:border-dark-200"
+                                                            />
+                                                            <span>{tag}</span>
                                                         </label>
                                                     ))}
                                                 </div>
@@ -368,9 +421,9 @@ const LocalMessageSources = ({ sources, query, onSourceClick }: LocalMessageSour
 
                                             <div className="space-y-2" data-testid="filter-group-date">
                                                 <p className="font-medium text-black/80 dark:text-white/80">
-                                                    Datum
+                                                    Zeitraum
                                                 </p>
-                                                <div className="flex flex-col gap-2">
+                                                <div className="space-y-2">
                                                     <label className="flex flex-col gap-1">
                                                         <span className="text-[11px] text-black/50 dark:text-white/50">
                                                             Von
@@ -381,8 +434,7 @@ const LocalMessageSources = ({ sources, query, onSourceClick }: LocalMessageSour
                                                             onChange={(event) =>
                                                                 setDateFrom(event.target.value)
                                                             }
-                                                            data-testid="filter-date-from"
-                                                            className="rounded-md border border-black/20 dark:border-white/20 bg-transparent px-2 py-1 text-xs"
+                                                            className="rounded border border-light-200 dark:border-dark-200 bg-transparent px-2 py-1 text-xs"
                                                         />
                                                     </label>
                                                     <label className="flex flex-col gap-1">
@@ -395,92 +447,9 @@ const LocalMessageSources = ({ sources, query, onSourceClick }: LocalMessageSour
                                                             onChange={(event) =>
                                                                 setDateTo(event.target.value)
                                                             }
-                                                            data-testid="filter-date-to"
-                                                            className="rounded-md border border-black/20 dark:border-white/20 bg-transparent px-2 py-1 text-xs"
+                                                            className="rounded border border-light-200 dark:border-dark-200 bg-transparent px-2 py-1 text-xs"
                                                         />
                                                     </label>
-                                                </div>
-                                            </div>
-
-                                            <div className="space-y-2" data-testid="filter-group-folder">
-                                                <p className="font-medium text-black/80 dark:text-white/80">
-                                                    Ordner
-                                                </p>
-                                                <div className="space-y-1 max-h-32 overflow-y-auto pr-1">
-                                                    {folderOptions.length === 0 && (
-                                                        <p className="text-xs text-black/40 dark:text-white/40">
-                                                            Keine Ordner verfügbar
-                                                        </p>
-                                                    )}
-                                                    {folderOptions.map((folder) => (
-                                                        <label
-                                                            key={folder}
-                                                            className="flex items-center gap-2"
-                                                            data-filter-group="folder"
-                                                            data-filter-value={folder}
-                                                        >
-                                                            <input
-                                                                type="checkbox"
-                                                                className="rounded border-black/30 dark:border-white/30"
-                                                                checked={selectedFolders.includes(folder)}
-                                                                onChange={(event) => {
-                                                                    if (event.target.checked) {
-                                                                        setSelectedFolders((prev) => [
-                                                                            ...prev,
-                                                                            folder,
-                                                                        ]);
-                                                                    } else {
-                                                                        setSelectedFolders((prev) =>
-                                                                            prev.filter((item) => item !== folder),
-                                                                        );
-                                                                    }
-                                                                }}
-                                                            />
-                                                            <span className="truncate" title={folder}>
-                                                                {folder}
-                                                            </span>
-                                                        </label>
-                                                    ))}
-                                                </div>
-                                            </div>
-
-                                            <div className="space-y-2" data-testid="filter-group-tags">
-                                                <p className="font-medium text-black/80 dark:text-white/80">
-                                                    Tags
-                                                </p>
-                                                <div className="space-y-1 max-h-32 overflow-y-auto pr-1">
-                                                    {tagOptions.length === 0 && (
-                                                        <p className="text-xs text-black/40 dark:text-white/40">
-                                                            Keine Tags verfügbar
-                                                        </p>
-                                                    )}
-                                                    {tagOptions.map((tag) => (
-                                                        <label
-                                                            key={tag}
-                                                            className="flex items-center gap-2"
-                                                            data-filter-group="tag"
-                                                            data-filter-value={tag}
-                                                        >
-                                                            <input
-                                                                type="checkbox"
-                                                                className="rounded border-black/30 dark:border-white/30"
-                                                                checked={selectedTags.includes(tag)}
-                                                                onChange={(event) => {
-                                                                    if (event.target.checked) {
-                                                                        setSelectedTags((prev) => [
-                                                                            ...prev,
-                                                                            tag,
-                                                                        ]);
-                                                                    } else {
-                                                                        setSelectedTags((prev) =>
-                                                                            prev.filter((item) => item !== tag),
-                                                                        );
-                                                                    }
-                                                                }}
-                                                            />
-                                                            <span>{tag}</span>
-                                                        </label>
-                                                    ))}
                                                 </div>
                                             </div>
 
@@ -520,10 +489,6 @@ const LocalMessageSources = ({ sources, query, onSourceClick }: LocalMessageSour
             <MediaPlayerModal
                 isOpen={isMediaOpen}
                 onClose={() => setIsMediaOpen(false)}
-                source={selectedSource}
-            <MediaPlayerModal
-                isOpen={isMediaModalOpen}
-                onClose={() => setIsMediaModalOpen(false)}
                 source={selectedSource}
                 query={query}
             />
