@@ -51,6 +51,7 @@ const scrapeURLAction: ResearchAction<typeof schema> = {
             researchBlock.type === 'research'
           ) {
             readingEmitted = true;
+            researchBlock.data.phase = 'reading';
             researchBlock.data.subSteps.push({
               id: readingBlockId,
               type: 'reading',
@@ -72,6 +73,11 @@ const scrapeURLAction: ResearchAction<typeof schema> = {
                   op: 'replace',
                   path: '/data/subSteps',
                   value: researchBlock.data.subSteps,
+                },
+                {
+                  op: 'replace',
+                  path: '/data/phase',
+                  value: researchBlock.data.phase,
                 },
               ],
             );
@@ -95,6 +101,7 @@ const scrapeURLAction: ResearchAction<typeof schema> = {
                 title: title,
               },
             });
+            researchBlock.data.phase = 'reading';
 
             additionalConfig.session.updateBlock(
               additionalConfig.researchBlockId,
@@ -103,6 +110,11 @@ const scrapeURLAction: ResearchAction<typeof schema> = {
                   op: 'replace',
                   path: '/data/subSteps',
                   value: researchBlock.data.subSteps,
+                },
+                {
+                  op: 'replace',
+                  path: '/data/phase',
+                  value: researchBlock.data.phase,
                 },
               ],
             );

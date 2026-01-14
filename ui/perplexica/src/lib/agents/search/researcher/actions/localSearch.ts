@@ -65,6 +65,7 @@ Use this when the user wants to search their own files and documents.`;
         // Emit searching status
         const block = config.session.getBlock(config.researchBlockId);
         if (block && block.type === 'research') {
+            block.data.phase = 'search';
             block.data.subSteps.push({
                 id: crypto.randomUUID(),
                 type: 'searching',
@@ -75,6 +76,11 @@ Use this when the user wants to search their own files and documents.`;
                     op: 'replace',
                     path: '/data/subSteps',
                     value: block.data.subSteps,
+                },
+                {
+                    op: 'replace',
+                    path: '/data/phase',
+                    value: block.data.phase,
                 },
             ]);
         }
@@ -131,6 +137,7 @@ Use this when the user wants to search their own files and documents.`;
 
         // Emit reading status
         if (block && block.type === 'research') {
+            block.data.phase = 'reading';
             block.data.subSteps.push({
                 id: crypto.randomUUID(),
                 type: 'reading',
@@ -141,6 +148,11 @@ Use this when the user wants to search their own files and documents.`;
                     op: 'replace',
                     path: '/data/subSteps',
                     value: block.data.subSteps,
+                },
+                {
+                    op: 'replace',
+                    path: '/data/phase',
+                    value: block.data.phase,
                 },
             ]);
         }
