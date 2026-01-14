@@ -145,7 +145,12 @@ export type LocalSource = {
   ocrText?: string;
   // Metadata
   filePath: string;
+  folder?: string;
+  fileExtension?: string;
+  fileCreated?: string;
+  fileModified?: string;
   indexedAt?: string;
+  tags?: string[];
 };
 
 export type LocalSourceBlock = {
@@ -159,4 +164,3 @@ export type HybridSearchResult = {
   localSources: LocalSource[];
   combinedAnswer?: string;
 };
-
