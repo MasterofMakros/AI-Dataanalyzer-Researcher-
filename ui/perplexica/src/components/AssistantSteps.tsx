@@ -13,7 +13,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { ResearchBlock, ResearchBlockSubStep, ResearchPhase } from '@/lib/types';
 import { useChat } from '@/lib/hooks/useChat';
-import FormatIcon from './LocalSources/FormatIcon';
+import UploadSearchResultsPanel from './UploadSearchResultsPanel';
 
 type ResearchPhase = 'analysis' | 'search' | 'read' | 'synthesis';
 
@@ -424,6 +424,10 @@ const AssistantSteps = ({
                           </div>
                         )}
 
+                      {step.type === 'upload_search_results' &&
+                        step.results.length > 0 && (
+                          <div className="mt-2">
+                            <UploadSearchResultsPanel results={step.results} />
                         {phase.id === 'read' && uploadResults.length > 0 && (
                           <div className="mt-3 grid gap-3 lg:grid-cols-3">
                             {uploadResults.slice(0, 4).map((result, idx) => {
