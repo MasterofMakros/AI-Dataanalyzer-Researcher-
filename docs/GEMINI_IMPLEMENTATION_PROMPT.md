@@ -181,7 +181,7 @@ Falls dir Informationen fehlen:
 |-------|---------------|
 | `docker-compose.yml` | Bei Docker-Änderungen |
 | `scripts/quality_gates.py` | Bei ABT-R04 (Quarantäne) |
-| `VISION.md` | Für Kontext und Non-Goals |
+| `docs/product/vision.md` | Für Kontext und Non-Goals |
 
 ---
 

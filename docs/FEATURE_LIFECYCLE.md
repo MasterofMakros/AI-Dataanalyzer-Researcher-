@@ -264,7 +264,7 @@ result = {
 
 - ADR-Template: [TEMPLATE-ADR.md](TEMPLATES/TEMPLATE-ADR.md) (mit Status-Feldern)
 - Komponenten-Status: [COMPONENT_STATUS.md](COMPONENT_STATUS.md)
-- Changelog: [CHANGELOG.md](CHANGELOG.md)
+- Changelog: [CHANGELOG.md](../CHANGELOG.md)
 
 ---
 

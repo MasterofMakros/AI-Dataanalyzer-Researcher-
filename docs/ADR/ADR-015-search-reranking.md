@@ -209,7 +209,7 @@ Basierend auf beiden KI-Analysen: **Option B (Mit Reranking)**
 
 | Frage | Antwort |
 | :--- | :--- |
-| Passt zur Vision (VISION.md)? | [x] Ja - "Finde alles in < 1 Minute" |
+| Passt zur Vision ([product/vision.md](../product/vision.md))? | [x] Ja - "Finde alles in < 1 Minute" |
 | Verstößt gegen Non-Goals? | [ ] Nein |
 | Erfordert Runbook-Update? | [x] Ja - Reranker-Modell dokumentieren |
 

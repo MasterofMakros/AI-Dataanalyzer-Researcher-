@@ -11,10 +11,10 @@ und [Semantic Versioning](https://semver.org/lang/de/).
 ## [Unreleased]
 
 ### Geplant (PROPOSED)
-- **ABT-R02:** GLiNER-Klassifikation statt Ollama LLM ([ADR-010](ADR/ADR-010-classification-method.md))
-- **ABT-B01:** Cross-Encoder Reranking für Suche ([ADR-015](ADR/ADR-015-search-reranking.md))
-- **ABT-N01:** Entity Resolution mit Fuzzy Matching ([ADR-020](ADR/ADR-020-entity-resolution.md))
-- **ABT-N02:** Data Narrator für Tabellen ([ADR-021](ADR/ADR-021-data-narrator.md))
+- **ABT-R02:** GLiNER-Klassifikation statt Ollama LLM ([ADR-010](docs/ADR/ADR-010-classification-method.md))
+- **ABT-B01:** Cross-Encoder Reranking für Suche ([ADR-015](docs/ADR/ADR-015-search-reranking.md))
+- **ABT-N01:** Entity Resolution mit Fuzzy Matching ([ADR-020](docs/ADR/ADR-020-entity-resolution.md))
+- **ABT-N02:** Data Narrator für Tabellen ([ADR-021](docs/ADR/ADR-021-data-narrator.md))
 
 ### Entfernt
 - Mission Control vollständig entfernt.
@@ -183,7 +183,7 @@ und [Semantic Versioning](https://semver.org/lang/de/).
   - PostgreSQL, Redis, n8n
   - Qdrant, Tika, Ollama
 - Basis-Dokumentation
-  - VISION.md, DOCUMENTATION_STANDARD.md
+  - [Vision](docs/product/vision.md), [Documentation Standard](docs/DOCUMENTATION_STANDARD.md)
   - Erste ADRs (001-005)
 
 ---

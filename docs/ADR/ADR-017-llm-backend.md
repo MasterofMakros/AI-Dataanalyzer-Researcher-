@@ -145,7 +145,7 @@ entscheidung:
 
 | Frage | Antwort |
 | :--- | :--- |
-| Passt zur Vision (VISION.md)? | [x] Ja - "Privacy-First" ist Kernprinzip |
+| Passt zur Vision ([product/vision.md](../product/vision.md))? | [x] Ja - "Privacy-First" ist Kernprinzip |
 | Verstößt gegen Non-Goals? | [ ] Nein |
 | Erfordert Runbook-Update? | [ ] Nein - bereits dokumentiert |
 
@@ -157,4 +157,4 @@ entscheidung:
 
 - A/B Framework: [AB_TEST_FRAMEWORK.md](../AB_TEST_FRAMEWORK.md)
 - Ollama Config: `docker-compose.yml` (Service: ollama)
-- VISION.md: Privacy-Prinzip
+- [product/vision.md](../product/vision.md): Privacy-Prinzip

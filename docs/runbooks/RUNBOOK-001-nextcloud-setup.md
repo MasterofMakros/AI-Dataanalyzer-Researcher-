@@ -324,5 +324,5 @@ docker exec -u www-data nextcloud php occ status
 ## 🔗 Verknüpfte Dokumente
 
 - [ADR-006: Nextcloud Integration](../ADR/ADR-006-nextcloud-integration.md)
-- [PROJECT_OVERVIEW_2025.md](../../PROJECT_OVERVIEW_2025.md)
+- [Project Overview 2025](../project/overview_2025.md)
 - [GLOSSARY.md](../GLOSSARY.md)

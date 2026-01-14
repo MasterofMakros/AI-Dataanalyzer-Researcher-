@@ -225,7 +225,7 @@ Basierend auf Gemini-Analyse: **Option C (Hybrid)**
 
 | Frage | Antwort |
 | :--- | :--- |
-| Passt zur Vision (VISION.md)? | [x] Ja - Skalierbarkeit ist Kernziel |
+| Passt zur Vision ([product/vision.md](../product/vision.md))? | [x] Ja - Skalierbarkeit ist Kernziel |
 | Verstößt gegen Non-Goals? | [ ] Nein |
 | Erfordert Runbook-Update? | [x] Ja - Hot/Cold Migration dokumentieren |
 

@@ -54,7 +54,7 @@
 | **Observability** | **Partial** | Healthchecks implemented for all core services (`curl`, `pg_isready`). Central logging stack (e.g. Loki) missing. |
 | **Security** | **Ready** | Secrets via `.env`. Container isolation. No hardcoded credentials (verified grep). |
 | **Tests** | **Basic** | `tests/dummy_index.csv` present. `pytest` passes. Coverage is shallow (smoke tests). |
-| **UX/Docs** | **Ready** | `README.md` is accurate. `PROJECT_OVERVIEW_2025.md` is detailed. UI on port 3100. |
+| **UX/Docs** | **Ready** | `README.md` is accurate. `docs/project/overview_2025.md` is detailed. UI on port 3100. |
 | **Release** | **Partial** | `CHANGELOG.md` maintained. `release.yml` exists but creates simple tag, no binary artifacts. |
 
 ---

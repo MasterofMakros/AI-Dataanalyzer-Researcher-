@@ -163,7 +163,7 @@ Basierend auf Claude-Analyse: **Option B (Metadata-Layer)**
 
 | Frage | Antwort |
 | :--- | :--- |
-| Passt zur Vision (VISION.md)? | [x] Ja - Datensicherheit ist Kernziel |
+| Passt zur Vision ([product/vision.md](../product/vision.md))? | [x] Ja - Datensicherheit ist Kernziel |
 | Verstößt gegen Non-Goals? | [ ] Nein |
 | Erfordert Runbook-Update? | [x] Ja - Metadata-Schema dokumentieren |
 

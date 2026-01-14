@@ -212,7 +212,7 @@ Basierend auf Gemini-Analyse: **Option D (Hybrid)** mit Docling als Default
 
 | Frage | Antwort |
 | :--- | :--- |
-| Passt zur Vision (VISION.md)? | [x] Ja - "Rechnungen in < 1 Min finden" |
+| Passt zur Vision ([product/vision.md](../product/vision.md))? | [x] Ja - "Rechnungen in < 1 Min finden" |
 | Verstößt gegen Non-Goals? | [ ] Nein |
 | Erfordert Runbook-Update? | [x] Ja - Parser-Auswahl dokumentieren |
 

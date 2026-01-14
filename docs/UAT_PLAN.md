@@ -203,7 +203,7 @@ create_unique_document("needle.txt",
 
 ## 8. Verknüpfte Dokumente
 
-- [VISION.md](../VISION.md) - Projektziele & Non-Goals
+- [Vision](product/vision.md) - Projektziele & Non-Goals
 - [DOCUMENTATION_STANDARD.md](DOCUMENTATION_STANDARD.md) - Definition of Done
 - [ADR-005-ocr-strategy.md](ADR/ADR-005-ocr-strategy.md) - OCR-Entscheidungen
 - [test_invoice_search.py](../tests/test_invoice_search.py) - Automatisierte Tests

@@ -265,7 +265,7 @@ Basierend auf Gemini-Analyse: **Option B (Data Narrator)**
 
 | Frage | Antwort |
 | :--- | :--- |
-| Passt zur Vision (VISION.md)? | [x] Ja - "Suche in allen Formaten" |
+| Passt zur Vision ([product/vision.md](../product/vision.md))? | [x] Ja - "Suche in allen Formaten" |
 | Verstößt gegen Non-Goals? | [ ] Nein |
 | Erfordert Runbook-Update? | [x] Ja - Narrator-Konfiguration dokumentieren |
 
