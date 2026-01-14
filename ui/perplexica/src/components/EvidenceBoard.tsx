@@ -126,6 +126,8 @@ const EvidenceBoard = ({
 
       const evidenceId = metadata.evidenceId ?? index + 1;
 
+      const evidenceId = metadata.evidenceId ?? index + 1;
+
       return {
         id: `${metadata.url || 'web'}-${index}`,
         title,
