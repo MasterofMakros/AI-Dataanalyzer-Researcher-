@@ -90,38 +90,42 @@ const MessageBox = ({
   const sources = allSourcesWithIds.filter((s) => !s.metadata?.sourceType);
   const localSources = allSourcesWithIds
     .filter((s) => s.metadata?.sourceType)
-    .map((s) => ({
-      id: s.metadata?.id || crypto.randomUUID(),
-      filename: s.metadata?.title || 'Unknown',
-      sourceType: s.metadata?.sourceType as
-        | 'document'
-        | 'audio'
-        | 'video'
-        | 'image',
-      textSnippet: s.content,
-      confidence: s.metadata?.confidence || 0.5,
-      timecodeStart: s.metadata?.timecodeStart ?? s.evidence?.[0]?.timecodeStart,
-      timecodeEnd: s.metadata?.timecodeEnd ?? s.evidence?.[0]?.timecodeEnd,
-      timestampStart: s.evidence?.[0]?.timestampStart,
-      timestampEnd: s.evidence?.[0]?.timestampEnd,
-      pageNumber: s.evidence?.[0]?.page ?? s.metadata?.page,
-      totalPages: s.evidence?.[0]?.totalPages ?? s.metadata?.totalPages,
-      bbox: s.evidence?.[0]?.bbox,
-      thumbnailUrl: s.metadata?.thumbnailUrl,
-      ocrText: s.metadata?.ocrText,
-      filePath: s.metadata?.filePath || s.metadata?.url || '',
-      evidenceId: s.metadata?.evidenceId,
-      folder: s.metadata?.folder,
-      fileExtension: s.metadata?.fileExtension,
-      fileCreated: s.metadata?.fileCreated,
-      fileModified: s.metadata?.fileModified,
-      indexedAt: s.metadata?.indexedAt,
-      tags: Array.isArray(s.metadata?.tags)
-        ? s.metadata?.tags.map(String)
-        : s.metadata?.tags
-          ? String(s.metadata?.tags).split(',').map((tag: string) => tag.trim())
-          : [],
-    }));
+    .map((s) => {
+      const evidence = s.evidence?.[0];
+      return {
+        id: s.metadata?.id || crypto.randomUUID(),
+        filename: s.metadata?.title || 'Unknown',
+        sourceType: s.metadata?.sourceType as
+          | 'document'
+          | 'audio'
+          | 'video'
+          | 'image',
+        textSnippet: s.content,
+        confidence: s.metadata?.confidence || 0.5,
+        timecodeStart: evidence?.timecodeStart ?? s.metadata?.timecodeStart,
+        timecodeEnd: evidence?.timecodeEnd ?? s.metadata?.timecodeEnd,
+        timestampStart: evidence?.timestampStart ?? s.metadata?.timestampStart,
+        timestampEnd: evidence?.timestampEnd ?? s.metadata?.timestampEnd,
+        pageNumber: evidence?.page ?? s.metadata?.page,
+        totalPages: evidence?.totalPages ?? s.metadata?.totalPages,
+        bbox: evidence?.bbox ?? s.metadata?.bbox,
+        thumbnailUrl: s.metadata?.thumbnailUrl,
+        ocrText: s.metadata?.ocrText,
+        filePath: s.metadata?.filePath || s.metadata?.url || '',
+        folder: s.metadata?.folder,
+        fileExtension: s.metadata?.fileExtension,
+        fileCreated: s.metadata?.fileCreated,
+        fileModified: s.metadata?.fileModified,
+        indexedAt: s.metadata?.indexedAt,
+        tags: Array.isArray(s.metadata?.tags)
+          ? s.metadata?.tags.map(String)
+          : s.metadata?.tags
+            ? String(s.metadata?.tags)
+                .split(',')
+                .map((tag: string) => tag.trim())
+            : [],
+      };
+    });
 
   const hasContent = section.parsedTextBlocks.length > 0;
 

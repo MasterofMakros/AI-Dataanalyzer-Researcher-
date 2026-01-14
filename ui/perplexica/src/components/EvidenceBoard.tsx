@@ -13,6 +13,16 @@ import {
 import Markdown from 'markdown-to-jsx';
 import { Chunk, Claim, LocalSource } from '@/lib/types';
 import { cn } from '@/lib/utils';
+import {
+  AudioPreviewCard,
+  ImagePreviewCard,
+  PdfPreviewCard,
+  SourcePreviewModal,
+  VideoPreviewCard,
+} from './SourcePreviews';
+import PreviewCard from './SourcePreviews/PreviewCard';
+import { formatTimestamp, SourcePreviewType } from './SourcePreviews/previewUtils';
+import { SourcePreview } from './SourcePreviews/SourcePreviewModal';
 
 type EvidenceItem = {
   id: string;
@@ -29,9 +39,11 @@ type EvidenceItem = {
   totalPages?: number;
   timecodeStart?: string;
   timecodeEnd?: string;
-  timestamp?: number;
+  timestampStart?: number;
+  timestampEnd?: number;
   confidence?: number;
   thumbnailUrl?: string;
+  ocrText?: string;
   bbox?: string;
 };
 
@@ -63,6 +75,9 @@ const stripInlineTags = (text: string) =>
     .replace(/<citation[^>]*>(.*?)<\/citation>/g, '$1')
     .replace(/<think>[\s\S]*?<\/think>/g, '');
 
+const normalizeText = (text: string) =>
+  stripInlineTags(text).replace(/\s+/g, ' ').trim();
+
 const getDomain = (url?: string) => {
   if (!url) return undefined;
   try {
@@ -72,24 +87,17 @@ const getDomain = (url?: string) => {
   }
 };
 
-const formatTimestamp = (timestamp?: number) => {
-  if (timestamp === undefined) return undefined;
-  const totalSeconds = Math.max(0, Math.floor(timestamp));
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
-  if (hours > 0) {
-    return `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-  }
-  return `${minutes}:${String(seconds).padStart(2, '0')}`;
-};
-
 const EvidenceBoard = ({
   answer,
   sources,
   localSources,
   claims,
 }: EvidenceBoardProps) => {
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [previewSource, setPreviewSource] = useState<SourcePreview | null>(
+    null,
+  );
+
   const evidenceItems = useMemo<EvidenceItem[]>(() => {
     const webItems = sources.map((source, index) => {
       const metadata = source.metadata ?? {};
@@ -107,6 +115,14 @@ const EvidenceBoard = ({
           : [];
       const bbox = primaryEvidence.bbox ?? metadata.bbox;
       const bboxValue = bbox && Array.isArray(bbox) ? bbox.join(', ') : bbox;
+      const timestampStart =
+        primaryEvidence.timestampStart ??
+        metadata.timestampStart ??
+        metadata.timestamp;
+      const timestampEnd =
+        primaryEvidence.timestampEnd ?? metadata.timestampEnd;
+
+      const evidenceId = metadata.evidenceId ?? index + 1;
 
       const evidenceId = metadata.evidenceId ?? index + 1;
 
@@ -120,9 +136,17 @@ const EvidenceBoard = ({
         domain,
         tags,
         page: primaryEvidence.page ?? metadata.page,
+        totalPages: primaryEvidence.totalPages ?? metadata.totalPages,
         timecodeStart: primaryEvidence.timecodeStart ?? metadata.timecodeStart,
         timecodeEnd: primaryEvidence.timecodeEnd ?? metadata.timecodeEnd,
-        timestamp: primaryEvidence.timestamp ?? metadata.timestamp,
+        timestampStart:
+          primaryEvidence.timestampStart ??
+          metadata.timestampStart ??
+          primaryEvidence.timestamp ??
+          metadata.timestamp,
+        timestampEnd: primaryEvidence.timestampEnd ?? metadata.timestampEnd,
+        thumbnailUrl: metadata.thumbnailUrl,
+        ocrText: metadata.ocrText,
         bbox: bboxValue,
       } as EvidenceItem;
     });
@@ -144,8 +168,12 @@ const EvidenceBoard = ({
         totalPages: source.totalPages,
         timecodeStart: source.timecodeStart,
         timecodeEnd: source.timecodeEnd,
+        timestampStart: source.timestampStart,
+        timestampEnd: source.timestampEnd,
         confidence: source.confidence,
         thumbnailUrl: source.thumbnailUrl,
+        ocrText: source.ocrText,
+        tags: source.tags,
       };
     });
 
@@ -237,7 +265,7 @@ const EvidenceBoard = ({
         (item.fileType && selectedFileTypes.includes(item.fileType));
       const matchesTimecode =
         !requireTimecode ||
-        Boolean(item.timecodeStart || item.timestamp !== undefined);
+        Boolean(item.timecodeStart || item.timestampStart !== undefined);
       const matchesPage = !requirePage || Boolean(item.page);
       const matchesTerm =
         !term ||
@@ -267,6 +295,137 @@ const EvidenceBoard = ({
   ]);
 
   const displayAnswer = useMemo(() => stripInlineTags(answer), [answer]);
+
+  const openPreview = (item: EvidenceItem) => {
+    const previewType: SourcePreviewType =
+      item.sourceType === 'document' ? 'pdf' : item.sourceType;
+    const timecodeStart =
+      item.timecodeStart ?? formatTimestamp(item.timestampStart);
+    const timecodeEnd = item.timecodeEnd ?? formatTimestamp(item.timestampEnd);
+
+    setPreviewSource({
+      title: item.title,
+      type: previewType,
+      href: item.url || item.filePath,
+      snippet: item.snippet,
+      pageNumber: item.page,
+      totalPages: item.totalPages,
+      timecodeStart,
+      timecodeEnd,
+      timestampStart: item.timestampStart,
+      timestampEnd: item.timestampEnd,
+      thumbnailUrl: item.thumbnailUrl,
+      ocrText: item.ocrText,
+      sourceLabel: item.domain || item.fileType?.toUpperCase(),
+    });
+    setIsPreviewOpen(true);
+  };
+
+  const closePreview = () => {
+    setIsPreviewOpen(false);
+    setPreviewSource(null);
+  };
+
+  const renderPreviewCard = (item: EvidenceItem, index: number) => {
+    const previewType: SourcePreviewType =
+      item.sourceType === 'document' ? 'pdf' : item.sourceType;
+    const timecodeStart =
+      item.timecodeStart ?? formatTimestamp(item.timestampStart);
+    const timecodeEnd = item.timecodeEnd ?? formatTimestamp(item.timestampEnd);
+    const sourceLabel = item.domain || item.fileType?.toUpperCase();
+
+    if (previewType === 'pdf') {
+      return (
+        <PdfPreviewCard
+          key={item.id}
+          title={item.title}
+          href={item.url || item.filePath}
+          snippet={item.snippet}
+          pageNumber={item.page}
+          totalPages={item.totalPages}
+          sourceLabel={sourceLabel}
+          index={index}
+          onClick={() => openPreview(item)}
+        />
+      );
+    }
+
+    if (previewType === 'audio') {
+      return (
+        <AudioPreviewCard
+          key={item.id}
+          title={item.title}
+          href={item.url || item.filePath}
+          snippet={item.snippet}
+          timecodeStart={timecodeStart}
+          timecodeEnd={timecodeEnd}
+          sourceLabel={sourceLabel}
+          index={index}
+          onClick={() => openPreview(item)}
+        />
+      );
+    }
+
+    if (previewType === 'video') {
+      return (
+        <VideoPreviewCard
+          key={item.id}
+          title={item.title}
+          href={item.url || item.filePath}
+          snippet={item.snippet}
+          timecodeStart={timecodeStart}
+          timecodeEnd={timecodeEnd}
+          thumbnailUrl={item.thumbnailUrl}
+          sourceLabel={sourceLabel}
+          index={index}
+          onClick={() => openPreview(item)}
+        />
+      );
+    }
+
+    if (previewType === 'image') {
+      return (
+        <ImagePreviewCard
+          key={item.id}
+          title={item.title}
+          href={item.url || item.filePath}
+          snippet={item.snippet}
+          ocrText={item.ocrText}
+          thumbnailUrl={item.thumbnailUrl}
+          sourceLabel={sourceLabel}
+          index={index}
+          onClick={() => openPreview(item)}
+        />
+      );
+    }
+
+    return (
+      <PreviewCard key={item.id} onClick={() => openPreview(item)}>
+        <div className="flex items-center justify-between text-xs text-black/50 dark:text-white/50">
+          <div className="flex items-center space-x-2">
+            <div className="bg-sky-500/10 text-sky-500 p-1 rounded-md">
+              <Globe size={12} />
+            </div>
+            <span className="uppercase tracking-wide">Web</span>
+          </div>
+          <span>#{index + 1}</span>
+        </div>
+        <p className="dark:text-white text-xs font-medium overflow-hidden whitespace-nowrap text-ellipsis">
+          {item.title}
+        </p>
+        {item.snippet && (
+          <p className="text-xs text-black/70 dark:text-white/70 line-clamp-2">
+            {item.snippet}
+          </p>
+        )}
+        {sourceLabel && (
+          <div className="text-[11px] text-black/40 dark:text-white/40">
+            {sourceLabel}
+          </div>
+        )}
+      </PreviewCard>
+    );
+  };
 
   if (evidenceItems.length === 0 && !answer.trim()) {
     return null;
@@ -350,18 +509,22 @@ const EvidenceBoard = ({
                           : evidence?.title;
                         return (
                           <a
-                            key={evidence?.id ?? label}
-                            href={anchor}
-                            className="rounded-full border border-blue-500/20 bg-light-100 dark:bg-dark-100 px-2 py-0.5 text-blue-600 dark:text-blue-300 hover:border-blue-500/40"
+                            key={evidence.id}
+                            href={evidence.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-blue-500 hover:text-blue-600"
                           >
-                            {label}
+                            {evidence.title ?? `Quelle ${evidence.index}`}
                           </a>
-                        );
-                      })
+                        ) : (
+                          <span key={evidence.id}>
+                            {evidence.title ?? `Quelle ${evidence.index}`}
+                          </span>
+                        ),
+                      )
                     ) : (
-                      <span className="text-xs text-black/50 dark:text-white/50">
-                        Unverifiziert
-                      </span>
+                      <span>Keine Quellen verknüpft</span>
                     )}
                   </div>
                 </div>
@@ -372,21 +535,7 @@ const EvidenceBoard = ({
 
         <div className="space-y-4">
           <div className="rounded-lg border border-light-200 dark:border-dark-200 bg-light-100 dark:bg-dark-100 p-4">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-center gap-2">
-                <Filter className="h-4 w-4 text-black/60 dark:text-white/60" />
-                <h4 className="text-xs font-semibold uppercase text-black/50 dark:text-white/50">
-                  Filter
-                </h4>
-              </div>
-              <input
-                value={searchTerm}
-                onChange={(event) => setSearchTerm(event.target.value)}
-                placeholder="Suche nach Titel, Snippet oder URL"
-                className="w-full sm:w-64 rounded-md border border-light-200 dark:border-dark-200 bg-light-secondary dark:bg-dark-secondary px-3 py-1.5 text-xs text-black dark:text-white placeholder:text-black/40 dark:placeholder:text-white/40"
-              />
-            </div>
-            <div className="mt-3 flex flex-wrap gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               {typeOptions.map((type) => {
                 const isActive = activeTypes.includes(type);
                 return (
@@ -400,7 +549,7 @@ const EvidenceBoard = ({
                       )
                     }
                     className={cn(
-                      'flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs transition',
+                      'flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs transition',
                       isActive
                         ? 'border-emerald-500/60 bg-emerald-500/10 text-emerald-600 dark:text-emerald-300'
                         : 'border-light-200 dark:border-dark-200 bg-light-secondary dark:bg-dark-secondary text-black/60 dark:text-white/60',
@@ -540,89 +689,38 @@ const EvidenceBoard = ({
             )}
           </div>
 
-          <div className="space-y-3">
+          <div className="rounded-lg border border-light-200 dark:border-dark-200 bg-light-100 dark:bg-dark-100 p-4">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs font-semibold uppercase text-black/50 dark:text-white/50">
+                Quellen
+              </p>
+              <input
+                type="search"
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.target.value)}
+                placeholder="Filtern..."
+                className="rounded-md border border-black/10 dark:border-white/10 bg-transparent px-2 py-1 text-xs"
+              />
+            </div>
             {filteredItems.length === 0 && (
-              <div className="rounded-lg border border-light-200 dark:border-dark-200 bg-light-100 dark:bg-dark-100 p-4 text-sm text-black/60 dark:text-white/60">
+              <div className="rounded-lg border border-light-200 dark:border-dark-200 bg-light-secondary dark:bg-dark-secondary p-4 text-sm text-black/60 dark:text-white/60">
                 Keine Quellen für die aktuellen Filter gefunden.
               </div>
             )}
-            {filteredItems.map((item) => (
-              <article
-                key={item.id}
-                id={item.evidenceId ? `evidence-${item.evidenceId}` : undefined}
-                className="rounded-lg border border-light-200 dark:border-dark-200 bg-light-100 dark:bg-dark-100 p-4 scroll-mt-24"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-start gap-3">
-                    <div className="mt-0.5 rounded-md bg-light-200/70 dark:bg-dark-200/70 p-2 text-black/70 dark:text-white/70">
-                      {typeIconMap[item.sourceType]}
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-black dark:text-white">
-                        {item.title}
-                      </p>
-                      <p className="text-xs text-black/60 dark:text-white/60">
-                        {typeLabelMap[item.sourceType]}
-                        {item.page && (
-                          <>
-                            {' '}
-                            • Seite {item.page}
-                            {item.totalPages ? `/${item.totalPages}` : ''}
-                          </>
-                        )}
-                        {item.timecodeStart && (
-                          <>
-                            {' '}
-                            • {item.timecodeStart}
-                            {item.timecodeEnd ? `–${item.timecodeEnd}` : ''}
-                          </>
-                        )}
-                        {!item.timecodeStart &&
-                          item.timestamp !== undefined && (
-                            <> • {formatTimestamp(item.timestamp)}</>
-                          )}
-                        {item.confidence !== undefined && (
-                          <> • Confidence {Math.round(item.confidence * 100)}%</>
-                        )}
-                      </p>
-                    </div>
-                  </div>
-                  {(item.url || item.filePath) && (
-                    <a
-                      href={item.url || item.filePath}
-                      target="_blank"
-                      className="text-xs text-blue-500 hover:text-blue-600"
-                      rel="noreferrer"
-                    >
-                      Öffnen
-                    </a>
-                  )}
-                </div>
-
-                {item.thumbnailUrl && item.sourceType === 'image' && (
-                  <img
-                    src={item.thumbnailUrl}
-                    alt={item.title}
-                    className="mt-3 h-32 w-full rounded-md object-cover"
-                  />
-                )}
-
-                {item.snippet && (
-                  <p className="mt-3 text-xs text-black/70 dark:text-white/70">
-                    {item.snippet}
-                  </p>
-                )}
-
-                {item.bbox && (
-                  <p className="mt-2 text-[11px] text-black/50 dark:text-white/50">
-                    BBox: {item.bbox}
-                  </p>
-                )}
-              </article>
-            ))}
+            <div className="grid grid-cols-2 gap-2">
+              {filteredItems.map((item, index) =>
+                renderPreviewCard(item, index),
+              )}
+            </div>
           </div>
         </div>
       </div>
+
+      <SourcePreviewModal
+        isOpen={isPreviewOpen}
+        onClose={closePreview}
+        source={previewSource}
+      />
     </section>
   );
 };
