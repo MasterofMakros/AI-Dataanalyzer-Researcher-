@@ -15,38 +15,11 @@ import {
   PdfPreviewCard,
   VideoPreviewCard,
 } from './SourcePreviews';
-
-const audioExtensions = ['mp3', 'wav', 'm4a', 'aac', 'flac', 'ogg'];
-const videoExtensions = ['mp4', 'mov', 'webm', 'mkv', 'avi'];
-const imageExtensions = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'tiff'];
-
-const getFileExtension = (value?: string) => {
-  if (!value) return '';
-  const cleaned = value.split('?')[0]?.split('#')[0] ?? value;
-  const match = cleaned.match(/\.([a-z0-9]+)$/i);
-  return match ? match[1].toLowerCase() : '';
-};
-
-const getSourceType = (source: Chunk) => {
-  const metadataType = source.metadata?.type || source.metadata?.mimeType;
-  if (typeof metadataType === 'string') {
-    if (metadataType.includes('pdf')) return 'pdf';
-    if (metadataType.includes('audio')) return 'audio';
-    if (metadataType.includes('video')) return 'video';
-    if (metadataType.includes('image')) return 'image';
-  }
-
-  const extension =
-    getFileExtension(source.metadata?.url) ||
-    getFileExtension(source.metadata?.title);
-
-  if (extension === 'pdf') return 'pdf';
-  if (audioExtensions.includes(extension)) return 'audio';
-  if (videoExtensions.includes(extension)) return 'video';
-  if (imageExtensions.includes(extension)) return 'image';
-
-  return 'web';
-};
+import {
+  formatTimestamp,
+  getSourcePreviewType,
+  SourcePreviewType,
+} from './SourcePreviews/previewUtils';
 
 const getSourceLabel = (source: Chunk) => {
   const url = source.metadata?.url || '';
@@ -62,7 +35,7 @@ const MessageSources = ({ sources }: { sources: Chunk[] }) => {
     () =>
       sources.map((source) => ({
         source,
-        type: getSourceType(source),
+        type: getSourcePreviewType(source.metadata),
       })),
     [sources],
   );
@@ -77,11 +50,23 @@ const MessageSources = ({ sources }: { sources: Chunk[] }) => {
     document.body.classList.add('overflow-hidden-scrollable');
   };
 
-  const renderPreviewCard = (source: Chunk, type: string, index: number) => {
+  const renderPreviewCard = (
+    source: Chunk,
+    type: SourcePreviewType,
+    index: number,
+  ) => {
     const title = source.metadata?.title || 'Untitled source';
     const href = source.metadata?.url;
     const snippet = source.content;
     const sourceLabel = getSourceLabel(source);
+    const evidence = source.evidence?.[0];
+    const pageNumber = source.metadata?.page ?? evidence?.page;
+    const totalPages = source.metadata?.totalPages;
+    const timecodeStart =
+      source.metadata?.timecodeStart ??
+      evidence?.timecodeStart ??
+      formatTimestamp(source.metadata?.timestamp ?? evidence?.timestamp);
+    const timecodeEnd = source.metadata?.timecodeEnd ?? evidence?.timecodeEnd;
 
     if (type === 'pdf') {
       return (
@@ -90,8 +75,8 @@ const MessageSources = ({ sources }: { sources: Chunk[] }) => {
           title={title}
           href={href}
           snippet={snippet}
-          pageNumber={source.metadata?.page}
-          totalPages={source.metadata?.totalPages}
+          pageNumber={pageNumber}
+          totalPages={totalPages}
           sourceLabel={sourceLabel}
           index={index}
         />
@@ -105,8 +90,8 @@ const MessageSources = ({ sources }: { sources: Chunk[] }) => {
           title={title}
           href={href}
           snippet={snippet}
-          timecodeStart={source.metadata?.timecodeStart}
-          timecodeEnd={source.metadata?.timecodeEnd}
+          timecodeStart={timecodeStart}
+          timecodeEnd={timecodeEnd}
           sourceLabel={sourceLabel}
           index={index}
         />
@@ -120,8 +105,8 @@ const MessageSources = ({ sources }: { sources: Chunk[] }) => {
           title={title}
           href={href}
           snippet={snippet}
-          timecodeStart={source.metadata?.timecodeStart}
-          timecodeEnd={source.metadata?.timecodeEnd}
+          timecodeStart={timecodeStart}
+          timecodeEnd={timecodeEnd}
           thumbnailUrl={source.metadata?.thumbnailUrl}
           sourceLabel={sourceLabel}
           index={index}
