@@ -20,6 +20,7 @@ import { LocalMessageSources } from './LocalSources';
 import LocalMediaPreview from './LocalSources/LocalMediaPreview';
 import SearchImages from './SearchImages';
 import SearchVideos from './SearchVideos';
+import ClaimsList from './ClaimsList';
 import ClaimBadges from './ClaimBadges';
 import { useSpeech } from 'react-text-to-speech';
 import ThinkBox from './ThinkBox';
@@ -77,8 +78,19 @@ const MessageBox = ({
   );
 
   const allSources = sourceBlocks.flatMap((block) => block.data);
+  const allSourcesWithIds = allSources.map((source, index) => ({
+    ...source,
+    metadata: {
+      ...source.metadata,
+      evidenceId: index + 1,
+    },
+  }));
 
   // Separate web sources from local sources (Neural Vault)
+  const sources = allSourcesWithIds.filter((s) => !s.metadata?.sourceType);
+  const localSources = allSourcesWithIds
+    .filter((s) => s.metadata?.sourceType)
+    .map((s) => ({
   const sources = allSources.filter(s => !s.metadata?.sourceType);
   const localSources = allSources
     .filter(s => s.metadata?.sourceType)
@@ -118,6 +130,8 @@ const MessageBox = ({
       totalPages: s.metadata?.totalPages,
       thumbnailUrl: s.metadata?.thumbnailUrl,
       ocrText: s.metadata?.ocrText,
+      filePath: s.metadata?.url || '',
+      evidenceId: s.metadata?.evidenceId,
       filePath: s.metadata?.filePath || s.metadata?.url || '',
       folder: s.metadata?.folder,
       fileExtension: s.metadata?.fileExtension,
@@ -200,6 +214,8 @@ const MessageBox = ({
             </div>
           )}
 
+          {section.claims.length > 0 && (
+            <ClaimsList claims={section.claims} sources={allSourcesWithIds} />
           {(sources.length > 0 || localSources.length > 0 || hasContent) && (
             <EvidenceBoard
               answer={parsedMessage}

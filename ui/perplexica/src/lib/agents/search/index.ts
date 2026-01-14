@@ -7,6 +7,9 @@ import { WidgetExecutor } from './widgets';
 import db from '@/lib/db';
 import { chats, messages } from '@/lib/db/schema';
 import { and, eq, gt } from 'drizzle-orm';
+import { Claim, ClaimBlock, TextBlock } from '@/lib/types';
+import { getClaimsPrompt } from '@/lib/prompts/search/claims';
+import { z } from 'zod';
 import { ResearchBlock, TextBlock } from '@/lib/types';
 
 class SearchAgent {
@@ -168,6 +171,7 @@ class SearchAgent {
     });
 
     let responseBlockId = '';
+    let finalAnswer = '';
 
     for await (const chunk of answerStream) {
       if (!responseBlockId) {
@@ -180,6 +184,7 @@ class SearchAgent {
         session.emitBlock(block);
 
         responseBlockId = block.id;
+        finalAnswer = block.data;
       } else {
         const block = session.getBlock(responseBlockId) as TextBlock | null;
 
@@ -188,6 +193,7 @@ class SearchAgent {
         }
 
         block.data += chunk.contentChunk;
+        finalAnswer = block.data;
 
         session.updateBlock(block.id, [
           {
@@ -196,6 +202,69 @@ class SearchAgent {
             value: block.data,
           },
         ]);
+      }
+    }
+
+    const sourcesForClaims = searchResults?.searchFindings ?? [];
+
+    if (finalAnswer.trim()) {
+      try {
+        const claimsSchema = z.object({
+          claims: z.array(
+            z.object({
+              text: z.string().min(1),
+              evidenceIds: z.array(z.number().int().positive()),
+              verified: z.boolean(),
+            }),
+          ),
+        });
+
+        const claimsResponse = await input.config.llm.generateObject({
+          schema: claimsSchema,
+          messages: [
+            {
+              role: 'system',
+              content: getClaimsPrompt(sourcesForClaims),
+            },
+            {
+              role: 'user',
+              content: `Answer:\n${finalAnswer}`,
+            },
+          ],
+          options: {
+            temperature: 0.1,
+          },
+        });
+
+        const claims: Claim[] = claimsResponse.claims
+          .map((claim) => {
+            const uniqueEvidenceIds = Array.from(
+              new Set(
+                claim.evidenceIds.filter(
+                  (id) => id > 0 && id <= sourcesForClaims.length,
+                ),
+              ),
+            );
+
+            return {
+              id: crypto.randomUUID(),
+              text: claim.text.trim(),
+              evidenceIds: uniqueEvidenceIds,
+              verified: claim.verified && uniqueEvidenceIds.length > 0,
+            };
+          })
+          .filter((claim) => claim.text.length > 0);
+
+        if (claims.length > 0) {
+          const claimBlock: ClaimBlock = {
+            id: crypto.randomUUID(),
+            type: 'claim',
+            data: claims,
+          };
+          session.emitBlock(claimBlock);
+        }
+      } catch (error) {
+        console.warn('Failed to generate claims:', error);
       }
     }
 

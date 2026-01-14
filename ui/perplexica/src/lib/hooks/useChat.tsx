@@ -1,6 +1,7 @@
 'use client';
 
 import { Message } from '@/components/ChatWindow';
+import { Block, Chunk, Claim } from '@/lib/types';
 import { Block, Chunk, ClaimItem } from '@/lib/types';
 import {
   createContext,
@@ -25,6 +26,7 @@ export type Section = {
   parsedTextBlocks: string[];
   speechMessage: string;
   thinkingEnded: boolean;
+  claims: Claim[];
   suggestions?: string[];
   claims: ClaimItem[];
 };
@@ -320,6 +322,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
       let speechMessage = '';
       let thinkingEnded = false;
       let suggestions: string[] = [];
+      let claims: Claim[] = [];
       const claimMap = new Map<string, ClaimItem>();
 
       const sourceBlocks = msg.responseBlocks.filter(
@@ -330,6 +333,11 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
       const widgetBlocks = msg.responseBlocks
         .filter((b) => b.type === 'widget')
         .map((b) => b.data) as Widget[];
+
+      const claimBlocks = msg.responseBlocks.filter(
+        (block): block is Block & { type: 'claim' } => block.type === 'claim',
+      );
+      claims = claimBlocks.flatMap((block) => block.data);
 
       msg.responseBlocks.forEach((block) => {
         if (block.type === 'text') {
@@ -567,6 +575,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
         parsedTextBlocks: textBlocks,
         speechMessage,
         thinkingEnded,
+        claims,
         suggestions,
         widgets: widgetBlocks,
         claims: Array.from(claimMap.values()),

@@ -55,6 +55,13 @@ export type Evidence = {
   timestamp?: number;
 };
 
+export type Claim = {
+  id: string;
+  text: string;
+  evidenceIds: number[];
+  verified: boolean;
+};
+
 export type TextBlock = {
   id: string;
   type: 'text';
@@ -85,6 +92,12 @@ export type SuggestionBlock = {
   id: string;
   type: 'suggestion';
   data: string[];
+};
+
+export type ClaimBlock = {
+  id: string;
+  type: 'claim';
+  data: Claim[];
 };
 
 export type WidgetBlock = {
@@ -160,6 +173,7 @@ export type ResearchBlock = {
 export type Block =
   | TextBlock
   | SourceBlock
+  | ClaimBlock
   | SuggestionBlock
   | WidgetBlock
   | ResearchBlock;
@@ -176,6 +190,7 @@ export type LocalSource = {
   sourceType: LocalSourceType;
   textSnippet: string;
   confidence: number;
+  evidenceId?: number;
   // Audio/Video timecodes (format: "HH:MM:SS" or "MM:SS")
   timecodeStart?: string;
   timecodeEnd?: string;
