@@ -104,15 +104,14 @@ const MessageBox = ({
         confidence: s.metadata?.confidence || 0.5,
         timecodeStart: evidence?.timecodeStart ?? s.metadata?.timecodeStart,
         timecodeEnd: evidence?.timecodeEnd ?? s.metadata?.timecodeEnd,
-        timestampStart: evidence?.timestampStart,
-        timestampEnd: evidence?.timestampEnd,
+        timestampStart: evidence?.timestampStart ?? s.metadata?.timestampStart,
+        timestampEnd: evidence?.timestampEnd ?? s.metadata?.timestampEnd,
         pageNumber: evidence?.page ?? s.metadata?.page,
         totalPages: evidence?.totalPages ?? s.metadata?.totalPages,
-        bbox: evidence?.bbox,
+        bbox: evidence?.bbox ?? s.metadata?.bbox,
         thumbnailUrl: s.metadata?.thumbnailUrl,
         ocrText: s.metadata?.ocrText,
         filePath: s.metadata?.filePath || s.metadata?.url || '',
-        evidenceId: s.metadata?.evidenceId,
         folder: s.metadata?.folder,
         fileExtension: s.metadata?.fileExtension,
         fileCreated: s.metadata?.fileCreated,
@@ -121,7 +120,9 @@ const MessageBox = ({
         tags: Array.isArray(s.metadata?.tags)
           ? s.metadata?.tags.map(String)
           : s.metadata?.tags
-            ? String(s.metadata?.tags).split(',').map((tag: string) => tag.trim())
+            ? String(s.metadata?.tags)
+                .split(',')
+                .map((tag: string) => tag.trim())
             : [],
       };
     });
@@ -187,7 +188,6 @@ const MessageBox = ({
           {/* Local Sources from Neural Vault */}
           {localSources.length > 0 && (
             <div className="flex flex-col space-y-2">
-              <LocalMessageSources sources={localSources} query={section.message.query} />
               <LocalMessageSources
                 sources={localSources}
                 query={section.message.query}
@@ -197,6 +197,8 @@ const MessageBox = ({
 
           {section.claims.length > 0 && (
             <ClaimsList claims={section.claims} sources={allSourcesWithIds} />
+          )}
+
           {(sources.length > 0 || localSources.length > 0 || hasContent) && (
             <EvidenceBoard
               answer={parsedMessage}
@@ -265,7 +267,10 @@ const MessageBox = ({
                   {parsedMessage}
                 </Markdown>
 
-                <ClaimBadges claims={section.claims} />
+                <ClaimBadges
+                  claims={section.claims}
+                  sources={allSourcesWithIds}
+                />
 
                 {loading && isLast ? null : (
                   <div className="flex flex-row items-center justify-between w-full text-black dark:text-white py-4">
