@@ -7,7 +7,7 @@
 
 'use client';
 
-import { useMemo, useState, Fragment } from 'react';
+import { Fragment, useMemo, useState } from 'react';
 import {
   Dialog,
   DialogPanel,
@@ -121,12 +121,68 @@ const LocalMessageSources = ({
       onClick: () => handleSourceClick(source),
     };
 
-    const handleSourceClick = (source: LocalSource) => {
-        if (source.sourceType === 'audio' || source.sourceType === 'video') {
-            setSelectedSource(source);
-            setIsMediaModalOpen(true);
-            setIsDialogOpen(false);
-            document.body.classList.remove('overflow-hidden-scrollable');
+    switch (source.sourceType) {
+      case 'video':
+        return <VideoSourceCard key={source.id} {...props} />;
+      case 'audio':
+        return <AudioSourceCard key={source.id} {...props} />;
+      case 'image':
+        return <ImageSourceCard key={source.id} {...props} />;
+      case 'document':
+      default:
+        return <DocumentSourceCard key={source.id} {...props} />;
+    }
+  };
+
+  const resolveFolder = (source: LocalSource) => {
+    if (source.folder) {
+      return source.folder;
+    }
+    if (!source.filePath) {
+      return '';
+    }
+    const normalizedPath = source.filePath.replace(/\\/g, '/');
+    const parts = normalizedPath.split('/');
+    parts.pop();
+    return parts.join('/');
+  };
+
+  const getTypeKey = (source: LocalSource) => {
+    const extension = source.fileExtension?.replace(/^\./, '').toLowerCase();
+    return extension || source.sourceType.toLowerCase();
+  };
+
+  const getSourceDate = (source: LocalSource) =>
+    source.fileModified || source.fileCreated || source.indexedAt || '';
+
+  const typeOptions = useMemo(() => {
+    const types = new Set<string>();
+    sources.forEach((source) => {
+      const key = getTypeKey(source);
+      if (key) {
+        types.add(key);
+      }
+    });
+    return Array.from(types).sort((a, b) => a.localeCompare(b));
+  }, [sources]);
+
+  const folderOptions = useMemo(() => {
+    const folders = new Set<string>();
+    sources.forEach((source) => {
+      const folder = resolveFolder(source);
+      if (folder) {
+        folders.add(folder);
+      }
+    });
+    return Array.from(folders).sort((a, b) => a.localeCompare(b));
+  }, [sources]);
+
+  const tagOptions = useMemo(() => {
+    const tags = new Set<string>();
+    sources.forEach((source) => {
+      source.tags?.forEach((tag) => {
+        if (tag) {
+          tags.add(tag);
         }
       });
     });
@@ -440,27 +496,40 @@ const LocalMessageSources = ({
                         </div>
                       )}
                     </div>
-                </Dialog>
-            </Transition>
 
-            <SourcePreviewModal
-                isOpen={isPreviewOpen}
-                onClose={() => setIsPreviewOpen(false)}
-                source={selectedSource}
-            />
+                    <div className="grid grid-cols-2 gap-3 max-h-[60vh] overflow-y-auto pr-2 flex-1">
+                      {filteredSources.length === 0 ? (
+                        <div className="col-span-2 text-center text-sm text-black/50 dark:text-white/50 py-10">
+                          Keine Quellen entsprechen den aktiven Filtern.
+                        </div>
+                      ) : (
+                        filteredSources.map((source, i) =>
+                          renderSourceCard(source, i),
+                        )
+                      )}
+                    </div>
+                  </div>
+                </DialogPanel>
+              </TransitionChild>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
 
-            <MediaPlayerModal
-                isOpen={isMediaOpen}
-                onClose={() => setIsMediaOpen(false)}
-                source={selectedSource}
-            <MediaPlayerModal
-                isOpen={isMediaModalOpen}
-                onClose={() => setIsMediaModalOpen(false)}
-                source={selectedSource}
-                query={query}
-            />
-        </>
-    );
+      <SourcePreviewModal
+        isOpen={isPreviewOpen}
+        onClose={() => setIsPreviewOpen(false)}
+        source={selectedSource}
+      />
+
+      <MediaPlayerModal
+        isOpen={isMediaModalOpen}
+        onClose={() => setIsMediaModalOpen(false)}
+        source={selectedSource}
+        query={query}
+      />
+    </>
+  );
 };
 
 export default LocalMessageSources;
