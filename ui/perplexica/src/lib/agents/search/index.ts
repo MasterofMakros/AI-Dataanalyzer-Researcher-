@@ -10,6 +10,7 @@ import { and, eq, gt } from 'drizzle-orm';
 import { Claim, ClaimBlock, TextBlock } from '@/lib/types';
 import { getClaimsPrompt } from '@/lib/prompts/search/claims';
 import { z } from 'zod';
+import { ResearchBlock, TextBlock } from '@/lib/types';
 
 class SearchAgent {
   async searchAsync(session: SessionManager, input: SearchAgentInput) {
@@ -99,6 +100,40 @@ class SearchAgent {
     session.emit('data', {
       type: 'researchComplete',
     });
+
+    const researchBlocks = session
+      .getAllBlocks()
+      .filter(
+        (block): block is ResearchBlock => block.type === 'research',
+      );
+    const latestResearchBlock = researchBlocks[researchBlocks.length - 1];
+
+    if (latestResearchBlock) {
+      const hasSynthesisStep = latestResearchBlock.data.subSteps.some(
+        (step) => step.type === 'synthesis',
+      );
+
+      if (!hasSynthesisStep) {
+        latestResearchBlock.data.subSteps.push({
+          id: crypto.randomUUID(),
+          type: 'synthesis',
+        });
+      }
+
+      latestResearchBlock.data.phase = 'synthesis';
+      session.updateBlock(latestResearchBlock.id, [
+        {
+          op: 'replace',
+          path: '/data/subSteps',
+          value: latestResearchBlock.data.subSteps,
+        },
+        {
+          op: 'replace',
+          path: '/data/phase',
+          value: latestResearchBlock.data.phase,
+        },
+      ]);
+    }
 
     const finalContext =
       searchResults?.searchFindings

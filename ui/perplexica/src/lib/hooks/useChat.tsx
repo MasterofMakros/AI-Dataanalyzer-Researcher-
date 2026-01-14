@@ -2,6 +2,7 @@
 
 import { Message } from '@/components/ChatWindow';
 import { Block, Chunk, Claim } from '@/lib/types';
+import { Block, Chunk, ClaimItem } from '@/lib/types';
 import {
   createContext,
   useContext,
@@ -27,6 +28,7 @@ export type Section = {
   thinkingEnded: boolean;
   claims: Claim[];
   suggestions?: string[];
+  claims: ClaimItem[];
 };
 
 type ChatContext = {
@@ -321,6 +323,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
       let thinkingEnded = false;
       let suggestions: string[] = [];
       let claims: Claim[] = [];
+      const claimMap = new Map<string, ClaimItem>();
 
       const sourceBlocks = msg.responseBlocks.filter(
         (block): block is Block & { type: 'source' } => block.type === 'source',
@@ -362,14 +365,27 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
                 ? `${rawSnippet.slice(0, 277)}...`
                 : rawSnippet;
 
+            const evidence = source.evidence?.[0];
             const title = source.metadata?.title ?? '';
             const sourceType = source.metadata?.sourceType ?? 'web';
             const filePath = source.metadata?.url ?? '';
-            const page = source.metadata?.page
-              ? String(source.metadata.page)
-              : '';
-            const timecodeStart = source.metadata?.timecodeStart ?? '';
-            const timecodeEnd = source.metadata?.timecodeEnd ?? '';
+            const page = evidence?.page ?? source.metadata?.page;
+            const totalPages = evidence?.totalPages ?? source.metadata?.totalPages;
+            const timecodeStart =
+              evidence?.timecodeStart ?? source.metadata?.timecodeStart ?? '';
+            const timecodeEnd =
+              evidence?.timecodeEnd ?? source.metadata?.timecodeEnd ?? '';
+            const timestampStart = evidence?.timestampStart;
+            const timestampEnd = evidence?.timestampEnd;
+            const bbox = evidence?.bbox;
+            const primaryEvidence = source.evidence?.[0];
+            const pageValue =
+              primaryEvidence?.page ?? source.metadata?.page;
+            const page = pageValue ? String(pageValue) : '';
+            const timecodeStart =
+              primaryEvidence?.timecodeStart ?? source.metadata?.timecodeStart ?? '';
+            const timecodeEnd =
+              primaryEvidence?.timecodeEnd ?? source.metadata?.timecodeEnd ?? '';
             const url = source.metadata?.url ?? '';
 
             const attributes: string[] = [];
@@ -394,8 +410,11 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
               );
             }
 
-            if (page) {
-              attributes.push(`data-page="${escapeHtmlAttribute(page)}"`);
+            if (page !== undefined) {
+              const pageLabel = totalPages
+                ? `${page}/${totalPages}`
+                : `${page}`;
+              attributes.push(`data-page="${escapeHtmlAttribute(pageLabel)}"`);
             }
 
             if (timecodeStart) {
@@ -410,11 +429,86 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
               );
             }
 
+            if (timestampStart !== undefined) {
+              const timestampLabel =
+                timestampEnd !== undefined
+                  ? `${timestampStart}-${timestampEnd}`
+                  : `${timestampStart}`;
+              attributes.push(
+                `data-timestamp="${escapeHtmlAttribute(timestampLabel)}"`,
+              );
+            }
+
+            if (bbox) {
+              const bboxLabel = bbox.join(',');
+              attributes.push(
+                `data-bbox="${escapeHtmlAttribute(bboxLabel)}"`,
+              );
+            }
+
             if (url) {
               attributes.push(`data-source-url="${escapeHtmlAttribute(url)}"`);
             }
 
             return attributes.join(' ');
+          };
+
+          const collectClaims = (text: string) => {
+            const normalized = text.replace(/\n+/g, ' ').trim();
+            if (!normalized) {
+              return;
+            }
+
+            const segments = normalized
+              .split(/(?<=[.!?])\s+/)
+              .flatMap((segment) => segment.split(/\s*\n+\s*/))
+              .map((segment) => segment.trim())
+              .filter(Boolean);
+
+            segments.forEach((segment) => {
+              const citationMatches = [...segment.matchAll(citationRegex)];
+              const evidenceIndices = citationMatches
+                .flatMap((match) =>
+                  match[1]
+                    .split(',')
+                    .map((num) => parseInt(num.trim(), 10)),
+                )
+                .filter((num) => !isNaN(num) && num > 0);
+
+              const uniqueIndices = Array.from(new Set(evidenceIndices));
+              const evidence = uniqueIndices
+                .map((index) => {
+                  const source = sources[index - 1];
+                  if (!source) {
+                    return null;
+                  }
+
+                  return {
+                    id: `E${index}`,
+                    index,
+                    title: source.metadata?.title ?? source.metadata?.url,
+                    url: source.metadata?.url,
+                  };
+                })
+                .filter(
+                  (entry): entry is NonNullable<typeof entry> => entry !== null,
+                );
+
+              const claimText = segment.replace(citationRegex, '').trim();
+              if (!claimText) {
+                return;
+              }
+
+              const claimKey = `${claimText}::${uniqueIndices.join(',')}`;
+              if (!claimMap.has(claimKey)) {
+                claimMap.set(claimKey, {
+                  id: crypto.randomUUID(),
+                  text: claimText,
+                  evidence,
+                  verified: evidence.length > 0,
+                });
+              }
+            });
           };
 
           if (processedText.includes('<think>')) {
@@ -430,6 +524,8 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
           if (block.data.includes('</think>')) {
             thinkingEnded = true;
           }
+
+          collectClaims(block.data);
 
           if (sources.length > 0) {
             processedText = processedText.replace(
@@ -482,6 +578,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
         claims,
         suggestions,
         widgets: widgetBlocks,
+        claims: Array.from(claimMap.values()),
       };
     });
   }, [messages]);

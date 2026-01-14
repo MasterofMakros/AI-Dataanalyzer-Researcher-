@@ -37,6 +37,9 @@ class UploadStore {
             }
 
             const chunks = UploadManager.getFileChunks(fileId);
+            const fileExtension = file.name.includes('.') ? file.name.split('.').pop()?.toLowerCase() : '';
+            const folder = file.folder || 'Uploads';
+            const tags = Array.isArray(file.tags) ? file.tags : [];
 
             this.records.push(...chunks.map((chunk) => ({
                 embedding: chunk.embedding,
@@ -46,6 +49,10 @@ class UploadStore {
                     fileName: file.name,
                     title: file.name,
                     url: `file_id://${file.id}`,
+                    fileExtension,
+                    folder,
+                    tags,
+                    uploadedAt: file.uploadedAt,
                 }
             })))
         })
@@ -65,7 +72,8 @@ class UploadStore {
                         metadata: {
                             ...record.metadata,
                             fileId: record.fileId,
-                        }
+                        },
+                        evidence: [],
                     },
                     score: computeSimilarity(query, record.embedding)
                 } as { chunk: Chunk; score: number; };

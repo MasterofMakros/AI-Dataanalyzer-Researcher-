@@ -8,7 +8,7 @@
 import { z } from 'zod';
 import { ResearchAction, ActionOutput, AdditionalConfig, SearchSources } from '../../types';
 import { searchNeuralVault, LocalSource } from '@/lib/neuralVault';
-import { Chunk, LocalSourceBlock } from '@/lib/types';
+import { Chunk, Evidence } from '@/lib/types';
 
 const localSearchSchema = z.object({
     queries: z
@@ -65,6 +65,7 @@ Use this when the user wants to search their own files and documents.`;
         // Emit searching status
         const block = config.session.getBlock(config.researchBlockId);
         if (block && block.type === 'research') {
+            block.data.phase = 'search';
             block.data.subSteps.push({
                 id: crypto.randomUUID(),
                 type: 'searching',
@@ -75,6 +76,11 @@ Use this when the user wants to search their own files and documents.`;
                     op: 'replace',
                     path: '/data/subSteps',
                     value: block.data.subSteps,
+                },
+                {
+                    op: 'replace',
+                    path: '/data/phase',
+                    value: block.data.phase,
                 },
             ]);
         }
@@ -99,22 +105,45 @@ Use this when the user wants to search their own files and documents.`;
         const chunks: Chunk[] = uniqueSources.map(source => {
             // Build metadata with source-specific info
             const metadata: Record<string, any> = {
+                id: source.id,
                 title: source.filename,
                 url: source.filePath,
+                filePath: source.filePath,
                 sourceType: source.sourceType,
                 confidence: source.confidence,
+                folder: source.folder,
+                fileExtension: source.fileExtension,
+                fileCreated: source.fileCreated,
+                fileModified: source.fileModified,
+                indexedAt: source.indexedAt,
+                tags: source.tags,
             };
+
+            const evidence: Evidence = {};
 
             // Add timecodes for audio/video
             if (source.timecodeStart) {
                 metadata.timecodeStart = source.timecodeStart;
                 metadata.timecodeEnd = source.timecodeEnd;
+                evidence.timecodeStart = source.timecodeStart;
+                evidence.timecodeEnd = source.timecodeEnd;
             }
 
             // Add page info for documents
             if (source.pageNumber) {
                 metadata.page = source.pageNumber;
                 metadata.totalPages = source.totalPages;
+                evidence.page = source.pageNumber;
+                evidence.totalPages = source.totalPages;
+            }
+
+            if (source.timestampStart !== undefined) {
+                evidence.timestampStart = source.timestampStart;
+                evidence.timestampEnd = source.timestampEnd;
+            }
+
+            if (source.bbox) {
+                evidence.bbox = source.bbox;
             }
 
             // Add thumbnail for images
@@ -126,11 +155,14 @@ Use this when the user wants to search their own files and documents.`;
             return {
                 content: source.textSnippet,
                 metadata,
+                evidence: Object.keys(evidence).length > 0 ? [evidence] : undefined,
+                evidence: Object.keys(evidence).length > 0 ? [evidence] : [],
             };
         });
 
         // Emit reading status
         if (block && block.type === 'research') {
+            block.data.phase = 'reading';
             block.data.subSteps.push({
                 id: crypto.randomUUID(),
                 type: 'reading',
@@ -141,6 +173,11 @@ Use this when the user wants to search their own files and documents.`;
                     op: 'replace',
                     path: '/data/subSteps',
                     value: block.data.subSteps,
+                },
+                {
+                    op: 'replace',
+                    path: '/data/phase',
+                    value: block.data.phase,
                 },
             ]);
         }

@@ -31,9 +31,28 @@ export type Message =
   | SystemMessage
   | ToolMessage;
 
+export type Evidence = {
+  page?: number;
+  totalPages?: number;
+  bbox?: [number, number, number, number];
+  timecodeStart?: string;
+  timecodeEnd?: string;
+  timestampStart?: number;
+  timestampEnd?: number;
+};
+
 export type Chunk = {
   content: string;
   metadata: Record<string, any>;
+  evidence?: Evidence[];
+};
+
+export type Evidence = {
+  page?: number;
+  bbox?: [number, number, number, number];
+  timecodeStart?: string;
+  timecodeEnd?: string;
+  timestamp?: number;
 };
 
 export type Claim = {
@@ -47,6 +66,20 @@ export type TextBlock = {
   id: string;
   type: 'text';
   data: string;
+};
+
+export type ClaimEvidence = {
+  id: string;
+  index: number;
+  title?: string;
+  url?: string;
+};
+
+export type ClaimItem = {
+  id: string;
+  text: string;
+  evidence: ClaimEvidence[];
+  verified: boolean;
 };
 
 export type SourceBlock = {
@@ -112,18 +145,27 @@ export type UploadSearchResultsResearchBlock = {
   results: Chunk[];
 };
 
+export type SynthesisResearchBlock = {
+  id: string;
+  type: 'synthesis';
+};
+
+export type ResearchPhase = 'analysis' | 'search' | 'reading' | 'synthesis';
+
 export type ResearchBlockSubStep =
   | ReasoningResearchBlock
   | SearchingResearchBlock
   | SearchResultsResearchBlock
   | ReadingResearchBlock
   | UploadSearchingResearchBlock
-  | UploadSearchResultsResearchBlock;
+  | UploadSearchResultsResearchBlock
+  | SynthesisResearchBlock;
 
 export type ResearchBlock = {
   id: string;
   type: 'research';
   data: {
+    phase?: ResearchPhase;
     subSteps: ResearchBlockSubStep[];
   };
 };
@@ -152,15 +194,23 @@ export type LocalSource = {
   // Audio/Video timecodes (format: "HH:MM:SS" or "MM:SS")
   timecodeStart?: string;
   timecodeEnd?: string;
+  timestampStart?: number;
+  timestampEnd?: number;
   // Document page info
   pageNumber?: number;
   totalPages?: number;
+  bbox?: [number, number, number, number];
   // Image OCR
   thumbnailUrl?: string;
   ocrText?: string;
   // Metadata
   filePath: string;
+  folder?: string;
+  fileExtension?: string;
+  fileCreated?: string;
+  fileModified?: string;
   indexedAt?: string;
+  tags?: string[];
 };
 
 export type LocalSourceBlock = {
