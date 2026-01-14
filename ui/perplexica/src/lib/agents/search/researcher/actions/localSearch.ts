@@ -99,6 +99,7 @@ Use this when the user wants to search their own files and documents.`;
         const chunks: Chunk[] = uniqueSources.map(source => {
             // Build metadata with source-specific info
             const metadata: Record<string, any> = {
+                id: source.id,
                 title: source.filename,
                 url: source.filePath,
                 sourceType: source.sourceType,

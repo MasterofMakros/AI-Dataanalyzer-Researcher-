@@ -156,7 +156,7 @@ const MessageBox = ({
           {/* Local Sources from Neural Vault */}
           {localSources.length > 0 && (
             <div className="flex flex-col space-y-2">
-              <LocalMessageSources sources={localSources} />
+              <LocalMessageSources sources={localSources} query={section.message.query} />
             </div>
           )}
 

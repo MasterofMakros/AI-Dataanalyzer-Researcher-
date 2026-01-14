@@ -17,19 +17,26 @@ import {
 } from '@headlessui/react';
 import { Database, X } from 'lucide-react';
 import { LocalSource } from '@/lib/types';
-import VideoSourceCard from './VideoSourceCard';
-import AudioSourceCard from './AudioSourceCard';
-import DocumentSourceCard from './DocumentSourceCard';
-import ImageSourceCard from './ImageSourceCard';
+import MediaPlayerModal from './MediaPlayerModal';
+import {
+    AudioPreviewCard,
+    ImagePreviewCard,
+    PdfPreviewCard,
+    SourcePreviewModal,
+    VideoPreviewCard,
+} from '../SourcePreviews';
 
 interface LocalMessageSourcesProps {
     sources: LocalSource[];
     onSourceClick?: (source: LocalSource) => void;
+    query?: string;
 }
 
-const LocalMessageSources = ({ sources, onSourceClick }: LocalMessageSourcesProps) => {
+const LocalMessageSources = ({ sources, onSourceClick, query = '' }: LocalMessageSourcesProps) => {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [selectedSource, setSelectedSource] = useState<LocalSource | null>(null);
+    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+    const [isMediaOpen, setIsMediaOpen] = useState(false);
 
     const closeModal = () => {
         setIsDialogOpen(false);
@@ -46,6 +53,16 @@ const LocalMessageSources = ({ sources, onSourceClick }: LocalMessageSourcesProp
         if (onSourceClick) {
             onSourceClick(source);
         }
+
+        closeModal();
+
+        if (source.sourceType === 'audio' || source.sourceType === 'video') {
+            setIsPreviewOpen(false);
+            setIsMediaOpen(true);
+        } else {
+            setIsMediaOpen(false);
+            setIsPreviewOpen(true);
+        }
     };
 
     const renderSourceCard = (source: LocalSource, index: number) => {
@@ -57,14 +74,14 @@ const LocalMessageSources = ({ sources, onSourceClick }: LocalMessageSourcesProp
 
         switch (source.sourceType) {
             case 'video':
-                return <VideoSourceCard key={source.id} {...props} />;
+                return <VideoPreviewCard key={source.id} {...props} />;
             case 'audio':
-                return <AudioSourceCard key={source.id} {...props} />;
+                return <AudioPreviewCard key={source.id} {...props} />;
             case 'image':
-                return <ImageSourceCard key={source.id} {...props} />;
+                return <ImagePreviewCard key={source.id} {...props} />;
             case 'document':
             default:
-                return <DocumentSourceCard key={source.id} {...props} />;
+                return <PdfPreviewCard key={source.id} {...props} />;
         }
     };
 
@@ -148,6 +165,19 @@ const LocalMessageSources = ({ sources, onSourceClick }: LocalMessageSourcesProp
                     </div>
                 </Dialog>
             </Transition>
+
+            <SourcePreviewModal
+                isOpen={isPreviewOpen}
+                onClose={() => setIsPreviewOpen(false)}
+                source={selectedSource}
+            />
+
+            <MediaPlayerModal
+                isOpen={isMediaOpen}
+                onClose={() => setIsMediaOpen(false)}
+                source={selectedSource}
+                query={query}
+            />
         </>
     );
 };
