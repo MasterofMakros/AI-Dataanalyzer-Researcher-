@@ -1,7 +1,7 @@
 'use client';
 
 import { Message } from '@/components/ChatWindow';
-import { Block, Chunk } from '@/lib/types';
+import { Block, Chunk, ClaimItem } from '@/lib/types';
 import {
   createContext,
   useContext,
@@ -26,6 +26,7 @@ export type Section = {
   speechMessage: string;
   thinkingEnded: boolean;
   suggestions?: string[];
+  claims: ClaimItem[];
 };
 
 type ChatContext = {
@@ -319,6 +320,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
       let speechMessage = '';
       let thinkingEnded = false;
       let suggestions: string[] = [];
+      const claimMap = new Map<string, ClaimItem>();
 
       const sourceBlocks = msg.responseBlocks.filter(
         (block): block is Block & { type: 'source' } => block.type === 'source',
@@ -368,6 +370,14 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
             const timestampStart = evidence?.timestampStart;
             const timestampEnd = evidence?.timestampEnd;
             const bbox = evidence?.bbox;
+            const primaryEvidence = source.evidence?.[0];
+            const pageValue =
+              primaryEvidence?.page ?? source.metadata?.page;
+            const page = pageValue ? String(pageValue) : '';
+            const timecodeStart =
+              primaryEvidence?.timecodeStart ?? source.metadata?.timecodeStart ?? '';
+            const timecodeEnd =
+              primaryEvidence?.timecodeEnd ?? source.metadata?.timecodeEnd ?? '';
             const url = source.metadata?.url ?? '';
 
             const attributes: string[] = [];
@@ -435,6 +445,64 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
             return attributes.join(' ');
           };
 
+          const collectClaims = (text: string) => {
+            const normalized = text.replace(/\n+/g, ' ').trim();
+            if (!normalized) {
+              return;
+            }
+
+            const segments = normalized
+              .split(/(?<=[.!?])\s+/)
+              .flatMap((segment) => segment.split(/\s*\n+\s*/))
+              .map((segment) => segment.trim())
+              .filter(Boolean);
+
+            segments.forEach((segment) => {
+              const citationMatches = [...segment.matchAll(citationRegex)];
+              const evidenceIndices = citationMatches
+                .flatMap((match) =>
+                  match[1]
+                    .split(',')
+                    .map((num) => parseInt(num.trim(), 10)),
+                )
+                .filter((num) => !isNaN(num) && num > 0);
+
+              const uniqueIndices = Array.from(new Set(evidenceIndices));
+              const evidence = uniqueIndices
+                .map((index) => {
+                  const source = sources[index - 1];
+                  if (!source) {
+                    return null;
+                  }
+
+                  return {
+                    id: `E${index}`,
+                    index,
+                    title: source.metadata?.title ?? source.metadata?.url,
+                    url: source.metadata?.url,
+                  };
+                })
+                .filter(
+                  (entry): entry is NonNullable<typeof entry> => entry !== null,
+                );
+
+              const claimText = segment.replace(citationRegex, '').trim();
+              if (!claimText) {
+                return;
+              }
+
+              const claimKey = `${claimText}::${uniqueIndices.join(',')}`;
+              if (!claimMap.has(claimKey)) {
+                claimMap.set(claimKey, {
+                  id: crypto.randomUUID(),
+                  text: claimText,
+                  evidence,
+                  verified: evidence.length > 0,
+                });
+              }
+            });
+          };
+
           if (processedText.includes('<think>')) {
             const openThinkTag = processedText.match(/<think>/g)?.length || 0;
             const closeThinkTag =
@@ -448,6 +516,8 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
           if (block.data.includes('</think>')) {
             thinkingEnded = true;
           }
+
+          collectClaims(block.data);
 
           if (sources.length > 0) {
             processedText = processedText.replace(
@@ -499,6 +569,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
         thinkingEnded,
         suggestions,
         widgets: widgetBlocks,
+        claims: Array.from(claimMap.values()),
       };
     });
   }, [messages]);

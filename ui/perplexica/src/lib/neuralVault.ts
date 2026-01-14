@@ -37,7 +37,12 @@ export interface LocalSource {
   ocrText?: string;
   // Metadata
   filePath: string;
+  folder?: string;
+  fileExtension?: string;
+  fileCreated?: string;
+  fileModified?: string;
   indexedAt?: string;
+  tags?: string[];
 }
 
 export interface LocalSearchResult {
@@ -83,7 +88,7 @@ export const searchNeuralVault = async (
     const data = await response.json();
     
     // Transform snake_case to camelCase
-    const sources: LocalSource[] = (data.sources || []).map((s: any) => ({
+  const sources: LocalSource[] = (data.sources || []).map((s: any) => ({
       id: s.id,
       filename: s.filename,
       sourceType: s.source_type,
@@ -99,7 +104,12 @@ export const searchNeuralVault = async (
       thumbnailUrl: s.thumbnail_url,
       ocrText: s.ocr_text,
       filePath: s.file_path,
+      folder: s.folder,
+      fileExtension: s.file_extension,
+      fileCreated: s.file_created,
+      fileModified: s.file_modified,
       indexedAt: s.indexed_at,
+      tags: s.tags,
     }));
 
     return {

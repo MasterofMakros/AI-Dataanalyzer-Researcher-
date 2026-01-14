@@ -20,6 +20,7 @@ import { LocalMessageSources } from './LocalSources';
 import LocalMediaPreview from './LocalSources/LocalMediaPreview';
 import SearchImages from './SearchImages';
 import SearchVideos from './SearchVideos';
+import ClaimBadges from './ClaimBadges';
 import { useSpeech } from 'react-text-to-speech';
 import ThinkBox from './ThinkBox';
 import { useChat, Section } from '@/lib/hooks/useChat';
@@ -28,6 +29,7 @@ import AssistantSteps from './AssistantSteps';
 import { ResearchBlock } from '@/lib/types';
 import Renderer from './Widgets/Renderer';
 import CodeBlock from './MessageRenderer/CodeBlock';
+import EvidenceBoard from './EvidenceBoard';
 
 const ThinkTagProcessor = ({
   children,
@@ -104,6 +106,30 @@ const MessageBox = ({
         filePath: s.metadata?.url || '',
       };
     });
+    .map(s => ({
+      id: s.metadata?.id || crypto.randomUUID(),
+      filename: s.metadata?.title || 'Unknown',
+      sourceType: s.metadata?.sourceType as 'document' | 'audio' | 'video' | 'image',
+      textSnippet: s.content,
+      confidence: s.metadata?.confidence || 0.5,
+      timecodeStart: s.metadata?.timecodeStart,
+      timecodeEnd: s.metadata?.timecodeEnd,
+      pageNumber: s.metadata?.page,
+      totalPages: s.metadata?.totalPages,
+      thumbnailUrl: s.metadata?.thumbnailUrl,
+      ocrText: s.metadata?.ocrText,
+      filePath: s.metadata?.filePath || s.metadata?.url || '',
+      folder: s.metadata?.folder,
+      fileExtension: s.metadata?.fileExtension,
+      fileCreated: s.metadata?.fileCreated,
+      fileModified: s.metadata?.fileModified,
+      indexedAt: s.metadata?.indexedAt,
+      tags: Array.isArray(s.metadata?.tags)
+        ? s.metadata?.tags.map(String)
+        : s.metadata?.tags
+          ? String(s.metadata?.tags).split(',').map((tag: string) => tag.trim())
+          : [],
+    }));
 
   const hasContent = section.parsedTextBlocks.length > 0;
 
@@ -166,8 +192,21 @@ const MessageBox = ({
           {/* Local Sources from Neural Vault */}
           {localSources.length > 0 && (
             <div className="flex flex-col space-y-2">
-              <LocalMessageSources sources={localSources} />
+              <LocalMessageSources sources={localSources} query={section.message.query} />
+              <LocalMessageSources
+                sources={localSources}
+                query={section.message.query}
+              />
             </div>
+          )}
+
+          {(sources.length > 0 || localSources.length > 0 || hasContent) && (
+            <EvidenceBoard
+              answer={parsedMessage}
+              sources={sources}
+              localSources={localSources}
+              claims={section.claims}
+            />
           )}
 
           {section.message.responseBlocks
@@ -228,6 +267,8 @@ const MessageBox = ({
                 >
                   {parsedMessage}
                 </Markdown>
+
+                <ClaimBadges claims={section.claims} />
 
                 {loading && isLast ? null : (
                   <div className="flex flex-row items-center justify-between w-full text-black dark:text-white py-4">

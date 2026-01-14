@@ -142,6 +142,8 @@ The response from the API includes both the final message and the sources used t
         {
           "page": 12,
           "bbox": [120, 240, 480, 540]
+          "page": 3,
+          "bbox": [112.4, 220.1, 402.9, 268.7]
         }
       ]
     },
@@ -150,7 +152,13 @@ The response from the API includes both the final message and the sources used t
       "metadata": {
         "title": "Sahar Mor's Post",
         "url": "https://www.linkedin.com/posts/sahar-mor_a-new-open-source-project-called-perplexica-activity-7204489745668694016-ncja"
-      }
+      },
+      "evidence": [
+        {
+          "timecodeStart": "00:01:12",
+          "timecodeEnd": "00:01:45"
+        }
+      ]
     }
         ....
   ]
@@ -192,6 +200,12 @@ Clients should process each line as a separate JSON object. The different messag
     - `bbox`: Bounding box coordinates (e.g., for images or PDF regions).
     - `timecodeStart` / `timecodeEnd`: Human-readable timecodes for audio/video.
     - `timestampStart` / `timestampEnd`: Numeric timestamps (seconds) for audio/video.
+  - `evidence`: Evidence objects that help locate where the content came from (optional). Each evidence entry can include:
+    - `page`: Page number for document sources.
+    - `bbox`: Bounding box coordinates `[x1, y1, x2, y2]` for highlighted regions.
+    - `timecodeStart`: Start timecode for audio/video sources.
+    - `timecodeEnd`: End timecode for audio/video sources.
+    - `timestamp`: Numeric timestamp (in seconds) when applicable.
 
 ### Error Handling
 
