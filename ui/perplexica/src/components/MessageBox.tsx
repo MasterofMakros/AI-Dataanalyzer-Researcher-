@@ -20,6 +20,7 @@ import { LocalMessageSources } from './LocalSources';
 import LocalMediaPreview from './LocalSources/LocalMediaPreview';
 import SearchImages from './SearchImages';
 import SearchVideos from './SearchVideos';
+import ClaimsList from './ClaimsList';
 import { useSpeech } from 'react-text-to-speech';
 import ThinkBox from './ThinkBox';
 import { useChat, Section } from '@/lib/hooks/useChat';
@@ -75,12 +76,19 @@ const MessageBox = ({
   );
 
   const allSources = sourceBlocks.flatMap((block) => block.data);
+  const allSourcesWithIds = allSources.map((source, index) => ({
+    ...source,
+    metadata: {
+      ...source.metadata,
+      evidenceId: index + 1,
+    },
+  }));
 
   // Separate web sources from local sources (Neural Vault)
-  const sources = allSources.filter(s => !s.metadata?.sourceType);
-  const localSources = allSources
-    .filter(s => s.metadata?.sourceType)
-    .map(s => ({
+  const sources = allSourcesWithIds.filter((s) => !s.metadata?.sourceType);
+  const localSources = allSourcesWithIds
+    .filter((s) => s.metadata?.sourceType)
+    .map((s) => ({
       id: s.metadata?.id || crypto.randomUUID(),
       filename: s.metadata?.title || 'Unknown',
       sourceType: s.metadata?.sourceType as 'document' | 'audio' | 'video' | 'image',
@@ -93,6 +101,7 @@ const MessageBox = ({
       thumbnailUrl: s.metadata?.thumbnailUrl,
       ocrText: s.metadata?.ocrText,
       filePath: s.metadata?.url || '',
+      evidenceId: s.metadata?.evidenceId,
     }));
 
   const hasContent = section.parsedTextBlocks.length > 0;
@@ -158,6 +167,10 @@ const MessageBox = ({
             <div className="flex flex-col space-y-2">
               <LocalMessageSources sources={localSources} />
             </div>
+          )}
+
+          {section.claims.length > 0 && (
+            <ClaimsList claims={section.claims} sources={allSourcesWithIds} />
           )}
 
           {section.message.responseBlocks
