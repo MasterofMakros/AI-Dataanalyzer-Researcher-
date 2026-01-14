@@ -42,11 +42,27 @@ const getStepPhase = (step: ResearchBlockSubStep): ResearchPhase => {
     return 'reading';
   }
 
+  if (step.type === 'synthesis') {
+    return 'synthesis';
+  }
+
   return 'analysis';
 };
 
 const getStepIcon = (step: ResearchBlockSubStep) => {
   if (step.type === 'reasoning') {
+    return <Brain className="w-4 h-4" />;
+  } else if (step.type === 'searching' || step.type === 'upload_searching') {
+    return <Search className="w-4 h-4" />;
+  } else if (
+    step.type === 'search_results' ||
+    step.type === 'upload_search_results'
+  ) {
+    return <FileText className="w-4 h-4" />;
+  } else if (step.type === 'reading') {
+    return <BookSearch className="w-4 h-4" />;
+  } else if (step.type === 'synthesis') {
+    return <Sparkles className="w-4 h-4" />;
     return 'analysis';
   }
 
@@ -54,6 +70,24 @@ const getStepIcon = (step: ResearchBlockSubStep) => {
     return 'search';
   }
 
+const getStepTitle = (
+  step: ResearchBlockSubStep,
+  isStreaming: boolean,
+): string => {
+  if (step.type === 'reasoning') {
+    return isStreaming && !step.reasoning ? 'Thinking...' : 'Thinking';
+  } else if (step.type === 'searching') {
+    return `Searching ${step.searching.length} ${step.searching.length === 1 ? 'query' : 'queries'}`;
+  } else if (step.type === 'search_results') {
+    return `Found ${step.reading.length} ${step.reading.length === 1 ? 'result' : 'results'}`;
+  } else if (step.type === 'reading') {
+    return `Reading ${step.reading.length} ${step.reading.length === 1 ? 'source' : 'sources'}`;
+  } else if (step.type === 'upload_searching') {
+    return 'Scanning your uploaded documents';
+  } else if (step.type === 'upload_search_results') {
+    return `Reading ${step.results.length} ${step.results.length === 1 ? 'document' : 'documents'}`;
+  } else if (step.type === 'synthesis') {
+    return 'Synthesizing answer';
   if (step.type === 'search_results') {
     return 'search';
   }
@@ -183,6 +217,7 @@ const AssistantSteps = ({
   const lastStep = block.data.subSteps[block.data.subSteps.length - 1];
   const currentPhase =
     block.data.phase || (lastStep ? getStepPhase(lastStep) : undefined);
+  const maxPreviewItems = 4;
 
   useEffect(() => {
     if (researchEnded && isLast) {
@@ -339,6 +374,13 @@ const AssistantSteps = ({
                             </div>
                           )}
 
+                      {(step.type === 'search_results' ||
+                        step.type === 'reading') &&
+                        step.reading.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 mt-1.5">
+                            {step.reading
+                              .slice(0, maxPreviewItems)
+                              .map((result, idx) => {
                         {phase.id === 'search' &&
                           (searchQueries.length > 0 ||
                             uploadQueries.length > 0) && (
@@ -387,6 +429,11 @@ const AssistantSteps = ({
                                 </a>
                               );
                             })}
+                            {step.reading.length > maxPreviewItems && (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-light-100 dark:bg-dark-100 text-black/60 dark:text-white/60 border border-light-200 dark:border-dark-200">
+                                +{step.reading.length - maxPreviewItems} more
+                              </span>
+                            )}
                           </div>
                         )}
 
@@ -426,6 +473,10 @@ const AssistantSteps = ({
 
                       {step.type === 'upload_search_results' &&
                         step.results.length > 0 && (
+                          <div className="mt-1.5 grid gap-3 lg:grid-cols-3">
+                            {step.results
+                              .slice(0, maxPreviewItems)
+                              .map((result, idx) => {
                           <div className="mt-2">
                             <UploadSearchResultsPanel results={step.results} />
                         {phase.id === 'read' && uploadResults.length > 0 && (
@@ -466,6 +517,11 @@ const AssistantSteps = ({
                                 </div>
                               );
                             })}
+                            {step.results.length > maxPreviewItems && (
+                              <div className="flex items-center justify-center rounded-lg border border-dashed border-light-200 dark:border-dark-200 bg-light-100/60 dark:bg-dark-100/60 p-2 text-xs text-black/60 dark:text-white/60">
+                                +{step.results.length - maxPreviewItems} more
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>
