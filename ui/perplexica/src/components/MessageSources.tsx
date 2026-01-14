@@ -193,6 +193,7 @@ const MessageSources = ({ sources }: { sources: Chunk[] }) => {
           <a
             className="bg-light-100 hover:bg-light-200 dark:bg-dark-100 dark:hover:bg-dark-200 transition duration-200 rounded-lg p-3 flex flex-col space-y-2 font-medium"
             key={i}
+            id={`evidence-${evidenceId}`}
             href={source.metadata.url}
             target="_blank"
           >
