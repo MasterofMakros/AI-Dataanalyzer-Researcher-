@@ -105,11 +105,11 @@ const MessageBox = ({
         evidenceId: s.metadata?.evidenceId,
         timecodeStart: evidence?.timecodeStart ?? s.metadata?.timecodeStart,
         timecodeEnd: evidence?.timecodeEnd ?? s.metadata?.timecodeEnd,
-        timestampStart: evidence?.timestampStart,
-        timestampEnd: evidence?.timestampEnd,
+        timestampStart: evidence?.timestampStart ?? s.metadata?.timestampStart,
+        timestampEnd: evidence?.timestampEnd ?? s.metadata?.timestampEnd,
         pageNumber: evidence?.page ?? s.metadata?.page,
         totalPages: evidence?.totalPages ?? s.metadata?.totalPages,
-        bbox: evidence?.bbox,
+        bbox: evidence?.bbox ?? s.metadata?.bbox,
         thumbnailUrl: s.metadata?.thumbnailUrl,
         ocrText: s.metadata?.ocrText,
         filePath: s.metadata?.filePath || s.metadata?.url || '',
@@ -268,7 +268,10 @@ const MessageBox = ({
                   {parsedMessage}
                 </Markdown>
 
-                <ClaimBadges claims={section.claims} />
+                <ClaimBadges
+                  claims={section.claims}
+                  sources={allSourcesWithIds}
+                />
 
                 {loading && isLast ? null : (
                   <div className="flex flex-row items-center justify-between w-full text-black dark:text-white py-4">

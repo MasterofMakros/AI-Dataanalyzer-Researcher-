@@ -138,6 +138,8 @@ Use this when the user wants to search their own files and documents.`;
             }
 
             if (source.timestampStart !== undefined) {
+                metadata.timestampStart = source.timestampStart;
+                metadata.timestampEnd = source.timestampEnd;
                 evidence.timestampStart = source.timestampStart;
                 evidence.timestampEnd = source.timestampEnd;
             }
@@ -147,7 +149,7 @@ Use this when the user wants to search their own files and documents.`;
             }
 
             // Add thumbnail for images
-            if (source.thumbnailUrl) {
+            if (source.thumbnailUrl || source.ocrText) {
                 metadata.thumbnailUrl = source.thumbnailUrl;
                 metadata.ocrText = source.ocrText;
             }
@@ -156,7 +158,6 @@ Use this when the user wants to search their own files and documents.`;
                 content: source.textSnippet,
                 metadata,
                 evidence: Object.keys(evidence).length > 0 ? [evidence] : undefined,
-                evidence: Object.keys(evidence).length > 0 ? [evidence] : [],
             };
         });
 
