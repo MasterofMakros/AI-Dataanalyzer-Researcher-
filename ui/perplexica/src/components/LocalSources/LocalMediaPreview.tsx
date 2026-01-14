@@ -134,7 +134,7 @@ const LocalMediaPreview = ({ localSources, query }: LocalMediaPreviewProps) => {
                             </span>
                         </div>
                         <p className="text-xs text-black/70 dark:text-white/70 line-clamp-2">
-                            "{source.textSnippet}"
+                            &ldquo;{source.textSnippet}&rdquo;
                         </p>
                     </button>
                 ))}
