@@ -80,20 +80,30 @@ const MessageBox = ({
   const sources = allSources.filter(s => !s.metadata?.sourceType);
   const localSources = allSources
     .filter(s => s.metadata?.sourceType)
-    .map(s => ({
-      id: s.metadata?.id || crypto.randomUUID(),
-      filename: s.metadata?.title || 'Unknown',
-      sourceType: s.metadata?.sourceType as 'document' | 'audio' | 'video' | 'image',
-      textSnippet: s.content,
-      confidence: s.metadata?.confidence || 0.5,
-      timecodeStart: s.metadata?.timecodeStart,
-      timecodeEnd: s.metadata?.timecodeEnd,
-      pageNumber: s.metadata?.page,
-      totalPages: s.metadata?.totalPages,
-      thumbnailUrl: s.metadata?.thumbnailUrl,
-      ocrText: s.metadata?.ocrText,
-      filePath: s.metadata?.url || '',
-    }));
+    .map(s => {
+      const evidence = s.evidence?.[0];
+      return {
+        id: s.metadata?.id || crypto.randomUUID(),
+        filename: s.metadata?.title || 'Unknown',
+        sourceType: s.metadata?.sourceType as
+          | 'document'
+          | 'audio'
+          | 'video'
+          | 'image',
+        textSnippet: s.content,
+        confidence: s.metadata?.confidence || 0.5,
+        timecodeStart: evidence?.timecodeStart ?? s.metadata?.timecodeStart,
+        timecodeEnd: evidence?.timecodeEnd ?? s.metadata?.timecodeEnd,
+        timestampStart: evidence?.timestampStart,
+        timestampEnd: evidence?.timestampEnd,
+        pageNumber: evidence?.page ?? s.metadata?.page,
+        totalPages: evidence?.totalPages ?? s.metadata?.totalPages,
+        bbox: evidence?.bbox,
+        thumbnailUrl: s.metadata?.thumbnailUrl,
+        ocrText: s.metadata?.ocrText,
+        filePath: s.metadata?.url || '',
+      };
+    });
 
   const hasContent = section.parsedTextBlocks.length > 0;
 

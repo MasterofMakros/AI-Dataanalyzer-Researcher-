@@ -31,9 +31,20 @@ export type Message =
   | SystemMessage
   | ToolMessage;
 
+export type Evidence = {
+  page?: number;
+  totalPages?: number;
+  bbox?: [number, number, number, number];
+  timecodeStart?: string;
+  timecodeEnd?: string;
+  timestampStart?: number;
+  timestampEnd?: number;
+};
+
 export type Chunk = {
   content: string;
   metadata: Record<string, any>;
+  evidence?: Evidence[];
 };
 
 export type TextBlock = {
@@ -137,9 +148,12 @@ export type LocalSource = {
   // Audio/Video timecodes (format: "HH:MM:SS" or "MM:SS")
   timecodeStart?: string;
   timecodeEnd?: string;
+  timestampStart?: number;
+  timestampEnd?: number;
   // Document page info
   pageNumber?: number;
   totalPages?: number;
+  bbox?: [number, number, number, number];
   // Image OCR
   thumbnailUrl?: string;
   ocrText?: string;
@@ -159,4 +173,3 @@ export type HybridSearchResult = {
   localSources: LocalSource[];
   combinedAnswer?: string;
 };
-

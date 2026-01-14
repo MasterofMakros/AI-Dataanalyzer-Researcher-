@@ -199,6 +199,21 @@ class Researcher {
           const existingResult = searchResults[existingIndex];
 
           existingResult.content += `\n\n${result.content}`;
+          const existingEvidence = existingResult.evidence ?? [];
+          const incomingEvidence = result.evidence ?? [];
+          if (incomingEvidence.length > 0) {
+            const mergedEvidence = [
+              ...existingEvidence,
+              ...incomingEvidence,
+            ];
+            existingResult.evidence = mergedEvidence.filter(
+              (entry, entryIndex, arr) =>
+                arr.findIndex(
+                  (candidate) =>
+                    JSON.stringify(candidate) === JSON.stringify(entry),
+                ) === entryIndex,
+            );
+          }
 
           return undefined;
         }
