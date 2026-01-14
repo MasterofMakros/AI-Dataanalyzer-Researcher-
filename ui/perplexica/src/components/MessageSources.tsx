@@ -322,6 +322,7 @@ const MessageSources = ({ sources }: { sources: Chunk[] }) => {
                         </a>
                       );
                     })}
+                  </div>
                   <div className="grid grid-cols-2 gap-2 overflow-auto max-h-[70vh] mt-4 pr-2">
                     {previewSources.map(({ source, type }, i) =>
                       renderPreviewCard(source, type, i),

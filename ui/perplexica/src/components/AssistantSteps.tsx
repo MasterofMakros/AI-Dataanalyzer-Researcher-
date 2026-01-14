@@ -15,9 +15,6 @@ import { ResearchBlock, ResearchBlockSubStep, ResearchPhase } from '@/lib/types'
 import { useChat } from '@/lib/hooks/useChat';
 import UploadSearchResultsPanel from './UploadSearchResultsPanel';
 
-type ResearchPhase = 'analysis' | 'search' | 'read' | 'synthesis';
-
-const getPhaseForStep = (step: ResearchBlockSubStep): ResearchPhase => {
 const ROADMAP_PHASE_LABELS: Record<ResearchPhase, string> = {
   analysis: 'Analyse',
   search: 'Suche',
@@ -25,7 +22,7 @@ const ROADMAP_PHASE_LABELS: Record<ResearchPhase, string> = {
   synthesis: 'Synthese',
 };
 
-const getStepPhase = (step: ResearchBlockSubStep): ResearchPhase => {
+const getPhaseForStep = (step: ResearchBlockSubStep): ResearchPhase => {
   if (step.type === 'reasoning') {
     return 'analysis';
   }
@@ -47,52 +44,6 @@ const getStepPhase = (step: ResearchBlockSubStep): ResearchPhase => {
   }
 
   return 'analysis';
-};
-
-const getStepIcon = (step: ResearchBlockSubStep) => {
-  if (step.type === 'reasoning') {
-    return <Brain className="w-4 h-4" />;
-  } else if (step.type === 'searching' || step.type === 'upload_searching') {
-    return <Search className="w-4 h-4" />;
-  } else if (
-    step.type === 'search_results' ||
-    step.type === 'upload_search_results'
-  ) {
-    return <FileText className="w-4 h-4" />;
-  } else if (step.type === 'reading') {
-    return <BookSearch className="w-4 h-4" />;
-  } else if (step.type === 'synthesis') {
-    return <Sparkles className="w-4 h-4" />;
-    return 'analysis';
-  }
-
-  if (step.type === 'searching' || step.type === 'upload_searching') {
-    return 'search';
-  }
-
-const getStepTitle = (
-  step: ResearchBlockSubStep,
-  isStreaming: boolean,
-): string => {
-  if (step.type === 'reasoning') {
-    return isStreaming && !step.reasoning ? 'Thinking...' : 'Thinking';
-  } else if (step.type === 'searching') {
-    return `Searching ${step.searching.length} ${step.searching.length === 1 ? 'query' : 'queries'}`;
-  } else if (step.type === 'search_results') {
-    return `Found ${step.reading.length} ${step.reading.length === 1 ? 'result' : 'results'}`;
-  } else if (step.type === 'reading') {
-    return `Reading ${step.reading.length} ${step.reading.length === 1 ? 'source' : 'sources'}`;
-  } else if (step.type === 'upload_searching') {
-    return 'Scanning your uploaded documents';
-  } else if (step.type === 'upload_search_results') {
-    return `Reading ${step.results.length} ${step.results.length === 1 ? 'document' : 'documents'}`;
-  } else if (step.type === 'synthesis') {
-    return 'Synthesizing answer';
-  if (step.type === 'search_results') {
-    return 'search';
-  }
-
-  return 'read';
 };
 
 const AssistantSteps = ({
@@ -125,7 +76,7 @@ const AssistantSteps = ({
       description: 'Durchsuche Quellen',
     },
     {
-      id: 'read',
+      id: 'reading',
       label: 'Lesen',
       description: 'Lese relevante Quellen',
     },
@@ -196,14 +147,14 @@ const AssistantSteps = ({
     )
     .flatMap((step) => step.reading);
 
-  const readingSources = phaseSteps.read
+  const readingSources = phaseSteps.reading
     .filter(
       (step): step is Extract<ResearchBlockSubStep, { type: 'reading' }> =>
         step.type === 'reading',
     )
     .flatMap((step) => step.reading);
 
-  const uploadResults = phaseSteps.read
+  const uploadResults = phaseSteps.reading
     .filter(
       (
         step,
@@ -213,10 +164,10 @@ const AssistantSteps = ({
       > => step.type === 'upload_search_results',
     )
     .flatMap((step) => step.results);
-  const { researchEnded, loading } = useChat();
-  const lastStep = block.data.subSteps[block.data.subSteps.length - 1];
+
+  const lastStepForPhase = block.data.subSteps[block.data.subSteps.length - 1];
   const currentPhase =
-    block.data.phase || (lastStep ? getStepPhase(lastStep) : undefined);
+    block.data.phase || (lastStepForPhase ? getPhaseForStep(lastStepForPhase) : undefined);
   const maxPreviewItems = 4;
 
   useEffect(() => {
@@ -225,7 +176,7 @@ const AssistantSteps = ({
     } else if (status === 'answering' && isLast) {
       setIsExpanded(true);
     }
-  }, [researchEnded, status]);
+  }, [researchEnded, status, isLast]);
 
   if (!block || block.data.subSteps.length === 0) return null;
 
@@ -247,7 +198,8 @@ const AssistantSteps = ({
               Prozess-Transparenz für die Antwort
             </p>
           </div>
-          <Brain className="w-4 h-4 text-black dark:text-white" />
+        </div>
+        <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-black dark:text-white">
             Research Progress ({block.data.subSteps.length}{' '}
             {block.data.subSteps.length === 1 ? 'step' : 'steps'})
@@ -257,12 +209,12 @@ const AssistantSteps = ({
               {ROADMAP_PHASE_LABELS[currentPhase]}
             </span>
           )}
+          {isExpanded ? (
+            <ChevronUp className="w-4 h-4 text-black/70 dark:text-white/70" />
+          ) : (
+            <ChevronDown className="w-4 h-4 text-black/70 dark:text-white/70" />
+          )}
         </div>
-        {isExpanded ? (
-          <ChevronUp className="w-4 h-4 text-black/70 dark:text-white/70" />
-        ) : (
-          <ChevronDown className="w-4 h-4 text-black/70 dark:text-white/70" />
-        )}
       </button>
 
       <AnimatePresence>
@@ -305,7 +257,7 @@ const AssistantSteps = ({
                             <Brain className="w-4 h-4" />
                           ) : phase.id === 'search' ? (
                             <Search className="w-4 h-4" />
-                          ) : phase.id === 'read' ? (
+                          ) : phase.id === 'reading' ? (
                             <BookSearch className="w-4 h-4" />
                           ) : (
                             <Sparkles className="w-4 h-4" />
@@ -314,16 +266,7 @@ const AssistantSteps = ({
                         {index < phases.length - 1 && (
                           <div className="w-0.5 flex-1 min-h-[20px] bg-light-200 dark:bg-dark-200 mt-1.5" />
                         )}
-                    <div className="flex-1 pb-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-sm font-medium text-black dark:text-white">
-                          {getStepTitle(step, isStreaming)}
-                        </span>
-                        <span className="text-[11px] px-2 py-0.5 rounded-full bg-light-100 dark:bg-dark-100 text-black/60 dark:text-white/60 border border-light-200 dark:border-dark-200">
-                          {ROADMAP_PHASE_LABELS[getStepPhase(step)]}
-                        </span>
                       </div>
-
                       <div className="flex-1 pb-1">
                         <div className="flex flex-wrap items-baseline justify-between gap-2">
                           <div>
@@ -334,7 +277,7 @@ const AssistantSteps = ({
                               {phase.description}
                             </p>
                           </div>
-                          {phase.id !== 'synthesis' && (
+                          {phase.id !== 'synthesis' ? (
                             <span className="text-xs text-black/50 dark:text-white/50">
                               {phase.id === 'analysis' &&
                                 phaseSteps.analysis.length > 0 &&
@@ -343,13 +286,12 @@ const AssistantSteps = ({
                                 (searchQueries.length + uploadQueries.length > 0 ||
                                   searchResults.length > 0) &&
                                 `${searchQueries.length + uploadQueries.length} Queries · ${searchResults.length} Ergebnisse`}
-                              {phase.id === 'read' &&
+                              {phase.id === 'reading' &&
                                 (readingSources.length > 0 ||
                                   uploadResults.length > 0) &&
                                 `${readingSources.length + uploadResults.length} Quellen`}
                             </span>
-                          )}
-                          {phase.id === 'synthesis' && (
+                          ) : (
                             <span className="text-xs text-black/50 dark:text-white/50">
                               {synthesisComplete
                                 ? 'Antwort bereit'
@@ -374,13 +316,6 @@ const AssistantSteps = ({
                             </div>
                           )}
 
-                      {(step.type === 'search_results' ||
-                        step.type === 'reading') &&
-                        step.reading.length > 0 && (
-                          <div className="flex flex-wrap gap-1.5 mt-1.5">
-                            {step.reading
-                              .slice(0, maxPreviewItems)
-                              .map((result, idx) => {
                         {phase.id === 'search' &&
                           (searchQueries.length > 0 ||
                             uploadQueries.length > 0) && (
@@ -429,15 +364,15 @@ const AssistantSteps = ({
                                 </a>
                               );
                             })}
-                            {step.reading.length > maxPreviewItems && (
+                            {searchResults.length > maxPreviewItems && (
                               <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-light-100 dark:bg-dark-100 text-black/60 dark:text-white/60 border border-light-200 dark:border-dark-200">
-                                +{step.reading.length - maxPreviewItems} more
+                                +{searchResults.length - maxPreviewItems} more
                               </span>
                             )}
                           </div>
                         )}
 
-                        {phase.id === 'read' && readingSources.length > 0 && (
+                        {phase.id === 'reading' && readingSources.length > 0 && (
                           <div className="flex flex-wrap gap-1.5 mt-2">
                             {readingSources.slice(0, 4).map((result, idx) => {
                               const url = result.metadata.url || '';
@@ -468,60 +403,17 @@ const AssistantSteps = ({
                                 </a>
                               );
                             })}
+                            {readingSources.length > maxPreviewItems && (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-light-100 dark:bg-dark-100 text-black/60 dark:text-white/60 border border-light-200 dark:border-dark-200">
+                                +{readingSources.length - maxPreviewItems} more
+                              </span>
+                            )}
                           </div>
                         )}
 
-                      {step.type === 'upload_search_results' &&
-                        step.results.length > 0 && (
-                          <div className="mt-1.5 grid gap-3 lg:grid-cols-3">
-                            {step.results
-                              .slice(0, maxPreviewItems)
-                              .map((result, idx) => {
+                        {phase.id === 'reading' && uploadResults.length > 0 && (
                           <div className="mt-2">
-                            <UploadSearchResultsPanel results={step.results} />
-                        {phase.id === 'read' && uploadResults.length > 0 && (
-                          <div className="mt-3 grid gap-3 lg:grid-cols-3">
-                            {uploadResults.slice(0, 4).map((result, idx) => {
-                              const title =
-                                (result.metadata &&
-                                  (result.metadata.title ||
-                                    result.metadata.fileName)) ||
-                                'Untitled document';
-
-                              const fileName =
-                                result.metadata?.fileName ||
-                                result.metadata?.title ||
-                                '';
-                              const ext = fileName.includes('.')
-                                ? fileName.split('.').pop()?.toLowerCase() || ''
-                                : '';
-
-                              return (
-                                <div
-                                  key={idx}
-                                  className="flex flex-row space-x-3 rounded-lg border border-light-200 dark:border-dark-200 bg-light-100 dark:bg-dark-100 p-2 cursor-pointer"
-                                >
-                                  <div className="mt-0.5 h-10 w-10 rounded-md bg-cyan-100 text-cyan-800 dark:bg-sky-500 dark:text-cyan-50 flex items-center justify-center">
-                                    <FormatIcon format={ext} size={20} />
-                                  </div>
-                                  <div className="flex flex-col justify-center">
-                                    <p className="text-[13px] text-black dark:text-white line-clamp-1">
-                                      {title}
-                                    </p>
-                                    {ext && (
-                                      <span className="text-[10px] text-black/50 dark:text-white/50 uppercase">
-                                        {ext}
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
-                              );
-                            })}
-                            {step.results.length > maxPreviewItems && (
-                              <div className="flex items-center justify-center rounded-lg border border-dashed border-light-200 dark:border-dark-200 bg-light-100/60 dark:bg-dark-100/60 p-2 text-xs text-black/60 dark:text-white/60">
-                                +{step.results.length - maxPreviewItems} more
-                              </div>
-                            )}
+                            <UploadSearchResultsPanel results={uploadResults} />
                           </div>
                         )}
                       </div>

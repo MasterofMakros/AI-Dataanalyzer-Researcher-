@@ -93,7 +93,6 @@ const extractClaims = (text: string) => {
   return sentences.slice(0, 3);
 };
 
-const EvidenceBoard = ({ answer, sources, localSources }: EvidenceBoardProps) => {
 const EvidenceBoard = ({
   answer,
   sources,
@@ -576,7 +575,10 @@ const EvidenceBoard = ({
                             <> • {formatTimestamp(item.timestamp)}</>
                           )}
                         {item.confidence !== undefined && (
-                          <> • Confidence {Math.round(item.confidence * 100)}%</>
+                          <>
+                            {' '}
+                            • Confidence {Math.round(item.confidence * 100)}%
+                          </>
                         )}
                       </p>
                     </div>
