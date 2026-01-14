@@ -3,6 +3,7 @@ import { ActionRegistry } from './actions';
 import { getResearcherPrompt } from '@/lib/prompts/search/researcher';
 import SessionManager from '@/lib/session';
 import { Message, ReasoningResearchBlock } from '@/lib/types';
+import { mergeEvidence } from '@/lib/utils/evidence';
 import formatChatHistoryAsString from '@/lib/utils/formatHistory';
 import { ToolCall } from '@/lib/models/types';
 
@@ -40,6 +41,7 @@ class Researcher {
       id: researchBlockId,
       type: 'research',
       data: {
+        phase: 'analysis',
         subSteps: [],
       },
     });
@@ -94,6 +96,7 @@ class Researcher {
               block.type === 'research'
             ) {
               reasoningEmitted = true;
+              block.data.phase = 'analysis';
 
               block.data.subSteps.push({
                 id: reasoningId,
@@ -106,6 +109,11 @@ class Researcher {
                   op: 'replace',
                   path: '/data/subSteps',
                   value: block.data.subSteps,
+                },
+                {
+                  op: 'replace',
+                  path: '/data/phase',
+                  value: block.data.phase,
                 },
               ]);
             } else if (
@@ -124,11 +132,17 @@ class Researcher {
                   subStepIndex
                 ] as ReasoningResearchBlock;
                 subStep.reasoning = tc.arguments['plan'];
+                block.data.phase = 'analysis';
                 session.updateBlock(researchBlockId, [
                   {
                     op: 'replace',
                     path: '/data/subSteps',
                     value: block.data.subSteps,
+                  },
+                  {
+                    op: 'replace',
+                    path: '/data/phase',
+                    value: block.data.phase,
                   },
                 ]);
               }
@@ -199,6 +213,10 @@ class Researcher {
           const existingResult = searchResults[existingIndex];
 
           existingResult.content += `\n\n${result.content}`;
+          existingResult.evidence = mergeEvidence(
+            existingResult.evidence,
+            result.evidence,
+          );
 
           return undefined;
         }
@@ -206,6 +224,18 @@ class Researcher {
         return result;
       })
       .filter((r) => r !== undefined);
+
+    const finalBlock = session.getBlock(researchBlockId);
+    if (finalBlock && finalBlock.type === 'research') {
+      finalBlock.data.phase = 'synthesis';
+      session.updateBlock(researchBlockId, [
+        {
+          op: 'replace',
+          path: '/data/phase',
+          value: finalBlock.data.phase,
+        },
+      ]);
+    }
 
     session.emitBlock({
       id: crypto.randomUUID(),
