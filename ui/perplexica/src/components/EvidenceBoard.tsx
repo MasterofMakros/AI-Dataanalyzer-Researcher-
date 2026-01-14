@@ -112,6 +112,12 @@ const EvidenceBoard = ({
           : [];
       const bbox = primaryEvidence.bbox ?? metadata.bbox;
       const bboxValue = bbox && Array.isArray(bbox) ? bbox.join(', ') : bbox;
+      const timestampStart =
+        primaryEvidence.timestampStart ??
+        metadata.timestampStart ??
+        metadata.timestamp;
+      const timestampEnd =
+        primaryEvidence.timestampEnd ?? metadata.timestampEnd;
 
       const evidenceId = metadata.evidenceId ?? index + 1;
 

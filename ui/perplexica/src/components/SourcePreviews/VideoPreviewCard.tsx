@@ -30,7 +30,7 @@ const VideoPreviewCard = ({
     <PreviewCard href={href} onClick={onClick}>
       <div className="flex items-center justify-between text-xs text-black/50 dark:text-white/50">
         <div className="flex items-center space-x-2">
-          <div className="bg-red-500/10 text-red-500 p-1 rounded-md">
+          <div className="bg-blue-500/10 text-blue-500 p-1 rounded-md">
             <Video size={12} />
           </div>
           <span className="uppercase tracking-wide">Video</span>
@@ -51,13 +51,15 @@ const VideoPreviewCard = ({
           />
         ) : (
           <div className="flex items-center justify-center w-full h-full text-black/30 dark:text-white/30 text-xs">
-            Videovorschau
+            Video preview
           </div>
         )}
-        <div className="absolute bottom-1 right-1 bg-black/70 text-white text-[10px] px-1.5 py-0.5 rounded font-mono">
-          {timecodeStart ?? '00:00'}
-          {timecodeEnd ? ` → ${timecodeEnd}` : ''}
-        </div>
+        {timecodeStart && (
+          <div className="absolute bottom-1 right-1 bg-black/70 text-white text-[10px] px-1.5 py-0.5 rounded font-mono">
+            {timecodeStart}
+            {timecodeEnd ? ` → ${timecodeEnd}` : ''}
+          </div>
+        )}
       </div>
 
       {snippet && (

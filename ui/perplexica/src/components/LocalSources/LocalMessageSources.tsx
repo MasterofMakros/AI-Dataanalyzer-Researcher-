@@ -15,7 +15,7 @@ import {
   Transition,
   TransitionChild,
 } from '@headlessui/react';
-import { Database, Filter, X } from 'lucide-react';
+import { Database, X } from 'lucide-react';
 import { LocalSource } from '@/lib/types';
 import MediaPlayerModal from './MediaPlayerModal';
 import {

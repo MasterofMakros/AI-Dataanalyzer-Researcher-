@@ -1,7 +1,7 @@
 import ModelRegistry from '@/lib/models/registry';
 import { ModelWithProvider } from '@/lib/models/types';
 import SessionManager from '@/lib/session';
-import { ChatTurnMessage } from '@/lib/types';
+import { ChatTurnMessage, Chunk } from '@/lib/types';
 import { SearchSources } from '@/lib/agents/search/types';
 import APISearchAgent from '@/lib/agents/search/api';
 
@@ -73,7 +73,7 @@ export const POST = async (req: Request) => {
           reject: (value: Response) => void,
         ) => {
           let message = '';
-          let sources: any[] = [];
+          let sources: Chunk[] = [];
 
           session.subscribe((event: string, data: Record<string, any>) => {
             if (event === 'data') {
@@ -117,7 +117,7 @@ export const POST = async (req: Request) => {
 
     const stream = new ReadableStream({
       start(controller) {
-        let sources: any[] = [];
+        let sources: Chunk[] = [];
 
         controller.enqueue(
           encoder.encode(
