@@ -32,7 +32,7 @@ const PdfPreviewCard = ({
     <PreviewCard href={href} onClick={onClick}>
       <div className="flex items-center justify-between text-xs text-black/50 dark:text-white/50">
         <div className="flex items-center space-x-2">
-          <div className="bg-red-500/10 text-red-500 p-1 rounded-md">
+          <div className="bg-orange-500/10 text-orange-500 p-1 rounded-md">
             <FileText size={12} />
           </div>
           <span className="uppercase tracking-wide">PDF</span>

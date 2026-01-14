@@ -43,11 +43,11 @@ const AudioPreviewCard = ({
       <div className="flex items-center space-x-2">
         <div className="flex-1 h-5 bg-purple-500/10 rounded-md flex items-center px-2">
           <div className="flex items-center space-x-0.5 h-full">
-            {[3, 5, 7, 4, 8, 6, 5, 7, 3].map((h, i) => (
+            {[3, 5, 7, 4, 8, 6, 5, 7, 3].map((height, i) => (
               <div
                 key={i}
                 className="w-0.5 bg-purple-400/70 rounded-full"
-                style={{ height: `${h * 2}px` }}
+                style={{ height: `${height * 2}px` }}
               />
             ))}
           </div>
