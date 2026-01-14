@@ -267,7 +267,10 @@ const MessageBox = ({
                   {parsedMessage}
                 </Markdown>
 
-                <ClaimBadges claims={section.claims} />
+                <ClaimBadges
+                  claims={section.claims}
+                  sources={allSourcesWithIds}
+                />
 
                 {loading && isLast ? null : (
                   <div className="flex flex-row items-center justify-between w-full text-black dark:text-white py-4">
