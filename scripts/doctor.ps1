@@ -1,5 +1,9 @@
 # doctor.ps1 - Repo Health Check
-# Usage: ./scripts/doctor.ps1
+# Usage: ./scripts/doctor.ps1 [-SkipDocker]
+
+param(
+    [switch]$SkipDocker
+)
 
 $ErrorActionPreference = "Stop"
 
@@ -17,26 +21,30 @@ if (Test-Path ".env") {
 }
 
 # 2. Check Docker
-try {
-    docker --version | Out-Null
-    Write-Ok "Docker command available"
-} catch {
-    Write-Fail "Docker not found in PATH"
-    exit 1
-}
-
-# 3. Check Compose Config
-try {
-    docker compose config --quiet
-    if ($LASTEXITCODE -eq 0) {
-        Write-Ok "Docker Compose config is valid"
-    } else {
-        Write-Fail "Docker Compose config invalid"
+if ($SkipDocker) {
+    Write-Host "SKIP: Docker checks disabled" -ForegroundColor Yellow
+} else {
+    try {
+        docker --version | Out-Null
+        Write-Ok "Docker command available"
+    } catch {
+        Write-Fail "Docker not found in PATH"
         exit 1
     }
-} catch {
-    Write-Fail "Failed to run docker compose config"
-    exit 1
+
+    # 3. Check Compose Config
+    try {
+        docker compose config --quiet
+        if ($LASTEXITCODE -eq 0) {
+            Write-Ok "Docker Compose config is valid"
+        } else {
+            Write-Fail "Docker Compose config invalid"
+            exit 1
+        }
+    } catch {
+        Write-Fail "Failed to run docker compose config"
+        exit 1
+    }
 }
 
 # 4. Check Python

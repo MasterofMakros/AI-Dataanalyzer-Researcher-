@@ -24,7 +24,11 @@ function Test-Step {
 # 1. Doctor Check
 Test-Step "Doctor Check" {
     if (Test-Path "./scripts/doctor.ps1") {
-        ./scripts/doctor.ps1
+        if ($SkipDocker) {
+            ./scripts/doctor.ps1 -SkipDocker
+        } else {
+            ./scripts/doctor.ps1
+        }
         if ($LASTEXITCODE -ne 0) { throw "Doctor failed" }
     } else {
         Write-Host "SKIP: doctor.ps1 not found" -ForegroundColor Yellow
