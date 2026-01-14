@@ -28,6 +28,7 @@ type EvidenceItem = {
   totalPages?: number;
   timecodeStart?: string;
   timecodeEnd?: string;
+  timestamp?: number;
   confidence?: number;
   thumbnailUrl?: string;
   bbox?: string;
@@ -75,6 +76,18 @@ const getDomain = (url?: string) => {
   }
 };
 
+const formatTimestamp = (timestamp?: number) => {
+  if (timestamp === undefined) return undefined;
+  const totalSeconds = Math.max(0, Math.floor(timestamp));
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  if (hours > 0) {
+    return `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  }
+  return `${minutes}:${String(seconds).padStart(2, '0')}`;
+};
+
 const extractClaims = (text: string) => {
   const plain = normalizeText(text);
   if (!plain) return [];
@@ -89,6 +102,8 @@ const EvidenceBoard = ({ answer, sources, localSources }: EvidenceBoardProps) =>
   const evidenceItems = useMemo<EvidenceItem[]>(() => {
     const webItems = sources.map((source, index) => {
       const metadata = source.metadata ?? {};
+      const evidence = source.evidence ?? [];
+      const primaryEvidence = evidence[0] ?? {};
       const rawSnippet = source.content?.trim() ?? '';
       const snippet =
         rawSnippet.length > 260 ? `${rawSnippet.slice(0, 257)}...` : rawSnippet;
@@ -99,10 +114,8 @@ const EvidenceBoard = ({ answer, sources, localSources }: EvidenceBoardProps) =>
         : metadata.tags
           ? String(metadata.tags).split(',').map((tag: string) => tag.trim())
           : [];
-      const bboxValue =
-        metadata.bbox && Array.isArray(metadata.bbox)
-          ? metadata.bbox.join(', ')
-          : metadata.bbox;
+      const bbox = primaryEvidence.bbox ?? metadata.bbox;
+      const bboxValue = bbox && Array.isArray(bbox) ? bbox.join(', ') : bbox;
 
       return {
         id: `${metadata.url || 'web'}-${index}`,
@@ -112,9 +125,10 @@ const EvidenceBoard = ({ answer, sources, localSources }: EvidenceBoardProps) =>
         url: metadata.url,
         domain,
         tags,
-        page: metadata.page,
-        timecodeStart: metadata.timecodeStart,
-        timecodeEnd: metadata.timecodeEnd,
+        page: primaryEvidence.page ?? metadata.page,
+        timecodeStart: primaryEvidence.timecodeStart ?? metadata.timecodeStart,
+        timecodeEnd: primaryEvidence.timecodeEnd ?? metadata.timecodeEnd,
+        timestamp: primaryEvidence.timestamp ?? metadata.timestamp,
         bbox: bboxValue,
       } as EvidenceItem;
     });
@@ -220,7 +234,8 @@ const EvidenceBoard = ({ answer, sources, localSources }: EvidenceBoardProps) =>
         selectedFileTypes.length === 0 ||
         (item.fileType && selectedFileTypes.includes(item.fileType));
       const matchesTimecode =
-        !requireTimecode || Boolean(item.timecodeStart);
+        !requireTimecode ||
+        Boolean(item.timecodeStart || item.timestamp !== undefined);
       const matchesPage = !requirePage || Boolean(item.page);
       const matchesTerm =
         !term ||
@@ -539,6 +554,10 @@ const EvidenceBoard = ({ answer, sources, localSources }: EvidenceBoardProps) =>
                             {item.timecodeEnd ? `–${item.timecodeEnd}` : ''}
                           </>
                         )}
+                        {!item.timecodeStart &&
+                          item.timestamp !== undefined && (
+                            <> • {formatTimestamp(item.timestamp)}</>
+                          )}
                         {item.confidence !== undefined && (
                           <> • Confidence {Math.round(item.confidence * 100)}%</>
                         )}
