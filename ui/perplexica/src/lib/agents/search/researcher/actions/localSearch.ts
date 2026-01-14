@@ -138,6 +138,8 @@ Use this when the user wants to search their own files and documents.`;
             }
 
             if (source.timestampStart !== undefined) {
+                metadata.timestampStart = source.timestampStart;
+                metadata.timestampEnd = source.timestampEnd;
                 evidence.timestampStart = source.timestampStart;
                 evidence.timestampEnd = source.timestampEnd;
             }
@@ -155,7 +157,6 @@ Use this when the user wants to search their own files and documents.`;
             return {
                 content: source.textSnippet,
                 metadata,
-                evidence: Object.keys(evidence).length > 0 ? [evidence] : undefined,
                 evidence: Object.keys(evidence).length > 0 ? [evidence] : [],
             };
         });

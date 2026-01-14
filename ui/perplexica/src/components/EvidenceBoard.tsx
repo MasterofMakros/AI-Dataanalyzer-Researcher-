@@ -28,7 +28,8 @@ type EvidenceItem = {
   totalPages?: number;
   timecodeStart?: string;
   timecodeEnd?: string;
-  timestamp?: number;
+  timestampStart?: number;
+  timestampEnd?: number;
   confidence?: number;
   thumbnailUrl?: string;
   bbox?: string;
@@ -93,7 +94,6 @@ const extractClaims = (text: string) => {
   return sentences.slice(0, 3);
 };
 
-const EvidenceBoard = ({ answer, sources, localSources }: EvidenceBoardProps) => {
 const EvidenceBoard = ({
   answer,
   sources,
@@ -117,6 +117,12 @@ const EvidenceBoard = ({
           : [];
       const bbox = primaryEvidence.bbox ?? metadata.bbox;
       const bboxValue = bbox && Array.isArray(bbox) ? bbox.join(', ') : bbox;
+      const timestampStart =
+        primaryEvidence.timestampStart ??
+        metadata.timestampStart ??
+        metadata.timestamp;
+      const timestampEnd =
+        primaryEvidence.timestampEnd ?? metadata.timestampEnd;
 
       return {
         id: `${metadata.url || 'web'}-${index}`,
@@ -127,9 +133,11 @@ const EvidenceBoard = ({
         domain,
         tags,
         page: primaryEvidence.page ?? metadata.page,
+        totalPages: primaryEvidence.totalPages ?? metadata.totalPages,
         timecodeStart: primaryEvidence.timecodeStart ?? metadata.timecodeStart,
         timecodeEnd: primaryEvidence.timecodeEnd ?? metadata.timecodeEnd,
-        timestamp: primaryEvidence.timestamp ?? metadata.timestamp,
+        timestampStart,
+        timestampEnd,
         bbox: bboxValue,
       } as EvidenceItem;
     });
@@ -150,6 +158,8 @@ const EvidenceBoard = ({
         totalPages: source.totalPages,
         timecodeStart: source.timecodeStart,
         timecodeEnd: source.timecodeEnd,
+        timestampStart: source.timestampStart,
+        timestampEnd: source.timestampEnd,
         confidence: source.confidence,
         thumbnailUrl: source.thumbnailUrl,
       };
@@ -236,7 +246,11 @@ const EvidenceBoard = ({
         (item.fileType && selectedFileTypes.includes(item.fileType));
       const matchesTimecode =
         !requireTimecode ||
-        Boolean(item.timecodeStart || item.timestamp !== undefined);
+        Boolean(
+          item.timecodeStart ||
+            item.timestampStart !== undefined ||
+            item.timestampEnd !== undefined,
+        );
       const matchesPage = !requirePage || Boolean(item.page);
       const matchesTerm =
         !term ||
@@ -572,8 +586,14 @@ const EvidenceBoard = ({
                           </>
                         )}
                         {!item.timecodeStart &&
-                          item.timestamp !== undefined && (
-                            <> • {formatTimestamp(item.timestamp)}</>
+                          item.timestampStart !== undefined && (
+                            <>
+                              {' '}
+                              • {formatTimestamp(item.timestampStart)}
+                              {item.timestampEnd !== undefined
+                                ? `–${formatTimestamp(item.timestampEnd)}`
+                                : ''}
+                            </>
                           )}
                         {item.confidence !== undefined && (
                           <> • Confidence {Math.round(item.confidence * 100)}%</>

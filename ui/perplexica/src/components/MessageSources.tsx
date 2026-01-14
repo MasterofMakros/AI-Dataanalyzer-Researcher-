@@ -61,11 +61,15 @@ const MessageSources = ({ sources }: { sources: Chunk[] }) => {
     const sourceLabel = getSourceLabel(source);
     const evidence = source.evidence?.[0];
     const pageNumber = source.metadata?.page ?? evidence?.page;
-    const totalPages = source.metadata?.totalPages;
+    const totalPages = evidence?.totalPages ?? source.metadata?.totalPages;
     const timecodeStart =
       source.metadata?.timecodeStart ??
       evidence?.timecodeStart ??
-      formatTimestamp(source.metadata?.timestamp ?? evidence?.timestamp);
+      formatTimestamp(
+        evidence?.timestampStart ??
+          source.metadata?.timestampStart ??
+          source.metadata?.timestamp,
+      );
     const timecodeEnd = source.metadata?.timecodeEnd ?? evidence?.timecodeEnd;
 
     if (type === 'pdf') {

@@ -375,17 +375,13 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
               evidence?.timecodeStart ?? source.metadata?.timecodeStart ?? '';
             const timecodeEnd =
               evidence?.timecodeEnd ?? source.metadata?.timecodeEnd ?? '';
-            const timestampStart = evidence?.timestampStart;
-            const timestampEnd = evidence?.timestampEnd;
-            const bbox = evidence?.bbox;
-            const primaryEvidence = source.evidence?.[0];
-            const pageValue =
-              primaryEvidence?.page ?? source.metadata?.page;
-            const page = pageValue ? String(pageValue) : '';
-            const timecodeStart =
-              primaryEvidence?.timecodeStart ?? source.metadata?.timecodeStart ?? '';
-            const timecodeEnd =
-              primaryEvidence?.timecodeEnd ?? source.metadata?.timecodeEnd ?? '';
+            const timestampStart =
+              evidence?.timestampStart ??
+              source.metadata?.timestampStart ??
+              source.metadata?.timestamp;
+            const timestampEnd =
+              evidence?.timestampEnd ?? source.metadata?.timestampEnd;
+            const bbox = evidence?.bbox ?? source.metadata?.bbox;
             const url = source.metadata?.url ?? '';
 
             const attributes: string[] = [];

@@ -47,14 +47,6 @@ export type Chunk = {
   evidence?: Evidence[];
 };
 
-export type Evidence = {
-  page?: number;
-  bbox?: [number, number, number, number];
-  timecodeStart?: string;
-  timecodeEnd?: string;
-  timestamp?: number;
-};
-
 export type Claim = {
   id: string;
   text: string;
