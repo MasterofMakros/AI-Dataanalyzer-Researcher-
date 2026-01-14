@@ -3,7 +3,7 @@ import { ActionRegistry } from './actions';
 import { getResearcherPrompt } from '@/lib/prompts/search/researcher';
 import SessionManager from '@/lib/session';
 import { Message, ReasoningResearchBlock } from '@/lib/types';
-import { mergeEvidence } from '@/lib/utils/evidence';
+import { mergeEvidence, normalizeChunksEvidence } from '@/lib/utils/evidence';
 import formatChatHistoryAsString from '@/lib/utils/formatHistory';
 import { ToolCall } from '@/lib/models/types';
 
@@ -225,6 +225,10 @@ class Researcher {
       })
       .filter((r) => r !== undefined);
 
+    const normalizedSearchResults = normalizeChunksEvidence(
+      filteredSearchResults,
+    );
+
     const finalBlock = session.getBlock(researchBlockId);
     if (finalBlock && finalBlock.type === 'research') {
       finalBlock.data.phase = 'synthesis';
@@ -240,12 +244,12 @@ class Researcher {
     session.emitBlock({
       id: crypto.randomUUID(),
       type: 'source',
-      data: filteredSearchResults,
+      data: normalizedSearchResults,
     });
 
     return {
       findings: actionOutput,
-      searchFindings: filteredSearchResults,
+      searchFindings: normalizedSearchResults,
     };
   }
 }

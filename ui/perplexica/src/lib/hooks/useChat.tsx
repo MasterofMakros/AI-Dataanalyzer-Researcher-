@@ -360,11 +360,14 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
             const title = source.metadata?.title ?? '';
             const sourceType = source.metadata?.sourceType ?? 'web';
             const filePath = source.metadata?.url ?? '';
-            const page = source.metadata?.page
-              ? String(source.metadata.page)
-              : '';
-            const timecodeStart = source.metadata?.timecodeStart ?? '';
-            const timecodeEnd = source.metadata?.timecodeEnd ?? '';
+            const primaryEvidence = source.evidence?.[0];
+            const pageValue =
+              primaryEvidence?.page ?? source.metadata?.page;
+            const page = pageValue ? String(pageValue) : '';
+            const timecodeStart =
+              primaryEvidence?.timecodeStart ?? source.metadata?.timecodeStart ?? '';
+            const timecodeEnd =
+              primaryEvidence?.timecodeEnd ?? source.metadata?.timecodeEnd ?? '';
             const url = source.metadata?.url ?? '';
 
             const attributes: string[] = [];

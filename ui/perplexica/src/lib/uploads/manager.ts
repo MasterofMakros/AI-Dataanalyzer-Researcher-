@@ -21,6 +21,8 @@ type RecordedFile = {
     filePath: string;
     contentPath: string;
     uploadedAt: string;
+    folder?: string;
+    tags?: string[];
 }
 
 type FileRes = {
@@ -194,12 +196,22 @@ class UploadManager {
 
             const contentFilePath = await this.extractContentAndEmbed(filePath, file.type as SupportedMimeType);
 
+            const rawRelativePath = (file as File & { webkitRelativePath?: string }).webkitRelativePath;
+            const folder = rawRelativePath ? path.dirname(rawRelativePath) : 'Uploads';
+            const tags = file.name
+                .replace(/\.\w+$/, '')
+                .split(/[\s-_]+/)
+                .map(tag => tag.trim().toLowerCase())
+                .filter(tag => tag.length > 2);
+
             const fileRecord: RecordedFile = {
                 id: fileId,
                 name: file.name,
                 filePath: filePath,
                 contentPath: contentFilePath,
                 uploadedAt: new Date().toISOString(),
+                folder,
+                tags: Array.from(new Set(tags)),
             }
 
             UploadManager.addNewRecordedFile(fileRecord);
