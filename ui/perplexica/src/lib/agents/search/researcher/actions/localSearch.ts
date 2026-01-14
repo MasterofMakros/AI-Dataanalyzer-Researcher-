@@ -8,7 +8,7 @@
 import { z } from 'zod';
 import { ResearchAction, ActionOutput, AdditionalConfig, SearchSources } from '../../types';
 import { searchNeuralVault, LocalSource } from '@/lib/neuralVault';
-import { Chunk, LocalSourceBlock } from '@/lib/types';
+import { Chunk, Evidence } from '@/lib/types';
 
 const localSearchSchema = z.object({
     queries: z
@@ -111,16 +111,21 @@ Use this when the user wants to search their own files and documents.`;
                 confidence: source.confidence,
             };
 
+            const evidence: Evidence = {};
+
             // Add timecodes for audio/video
             if (source.timecodeStart) {
                 metadata.timecodeStart = source.timecodeStart;
                 metadata.timecodeEnd = source.timecodeEnd;
+                evidence.timecodeStart = source.timecodeStart;
+                evidence.timecodeEnd = source.timecodeEnd;
             }
 
             // Add page info for documents
             if (source.pageNumber) {
                 metadata.page = source.pageNumber;
                 metadata.totalPages = source.totalPages;
+                evidence.page = source.pageNumber;
             }
 
             // Add thumbnail for images
@@ -132,6 +137,7 @@ Use this when the user wants to search their own files and documents.`;
             return {
                 content: source.textSnippet,
                 metadata,
+                evidence: Object.keys(evidence).length > 0 ? [evidence] : [],
             };
         });
 
