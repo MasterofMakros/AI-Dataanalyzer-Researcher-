@@ -94,7 +94,17 @@ const MessageBox = ({
       totalPages: s.metadata?.totalPages,
       thumbnailUrl: s.metadata?.thumbnailUrl,
       ocrText: s.metadata?.ocrText,
-      filePath: s.metadata?.url || '',
+      filePath: s.metadata?.filePath || s.metadata?.url || '',
+      folder: s.metadata?.folder,
+      fileExtension: s.metadata?.fileExtension,
+      fileCreated: s.metadata?.fileCreated,
+      fileModified: s.metadata?.fileModified,
+      indexedAt: s.metadata?.indexedAt,
+      tags: Array.isArray(s.metadata?.tags)
+        ? s.metadata?.tags.map(String)
+        : s.metadata?.tags
+          ? String(s.metadata?.tags).split(',').map((tag: string) => tag.trim())
+          : [],
     }));
 
   const hasContent = section.parsedTextBlocks.length > 0;
