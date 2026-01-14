@@ -7,7 +7,7 @@
 
 'use client';
 
-import { useMemo, useState, Fragment } from 'react';
+import { Fragment, useMemo, useState } from 'react';
 import {
     Dialog,
     DialogPanel,
@@ -17,7 +17,6 @@ import {
 } from '@headlessui/react';
 import { Database, Filter, X } from 'lucide-react';
 import { LocalSource } from '@/lib/types';
-import MediaPlayerModal from './MediaPlayerModal';
 import {
     AudioPreviewCard,
     ImagePreviewCard,
@@ -33,20 +32,19 @@ import MediaPlayerModal from './MediaPlayerModal';
 
 interface LocalMessageSourcesProps {
     sources: LocalSource[];
-    query: string;
     onSourceClick?: (source: LocalSource) => void;
     query?: string;
 }
 
-const LocalMessageSources = ({ sources, onSourceClick, query = '' }: LocalMessageSourcesProps) => {
+const LocalMessageSources = ({
+    sources,
+    onSourceClick,
+    query = '',
+}: LocalMessageSourcesProps) => {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [selectedSource, setSelectedSource] = useState<LocalSource | null>(null);
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-    const [isMediaOpen, setIsMediaOpen] = useState(false);
-const LocalMessageSources = ({ sources, query, onSourceClick }: LocalMessageSourcesProps) => {
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
-    const [selectedMediaSource, setSelectedMediaSource] = useState<LocalSource | null>(null);
     const [selectedMediaSource, setSelectedMediaSource] = useState<LocalSource | null>(
         null,
     );
@@ -55,8 +53,6 @@ const LocalMessageSources = ({ sources, query, onSourceClick }: LocalMessageSour
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const [dateFrom, setDateFrom] = useState('');
     const [dateTo, setDateTo] = useState('');
-    const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
-
     const closeModal = () => {
         setIsDialogOpen(false);
         document.body.classList.remove('overflow-hidden-scrollable');
@@ -73,19 +69,14 @@ const LocalMessageSources = ({ sources, query, onSourceClick }: LocalMessageSour
             setIsMediaModalOpen(true);
             setIsDialogOpen(false);
             document.body.classList.remove('overflow-hidden-scrollable');
+        } else {
+            setSelectedSource(source);
+            setIsPreviewOpen(true);
+            closeModal();
         }
+
         if (onSourceClick) {
             onSourceClick(source);
-        }
-
-        closeModal();
-
-        if (source.sourceType === 'audio' || source.sourceType === 'video') {
-            setIsPreviewOpen(false);
-            setIsMediaOpen(true);
-        } else {
-            setIsMediaOpen(false);
-            setIsPreviewOpen(true);
         }
     };
 
@@ -517,10 +508,6 @@ const LocalMessageSources = ({ sources, query, onSourceClick }: LocalMessageSour
                 source={selectedSource}
             />
 
-            <MediaPlayerModal
-                isOpen={isMediaOpen}
-                onClose={() => setIsMediaOpen(false)}
-                source={selectedSource}
             <MediaPlayerModal
                 isOpen={isMediaModalOpen}
                 onClose={() => setIsMediaModalOpen(false)}

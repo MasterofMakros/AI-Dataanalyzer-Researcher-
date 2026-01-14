@@ -90,11 +90,7 @@ const MessageBox = ({
   const sources = allSourcesWithIds.filter((s) => !s.metadata?.sourceType);
   const localSources = allSourcesWithIds
     .filter((s) => s.metadata?.sourceType)
-    .map((s) => ({
-  const sources = allSources.filter(s => !s.metadata?.sourceType);
-  const localSources = allSources
-    .filter(s => s.metadata?.sourceType)
-    .map(s => {
+    .map((s) => {
       const evidence = s.evidence?.[0];
       return {
         id: s.metadata?.id || crypto.randomUUID(),
@@ -115,35 +111,20 @@ const MessageBox = ({
         bbox: evidence?.bbox,
         thumbnailUrl: s.metadata?.thumbnailUrl,
         ocrText: s.metadata?.ocrText,
-        filePath: s.metadata?.url || '',
+        filePath: s.metadata?.filePath || s.metadata?.url || '',
+        evidenceId: s.metadata?.evidenceId,
+        folder: s.metadata?.folder,
+        fileExtension: s.metadata?.fileExtension,
+        fileCreated: s.metadata?.fileCreated,
+        fileModified: s.metadata?.fileModified,
+        indexedAt: s.metadata?.indexedAt,
+        tags: Array.isArray(s.metadata?.tags)
+          ? s.metadata?.tags.map(String)
+          : s.metadata?.tags
+            ? String(s.metadata?.tags).split(',').map((tag: string) => tag.trim())
+            : [],
       };
     });
-    .map(s => ({
-      id: s.metadata?.id || crypto.randomUUID(),
-      filename: s.metadata?.title || 'Unknown',
-      sourceType: s.metadata?.sourceType as 'document' | 'audio' | 'video' | 'image',
-      textSnippet: s.content,
-      confidence: s.metadata?.confidence || 0.5,
-      timecodeStart: s.metadata?.timecodeStart,
-      timecodeEnd: s.metadata?.timecodeEnd,
-      pageNumber: s.metadata?.page,
-      totalPages: s.metadata?.totalPages,
-      thumbnailUrl: s.metadata?.thumbnailUrl,
-      ocrText: s.metadata?.ocrText,
-      filePath: s.metadata?.url || '',
-      evidenceId: s.metadata?.evidenceId,
-      filePath: s.metadata?.filePath || s.metadata?.url || '',
-      folder: s.metadata?.folder,
-      fileExtension: s.metadata?.fileExtension,
-      fileCreated: s.metadata?.fileCreated,
-      fileModified: s.metadata?.fileModified,
-      indexedAt: s.metadata?.indexedAt,
-      tags: Array.isArray(s.metadata?.tags)
-        ? s.metadata?.tags.map(String)
-        : s.metadata?.tags
-          ? String(s.metadata?.tags).split(',').map((tag: string) => tag.trim())
-          : [],
-    }));
 
   const hasContent = section.parsedTextBlocks.length > 0;
 
