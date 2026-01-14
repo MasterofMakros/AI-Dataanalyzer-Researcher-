@@ -43,11 +43,14 @@ const Citation = ({
 
   const sourceTypeLabel = dataSourceType ? dataSourceType.toUpperCase() : null;
 
+  const isAnchor = href.startsWith('#');
+
   return (
     <span className="relative inline-flex group align-baseline">
       <a
         href={href}
-        target="_blank"
+        target={isAnchor ? undefined : '_blank'}
+        rel={isAnchor ? undefined : 'noreferrer'}
         className="bg-light-secondary dark:bg-dark-secondary px-1 rounded ml-1 no-underline text-xs text-black/70 dark:text-white/70 relative transition-colors duration-150 group-hover:bg-light-200 dark:group-hover:bg-dark-200"
       >
         {children}

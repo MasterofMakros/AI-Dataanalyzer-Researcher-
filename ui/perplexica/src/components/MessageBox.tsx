@@ -104,15 +104,14 @@ const MessageBox = ({
         confidence: s.metadata?.confidence || 0.5,
         timecodeStart: evidence?.timecodeStart ?? s.metadata?.timecodeStart,
         timecodeEnd: evidence?.timecodeEnd ?? s.metadata?.timecodeEnd,
-        timestampStart: evidence?.timestampStart,
-        timestampEnd: evidence?.timestampEnd,
+        timestampStart: evidence?.timestampStart ?? s.metadata?.timestampStart,
+        timestampEnd: evidence?.timestampEnd ?? s.metadata?.timestampEnd,
         pageNumber: evidence?.page ?? s.metadata?.page,
         totalPages: evidence?.totalPages ?? s.metadata?.totalPages,
-        bbox: evidence?.bbox,
+        bbox: evidence?.bbox ?? s.metadata?.bbox,
         thumbnailUrl: s.metadata?.thumbnailUrl,
         ocrText: s.metadata?.ocrText,
         filePath: s.metadata?.filePath || s.metadata?.url || '',
-        evidenceId: s.metadata?.evidenceId,
         folder: s.metadata?.folder,
         fileExtension: s.metadata?.fileExtension,
         fileCreated: s.metadata?.fileCreated,
@@ -199,6 +198,7 @@ const MessageBox = ({
           {section.claims.length > 0 && (
             <ClaimsList claims={section.claims} sources={allSourcesWithIds} />
           )}
+
           {(sources.length > 0 || localSources.length > 0 || hasContent) && (
             <EvidenceBoard
               answer={parsedMessage}
@@ -267,7 +267,10 @@ const MessageBox = ({
                   {parsedMessage}
                 </Markdown>
 
-                <ClaimBadges claims={section.claims} />
+                <ClaimBadges
+                  claims={section.claims}
+                  sources={allSourcesWithIds}
+                />
 
                 {loading && isLast ? null : (
                   <div className="flex flex-row items-center justify-between w-full text-black dark:text-white py-4">

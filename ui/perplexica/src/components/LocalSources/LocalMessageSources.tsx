@@ -15,32 +15,38 @@ import {
   Transition,
   TransitionChild,
 } from '@headlessui/react';
-import { Database, Filter, X } from 'lucide-react';
+import { Database, X } from 'lucide-react';
 import { LocalSource } from '@/lib/types';
 import MediaPlayerModal from './MediaPlayerModal';
-import { SourcePreviewModal } from '../SourcePreviews';
-import VideoSourceCard from './VideoSourceCard';
-import AudioSourceCard from './AudioSourceCard';
-import DocumentSourceCard from './DocumentSourceCard';
-import ImageSourceCard from './ImageSourceCard';
+import {
+  AudioPreviewCard,
+  ImagePreviewCard,
+  PdfPreviewCard,
+  SourcePreviewModal,
+  VideoPreviewCard,
+} from '../SourcePreviews';
+import { SourcePreview } from '../SourcePreviews/SourcePreviewModal';
 
 interface LocalMessageSourcesProps {
   sources: LocalSource[];
-  query: string;
+  query?: string;
   onSourceClick?: (source: LocalSource) => void;
 }
 
 const LocalMessageSources = ({
   sources,
-  query,
+  query = '',
   onSourceClick,
 }: LocalMessageSourcesProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
-  const [selectedMediaSource, setSelectedMediaSource] =
-    useState<LocalSource | null>(null);
-  const [selectedSource, setSelectedSource] = useState<LocalSource | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
+  const [selectedMediaSource, setSelectedMediaSource] = useState<LocalSource | null>(
+    null,
+  );
+  const [previewSource, setPreviewSource] = useState<SourcePreview | null>(
+    null,
+  );
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   const [selectedFolders, setSelectedFolders] = useState<string[]>([]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -57,12 +63,38 @@ const LocalMessageSources = ({
     document.body.classList.add('overflow-hidden-scrollable');
   };
 
+  const closePreview = () => {
+    setIsPreviewOpen(false);
+    setPreviewSource(null);
+  };
+
+  const closeMediaModal = () => {
+    setIsMediaModalOpen(false);
+    setSelectedMediaSource(null);
+  };
+
+  const toPreviewSource = (source: LocalSource): SourcePreview => ({
+    title: source.filename,
+    type: source.sourceType === 'document' ? 'pdf' : source.sourceType,
+    href: source.filePath,
+    snippet: source.textSnippet,
+    pageNumber: source.pageNumber,
+    totalPages: source.totalPages,
+    timecodeStart: source.timecodeStart,
+    timecodeEnd: source.timecodeEnd,
+    timestampStart: source.timestampStart,
+    timestampEnd: source.timestampEnd,
+    thumbnailUrl: source.thumbnailUrl,
+    ocrText: source.ocrText,
+    sourceLabel: source.folder || source.fileExtension?.toUpperCase(),
+  });
+
   const handleSourceClick = (source: LocalSource) => {
     if (source.sourceType === 'audio' || source.sourceType === 'video') {
       setSelectedMediaSource(source);
       setIsMediaModalOpen(true);
     } else {
-      setSelectedSource(source);
+      setPreviewSource(toPreviewSource(source));
       setIsPreviewOpen(true);
     }
 
@@ -75,7 +107,16 @@ const LocalMessageSources = ({
 
   const renderSourceCard = (source: LocalSource, index: number) => {
     const props = {
-      source,
+      title: source.filename,
+      href: source.filePath,
+      snippet: source.textSnippet,
+      pageNumber: source.pageNumber,
+      totalPages: source.totalPages,
+      timecodeStart: source.timecodeStart,
+      timecodeEnd: source.timecodeEnd,
+      thumbnailUrl: source.thumbnailUrl,
+      ocrText: source.ocrText,
+      sourceLabel: source.folder || source.fileExtension?.toUpperCase(),
       index,
       onClick: () => handleSourceClick(source),
     };
@@ -180,7 +221,8 @@ const LocalMessageSources = ({
           }
         }
         if (dateTo) {
-          const toTime = new Date(dateTo).getTime() + 24 * 60 * 60 * 1000 - 1;
+          const toTime =
+            new Date(dateTo).getTime() + 24 * 60 * 60 * 1000 - 1;
           if (!Number.isNaN(toTime) && sourceTime > toTime) {
             return false;
           }
@@ -307,7 +349,10 @@ const LocalMessageSources = ({
                         )}
                       </div>
 
-                      <div className="space-y-2" data-testid="filter-group-type">
+                      <div
+                        className="space-y-2"
+                        data-testid="filter-group-type"
+                      >
                         <p className="font-medium text-black/80 dark:text-white/80">
                           Dateityp
                         </p>
@@ -344,7 +389,10 @@ const LocalMessageSources = ({
                         </div>
                       </div>
 
-                      <div className="space-y-2" data-testid="filter-group-date">
+                      <div
+                        className="space-y-2"
+                        data-testid="filter-group-date"
+                      >
                         <p className="font-medium text-black/80 dark:text-white/80">
                           Datum
                         </p>
@@ -356,7 +404,9 @@ const LocalMessageSources = ({
                             <input
                               type="date"
                               value={dateFrom}
-                              onChange={(event) => setDateFrom(event.target.value)}
+                              onChange={(event) =>
+                                setDateFrom(event.target.value)
+                              }
                               data-testid="filter-date-from"
                               className="rounded-md border border-black/20 dark:border-white/20 bg-transparent px-2 py-1 text-xs"
                             />
@@ -376,91 +426,75 @@ const LocalMessageSources = ({
                         </div>
                       </div>
 
-                      <div className="space-y-2" data-testid="filter-group-folder">
-                        <p className="font-medium text-black/80 dark:text-white/80">
-                          Ordner
-                        </p>
-                        <div className="space-y-1 max-h-32 overflow-y-auto pr-1">
-                          {folderOptions.length === 0 && (
-                            <p className="text-xs text-black/40 dark:text-white/40">
-                              Keine Ordner verfügbar
-                            </p>
-                          )}
-                          {folderOptions.map((folder) => (
-                            <label
-                              key={folder}
-                              className="flex items-center gap-2"
-                              data-filter-group="folder"
-                              data-filter-value={folder}
-                            >
-                              <input
-                                type="checkbox"
-                                className="rounded border-black/30 dark:border-white/30"
-                                checked={selectedFolders.includes(folder)}
-                                onChange={(event) => {
-                                  if (event.target.checked) {
-                                    setSelectedFolders((prev) => [
-                                      ...prev,
-                                      folder,
-                                    ]);
-                                  } else {
-                                    setSelectedFolders((prev) =>
-                                      prev.filter((item) => item !== folder),
-                                    );
-                                  }
-                                }}
-                              />
-                              <span className="truncate" title={folder}>
-                                {folder}
-                              </span>
-                            </label>
-                          ))}
+                      {folderOptions.length > 0 && (
+                        <div
+                          className="space-y-2"
+                          data-testid="filter-group-folder"
+                        >
+                          <p className="font-medium text-black/80 dark:text-white/80">
+                            Ordner
+                          </p>
+                          <div className="space-y-1 max-h-32 overflow-auto pr-1">
+                            {folderOptions.map((folder) => (
+                              <label
+                                key={folder}
+                                className="flex items-center gap-2"
+                              >
+                                <input
+                                  type="checkbox"
+                                  className="rounded border-black/30 dark:border-white/30"
+                                  checked={selectedFolders.includes(folder)}
+                                  onChange={(event) => {
+                                    if (event.target.checked) {
+                                      setSelectedFolders((prev) => [
+                                        ...prev,
+                                        folder,
+                                      ]);
+                                    } else {
+                                      setSelectedFolders((prev) =>
+                                        prev.filter((item) => item !== folder),
+                                      );
+                                    }
+                                  }}
+                                />
+                                <span>{folder}</span>
+                              </label>
+                            ))}
+                          </div>
                         </div>
-                      </div>
+                      )}
 
-                      <div className="space-y-2" data-testid="filter-group-tags">
-                        <p className="font-medium text-black/80 dark:text-white/80">
-                          Tags
-                        </p>
-                        <div className="space-y-1 max-h-32 overflow-y-auto pr-1">
-                          {tagOptions.length === 0 && (
-                            <p className="text-xs text-black/40 dark:text-white/40">
-                              Keine Tags verfügbar
-                            </p>
-                          )}
-                          {tagOptions.map((tag) => (
-                            <label
-                              key={tag}
-                              className="flex items-center gap-2"
-                              data-filter-group="tag"
-                              data-filter-value={tag}
-                            >
-                              <input
-                                type="checkbox"
-                                className="rounded border-black/30 dark:border-white/30"
-                                checked={selectedTags.includes(tag)}
-                                onChange={(event) => {
-                                  if (event.target.checked) {
-                                    setSelectedTags((prev) => [...prev, tag]);
-                                  } else {
-                                    setSelectedTags((prev) =>
-                                      prev.filter((item) => item !== tag),
-                                    );
-                                  }
-                                }}
-                              />
-                              <span>{tag}</span>
-                            </label>
-                          ))}
+                      {tagOptions.length > 0 && (
+                        <div
+                          className="space-y-2"
+                          data-testid="filter-group-tags"
+                        >
+                          <p className="font-medium text-black/80 dark:text-white/80">
+                            Tags
+                          </p>
+                          <div className="space-y-1 max-h-32 overflow-auto pr-1">
+                            {tagOptions.map((tag) => (
+                              <label key={tag} className="flex items-center gap-2">
+                                <input
+                                  type="checkbox"
+                                  className="rounded border-black/30 dark:border-white/30"
+                                  checked={selectedTags.includes(tag)}
+                                  onChange={(event) => {
+                                    if (event.target.checked) {
+                                      setSelectedTags((prev) => [...prev, tag]);
+                                    } else {
+                                      setSelectedTags((prev) =>
+                                        prev.filter((item) => item !== tag),
+                                      );
+                                    }
+                                  }}
+                                />
+                                <span>{tag}</span>
+                              </label>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-
-                      <div
-                        className="text-[11px] text-black/50 dark:text-white/50"
-                        data-testid="local-sources-result-count"
-                      >
-                        {filteredSources.length} Treffer
-                      </div>
+                      )}
                     </div>
 
                     <div className="grid grid-cols-2 gap-3 max-h-[60vh] overflow-y-auto pr-2 flex-1">
@@ -491,7 +525,7 @@ const LocalMessageSources = ({
       <MediaPlayerModal
         isOpen={isMediaModalOpen}
         onClose={() => setIsMediaModalOpen(false)}
-        source={selectedMediaSource}
+        source={selectedSource}
         query={query}
       />
     </>

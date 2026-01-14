@@ -3,10 +3,12 @@ import { Chunk, Evidence } from '@/lib/types';
 const serializeEvidence = (evidence: Evidence) =>
   JSON.stringify({
     page: evidence.page,
+    totalPages: evidence.totalPages,
     bbox: evidence.bbox,
     timecodeStart: evidence.timecodeStart,
     timecodeEnd: evidence.timecodeEnd,
-    timestamp: evidence.timestamp,
+    timestampStart: evidence.timestampStart,
+    timestampEnd: evidence.timestampEnd,
   });
 
 export const mergeEvidence = (
@@ -52,6 +54,10 @@ const buildEvidenceFromMetadata = (
     evidence.page = metadata.page;
   }
 
+  if (typeof metadata.totalPages === 'number') {
+    evidence.totalPages = metadata.totalPages;
+  }
+
   const bbox = getBBoxFromMetadata(metadata.bbox);
   if (bbox) {
     evidence.bbox = bbox;
@@ -65,8 +71,14 @@ const buildEvidenceFromMetadata = (
     evidence.timecodeEnd = metadata.timecodeEnd;
   }
 
-  if (typeof metadata.timestamp === 'number') {
-    evidence.timestamp = metadata.timestamp;
+  if (typeof metadata.timestampStart === 'number') {
+    evidence.timestampStart = metadata.timestampStart;
+  } else if (typeof metadata.timestamp === 'number') {
+    evidence.timestampStart = metadata.timestamp;
+  }
+
+  if (typeof metadata.timestampEnd === 'number') {
+    evidence.timestampEnd = metadata.timestampEnd;
   }
 
   return Object.keys(evidence).length > 0 ? [evidence] : [];
