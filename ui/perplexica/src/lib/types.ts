@@ -122,6 +122,11 @@ export type UploadSearchResultsResearchBlock = {
   results: Chunk[];
 };
 
+export type SynthesisResearchBlock = {
+  id: string;
+  type: 'synthesis';
+};
+
 export type ResearchPhase = 'analysis' | 'search' | 'reading' | 'synthesis';
 
 export type ResearchBlockSubStep =
@@ -130,7 +135,8 @@ export type ResearchBlockSubStep =
   | SearchResultsResearchBlock
   | ReadingResearchBlock
   | UploadSearchingResearchBlock
-  | UploadSearchResultsResearchBlock;
+  | UploadSearchResultsResearchBlock
+  | SynthesisResearchBlock;
 
 export type ResearchBlock = {
   id: string;
