@@ -20,6 +20,7 @@ import { LocalMessageSources } from './LocalSources';
 import LocalMediaPreview from './LocalSources/LocalMediaPreview';
 import SearchImages from './SearchImages';
 import SearchVideos from './SearchVideos';
+import ClaimBadges from './ClaimBadges';
 import { useSpeech } from 'react-text-to-speech';
 import ThinkBox from './ThinkBox';
 import { useChat, Section } from '@/lib/hooks/useChat';
@@ -218,6 +219,8 @@ const MessageBox = ({
                 >
                   {parsedMessage}
                 </Markdown>
+
+                <ClaimBadges claims={section.claims} />
 
                 {loading && isLast ? null : (
                   <div className="flex flex-row items-center justify-between w-full text-black dark:text-white py-4">

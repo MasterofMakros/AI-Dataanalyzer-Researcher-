@@ -42,6 +42,20 @@ export type TextBlock = {
   data: string;
 };
 
+export type ClaimEvidence = {
+  id: string;
+  index: number;
+  title?: string;
+  url?: string;
+};
+
+export type ClaimItem = {
+  id: string;
+  text: string;
+  evidence: ClaimEvidence[];
+  verified: boolean;
+};
+
 export type SourceBlock = {
   id: string;
   type: 'source';
@@ -159,4 +173,3 @@ export type HybridSearchResult = {
   localSources: LocalSource[];
   combinedAnswer?: string;
 };
-
