@@ -805,7 +805,7 @@ class SourcePreview(BaseModel):
     # Für Dokumente
     page_number: Optional[int] = None
     total_pages: Optional[int] = None
-    # Für Bilder
+    # Für Bilder/Thumbnails
     thumbnail_url: Optional[str] = None
     ocr_text: Optional[str] = None
     # Metadaten
@@ -873,18 +873,22 @@ async def rag_local_search(request: LocalSearchRequest):
                 if request.source_types and source_type not in request.source_types:
                     continue
                 
+                thumbnail_url = payload.get("thumbnail_url") or payload.get("page_thumbnail_url")
+                if source_type == "image" and not thumbnail_url:
+                    thumbnail_url = f"/sources/{point.get('id')}/thumbnail"
+
                 source = SourcePreview(
                     id=str(point.get("id", "")),
                     filename=payload.get("filename", "Unknown"),
                     source_type=source_type,
                     text_snippet=payload.get("text", "")[:300] + "..." if len(payload.get("text", "")) > 300 else payload.get("text", ""),
                     confidence=payload.get("confidence", 0.0),
-                    timecode_start=payload.get("timecode_start"),
-                    timecode_end=payload.get("timecode_end"),
-                    page_number=payload.get("page"),
-                    total_pages=payload.get("total_pages"),
-                    thumbnail_url=f"/sources/{point.get('id')}/thumbnail" if source_type == "image" else None,
-                    ocr_text=payload.get("ocr_text"),
+                    timecode_start=payload.get("timecode_start") or payload.get("timestamp_start") or payload.get("start_time"),
+                    timecode_end=payload.get("timecode_end") or payload.get("timestamp_end") or payload.get("end_time"),
+                    page_number=payload.get("page") or payload.get("page_number"),
+                    total_pages=payload.get("total_pages") or payload.get("pages_total"),
+                    thumbnail_url=thumbnail_url,
+                    ocr_text=payload.get("ocr_text") or payload.get("ocr") or payload.get("ocr_result"),
                     file_path=payload.get("file_path", ""),
                     folder=str(Path(payload.get("file_path", "")).parent) if payload.get("file_path") else None,
                     file_extension=payload.get("extension") or Path(payload.get("filename", "")).suffix.lower(),
