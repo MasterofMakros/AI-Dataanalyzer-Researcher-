@@ -10,9 +10,36 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect, useState } from 'react';
-import { ResearchBlock, ResearchBlockSubStep } from '@/lib/types';
+import { ResearchBlock, ResearchBlockSubStep, ResearchPhase } from '@/lib/types';
 import { useChat } from '@/lib/hooks/useChat';
 import FormatIcon from './LocalSources/FormatIcon';
+
+const ROADMAP_PHASE_LABELS: Record<ResearchPhase, string> = {
+  analysis: 'Analyse',
+  search: 'Suche',
+  reading: 'Lesen',
+  synthesis: 'Synthese',
+};
+
+const getStepPhase = (step: ResearchBlockSubStep): ResearchPhase => {
+  if (step.type === 'reasoning') {
+    return 'analysis';
+  }
+
+  if (step.type === 'searching' || step.type === 'upload_searching') {
+    return 'search';
+  }
+
+  if (
+    step.type === 'search_results' ||
+    step.type === 'reading' ||
+    step.type === 'upload_search_results'
+  ) {
+    return 'reading';
+  }
+
+  return 'analysis';
+};
 
 const getStepIcon = (step: ResearchBlockSubStep) => {
   if (step.type === 'reasoning') {
@@ -65,6 +92,9 @@ const AssistantSteps = ({
     isLast && status === 'answering' ? true : false,
   );
   const { researchEnded, loading } = useChat();
+  const lastStep = block.data.subSteps[block.data.subSteps.length - 1];
+  const currentPhase =
+    block.data.phase || (lastStep ? getStepPhase(lastStep) : undefined);
 
   useEffect(() => {
     if (researchEnded && isLast) {
@@ -88,6 +118,11 @@ const AssistantSteps = ({
             Research Progress ({block.data.subSteps.length}{' '}
             {block.data.subSteps.length === 1 ? 'step' : 'steps'})
           </span>
+          {currentPhase && (
+            <span className="text-[11px] px-2 py-0.5 rounded-full bg-light-100 dark:bg-dark-100 text-black/60 dark:text-white/60 border border-light-200 dark:border-dark-200">
+              {ROADMAP_PHASE_LABELS[currentPhase]}
+            </span>
+          )}
         </div>
         {isExpanded ? (
           <ChevronUp className="w-4 h-4 text-black/70 dark:text-white/70" />
@@ -130,9 +165,14 @@ const AssistantSteps = ({
                     </div>
 
                     <div className="flex-1 pb-1">
-                      <span className="text-sm font-medium text-black dark:text-white">
-                        {getStepTitle(step, isStreaming)}
-                      </span>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-sm font-medium text-black dark:text-white">
+                          {getStepTitle(step, isStreaming)}
+                        </span>
+                        <span className="text-[11px] px-2 py-0.5 rounded-full bg-light-100 dark:bg-dark-100 text-black/60 dark:text-white/60 border border-light-200 dark:border-dark-200">
+                          {ROADMAP_PHASE_LABELS[getStepPhase(step)]}
+                        </span>
+                      </div>
 
                       {step.type === 'reasoning' && (
                         <>

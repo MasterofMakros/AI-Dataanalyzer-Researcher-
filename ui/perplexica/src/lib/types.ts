@@ -34,12 +34,35 @@ export type Message =
 export type Chunk = {
   content: string;
   metadata: Record<string, any>;
+  evidence?: Evidence[];
+};
+
+export type Evidence = {
+  page?: number;
+  bbox?: [number, number, number, number];
+  timecodeStart?: string;
+  timecodeEnd?: string;
+  timestamp?: number;
 };
 
 export type TextBlock = {
   id: string;
   type: 'text';
   data: string;
+};
+
+export type ClaimEvidence = {
+  id: string;
+  index: number;
+  title?: string;
+  url?: string;
+};
+
+export type ClaimItem = {
+  id: string;
+  text: string;
+  evidence: ClaimEvidence[];
+  verified: boolean;
 };
 
 export type SourceBlock = {
@@ -99,6 +122,8 @@ export type UploadSearchResultsResearchBlock = {
   results: Chunk[];
 };
 
+export type ResearchPhase = 'analysis' | 'search' | 'reading' | 'synthesis';
+
 export type ResearchBlockSubStep =
   | ReasoningResearchBlock
   | SearchingResearchBlock
@@ -111,6 +136,7 @@ export type ResearchBlock = {
   id: string;
   type: 'research';
   data: {
+    phase?: ResearchPhase;
     subSteps: ResearchBlockSubStep[];
   };
 };
@@ -145,7 +171,12 @@ export type LocalSource = {
   ocrText?: string;
   // Metadata
   filePath: string;
+  folder?: string;
+  fileExtension?: string;
+  fileCreated?: string;
+  fileModified?: string;
   indexedAt?: string;
+  tags?: string[];
 };
 
 export type LocalSourceBlock = {
@@ -159,4 +190,3 @@ export type HybridSearchResult = {
   localSources: LocalSource[];
   combinedAnswer?: string;
 };
-
