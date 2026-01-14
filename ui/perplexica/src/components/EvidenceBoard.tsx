@@ -75,6 +75,9 @@ const stripInlineTags = (text: string) =>
     .replace(/<citation[^>]*>(.*?)<\/citation>/g, '$1')
     .replace(/<think>[\s\S]*?<\/think>/g, '');
 
+const normalizeText = (text: string) =>
+  stripInlineTags(text).replace(/\s+/g, ' ').trim();
+
 const getDomain = (url?: string) => {
   if (!url) return undefined;
   try {

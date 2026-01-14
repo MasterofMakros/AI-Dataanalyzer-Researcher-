@@ -14,7 +14,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { ResearchBlock, ResearchBlockSubStep, ResearchPhase } from '@/lib/types';
 import { useChat } from '@/lib/hooks/useChat';
-import UploadSearchResultsPanel from './UploadSearchResultsPanel';
+import FormatIcon from './LocalSources/FormatIcon';
 
 const ROADMAP_PHASE_LABELS: Record<ResearchPhase, string> = {
   analysis: 'Analyse',
@@ -82,7 +82,7 @@ const AssistantSteps = ({
   const [isExpanded, setIsExpanded] = useState(
     isLast && status === 'answering' ? true : false,
   );
-  const { researchEnded } = useChat();
+  const { researchEnded, loading } = useChat();
 
   const phases: {
     id: ResearchPhase;
@@ -111,27 +111,15 @@ const AssistantSteps = ({
     },
   ];
 
-  const subSteps = block.data.subSteps;
-  const lastStep = subSteps[subSteps.length - 1];
-  const lastPhase = lastStep ? getPhaseForStep(lastStep) : 'analysis';
-  const synthesisComplete = researchEnded || status === 'completed';
-  const activePhase = synthesisComplete ? 'synthesis' : lastPhase;
-  const activePhaseIndex = phases.findIndex((phase) => phase.id === activePhase);
-
-  const getPhaseStatus = (phaseId: ResearchPhase) => {
-    const phaseIndex = phases.findIndex((phase) => phase.id === phaseId);
-
-    if (synthesisComplete) {
-      return 'done';
+  useEffect(() => {
+    if (researchEnded && isLast) {
+      setIsExpanded(false);
+    } else if (status === 'answering' && isLast) {
+      setIsExpanded(true);
     }
+  }, [researchEnded, status, isLast]);
 
-    if (phaseIndex < activePhaseIndex) {
-      return 'done';
-    }
-
-    if (phaseIndex === activePhaseIndex) {
-      return 'active';
-    }
+  if (!block || block.data.subSteps.length === 0) return null;
 
   const steps = block.data.subSteps;
   const stepDetails = useMemo(
@@ -152,18 +140,14 @@ const AssistantSteps = ({
 
   const uploadQueries = phaseSteps.search
     .filter(
-      (
-        step,
-      ): step is Extract<ResearchBlockSubStep, { type: 'upload_searching' }> =>
+      (step): step is Extract<ResearchBlockSubStep, { type: 'upload_searching' }> =>
         step.type === 'upload_searching',
     )
     .flatMap((step) => step.queries);
 
   const searchResults = phaseSteps.search
     .filter(
-      (
-        step,
-      ): step is Extract<ResearchBlockSubStep, { type: 'search_results' }> =>
+      (step): step is Extract<ResearchBlockSubStep, { type: 'search_results' }> =>
         step.type === 'search_results',
     )
     .flatMap((step) => step.reading);
@@ -177,12 +161,8 @@ const AssistantSteps = ({
 
   const uploadResults = phaseSteps.reading
     .filter(
-      (
-        step,
-      ): step is Extract<
-        ResearchBlockSubStep,
-        { type: 'upload_search_results' }
-      > => step.type === 'upload_search_results',
+      (step): step is Extract<ResearchBlockSubStep, { type: 'upload_search_results' }> =>
+        step.type === 'upload_search_results',
     )
     .flatMap((step) => step.results);
 
@@ -191,15 +171,46 @@ const AssistantSteps = ({
     block.data.phase || (lastStepForPhase ? getPhaseForStep(lastStepForPhase) : undefined);
   const maxPreviewItems = 4;
 
-  useEffect(() => {
-    if (researchEnded && isLast) {
-      setIsExpanded(false);
-    } else if (status === 'answering' && isLast) {
-      setIsExpanded(true);
+  const getPhaseStatus = (phaseId: ResearchPhase) => {
+    const phaseIndex = phases.findIndex((phase) => phase.id === phaseId);
+
+    if (synthesisComplete) {
+      return 'done';
     }
   }, [researchEnded, status, isLast]);
 
-  if (!block || block.data.subSteps.length === 0) return null;
+    if (phaseIndex < activePhaseIndex) {
+      return 'done';
+    }
+
+    if (phaseIndex === activePhaseIndex) {
+      return 'active';
+    }
+
+    return 'pending';
+  };
+
+  const getPhaseBadge = (phaseId: ResearchPhase) => {
+    if (phaseId === 'analysis') {
+      return `${phaseSteps.analysis.length} Schritte`;
+    }
+
+    if (phaseId === 'search') {
+      const totalQueries = searchQueries.length + uploadQueries.length;
+      return totalQueries > 0 || searchResults.length > 0
+        ? `${totalQueries} Queries · ${searchResults.length} Ergebnisse`
+        : 'Bereite Suche vor';
+    }
+
+    if (phaseId === 'reading') {
+      const totalSources = readingSources.length + uploadResults.length;
+      return totalSources > 0 ? `${totalSources} Quellen` : 'Lese Quellen';
+    }
+
+    return synthesisComplete ? 'Antwort bereit' : 'Formuliere Antwort';
+  };
+
+  const maxPreviewItems = 4;
 
   return (
     <div className="rounded-lg bg-light-secondary/80 dark:bg-dark-secondary/80 border border-light-200 dark:border-dark-200 overflow-hidden shadow-sm">
@@ -207,8 +218,8 @@ const AssistantSteps = ({
         onClick={() => setIsExpanded(!isExpanded)}
         className="w-full flex items-center justify-between p-3 hover:bg-light-200/70 dark:hover:bg-dark-200/70 transition duration-200"
       >
-        <div className="flex items-center gap-2">
-          <div className="rounded-full p-1.5 bg-cyan-100 text-cyan-800 dark:bg-cyan-500/20 dark:text-cyan-200">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="rounded-full p-2 bg-cyan-100 text-cyan-800 dark:bg-cyan-500/20 dark:text-cyan-200">
             <Brain className="w-4 h-4" />
           </div>
           <div className="text-left">
@@ -282,7 +293,7 @@ const AssistantSteps = ({
                         )}
                       </div>
                       <div className="flex-1 pb-1">
-                        <div className="flex flex-wrap items-baseline justify-between gap-2">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
                           <div>
                             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black dark:text-white">
                               {phase.label}
@@ -314,36 +325,49 @@ const AssistantSteps = ({
                           )}
                         </div>
 
-                        {phase.id === 'analysis' &&
-                          phaseSteps.analysis.length > 0 && (
-                            <div className="mt-2 space-y-1">
-                              {phaseSteps.analysis.map((step) =>
-                                step.type === 'reasoning' && step.reasoning ? (
-                                  <p
-                                    key={step.id}
-                                    className="text-xs text-black/70 dark:text-white/70"
-                                  >
-                                    {step.reasoning}
-                                  </p>
-                                ) : null,
-                              )}
-                            </div>
-                          )}
+                        {phase.id === 'analysis' && (
+                          <div className="mt-2 space-y-1">
+                            {phaseSteps.analysis.map((step) =>
+                              step.type === 'reasoning' && step.reasoning ? (
+                                <p
+                                  key={step.id}
+                                  className="text-xs text-black/70 dark:text-white/70"
+                                >
+                                  {step.reasoning}
+                                </p>
+                              ) : null,
+                            )}
+                            {phaseSteps.analysis.length === 0 && isStreaming && (
+                              <p className="text-xs text-black/60 dark:text-white/60">
+                                Analysiere Anfrage...
+                              </p>
+                            )}
+                          </div>
+                        )}
 
                         {phase.id === 'search' &&
-                          (searchQueries.length > 0 ||
-                            uploadQueries.length > 0) && (
-                            <div className="flex flex-wrap gap-1.5 mt-2">
-                              {[...searchQueries, ...uploadQueries].map(
-                                (query, idx) => (
-                                  <span
-                                    key={`${query}-${idx}`}
-                                    className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-light-100 dark:bg-dark-100 text-black/70 dark:text-white/70 border border-light-200 dark:border-dark-200"
-                                  >
-                                    {query}
+                          (searchQueries.length > 0 || uploadQueries.length > 0) && (
+                            <div className="mt-2">
+                              <p className="text-[11px] uppercase tracking-[0.2em] text-black/50 dark:text-white/50">
+                                Live Queries
+                              </p>
+                              <div className="flex flex-wrap gap-1.5 mt-2">
+                                {[...searchQueries, ...uploadQueries]
+                                  .slice(0, 8)
+                                  .map((query, idx) => (
+                                    <span
+                                      key={`${query}-${idx}`}
+                                      className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-light-100 dark:bg-dark-100 text-black/70 dark:text-white/70 border border-light-200 dark:border-dark-200"
+                                    >
+                                      {query}
+                                    </span>
+                                  ))}
+                                {searchQueries.length + uploadQueries.length > 8 && (
+                                  <span className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-light-100 dark:bg-dark-100 text-black/60 dark:text-white/60 border border-light-200 dark:border-dark-200">
+                                    +{searchQueries.length + uploadQueries.length - 8} more
                                   </span>
-                                ),
-                              )}
+                                )}
+                              </div>
                             </div>
                           )}
 
@@ -428,6 +452,16 @@ const AssistantSteps = ({
                         {phase.id === 'reading' && uploadResults.length > 0 && (
                           <div className="mt-2">
                             <UploadSearchResultsPanel results={uploadResults} />
+                          </div>
+                        )}
+
+                        {phase.id === 'synthesis' && (
+                          <div className="mt-2">
+                            <p className="text-xs text-black/60 dark:text-white/60">
+                              {synthesisComplete
+                                ? 'Antwort wird finalisiert.'
+                                : 'Synthese der Informationen läuft...'}
+                            </p>
                           </div>
                         )}
                       </div>
