@@ -1,0 +1,15 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "token": "E2E_TOKEN_GEOJSON"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [0, 0]
+      }
+    }
+  ]
+}

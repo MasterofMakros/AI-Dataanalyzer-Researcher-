@@ -20,7 +20,7 @@
 | Surya OCR | - | `docker-compose.yml` | `surya-ocr` | `9999 → 8000` | default | `huggingface_cache:/root/.cache/huggingface` | `http://localhost:8000/health` | Empfehlung für OCR |
 | Scientific Parser | `infra/docker/scientific-parser/` | `docker-compose.yml` | `scientific-parser` | `8050 → 8050` | default | - | `http://localhost:8050/health` | Tabular/Text Extraction |
 | Metadata Extractor | `infra/docker/metadata-extractor/` | `docker-compose.yml` | `metadata-extractor` | `8015 → 8000` | default | - | `http://localhost:8000/health` | ExifTool Wrapper |
-| Metadata Extractor | `infra/docker/metadata-extractor/` | `docker-compose.intelligence.yml` | `metadata-extractor` | `8015 → 8000` | default | - | `http://localhost:8000/health` | **Port kollidiert mit `special-parser`** |
+| Metadata Extractor | `infra/docker/metadata-extractor/` | `docker-compose.intelligence.yml` | `metadata-extractor` | `8015 → 8000` | default | - | `http://localhost:8015/health` | Host-Port 8015 (special-parser nutzt 8016) |
 | Document Processor (GPU) | `infra/docker/document-processor/` | `docker-compose.yml` | `document-processor` | `8005 → 8000` | `gpu` | `huggingface_cache:/root/.cache/huggingface`, `lancedb_data:/data/lancedb` | `http://localhost:8000/health` | ersetzt neural-worker |
 | Document Processor (CPU) | `infra/docker/document-processor/` | `docker-compose.yml` | `document-processor-cpu` | `8005 → 8000` | `cpu` | `huggingface_cache:/root/.cache/huggingface`, `lancedb_data:/data/lancedb` | `http://localhost:8000/health` | gleicher Host-Port wie GPU |
 | Neural Worker (legacy) | `infra/docker/neural-worker/` | `docker-compose.yml` | `neural-worker` | `8006 → 8000` | `legacy` | `huggingface_cache:/root/.cache/huggingface`, `lancedb_data:/lancedb_storage` | `http://localhost:8000/health` | DEPRECATED |
@@ -34,7 +34,7 @@
 | Neural Search API | `infra/docker/neural-search-api/` | `docker-compose.yml` | `neural-search-api` | `8040 → 8040` | default | - | `http://localhost:8040/health` | RAG + LLM |
 | Nextcloud | - | `docker-compose.yml` | `nextcloud` | `8081 → 80` | default | `nextcloud_data:/var/www/html` | - | Filesync |
 | Nextcloud DB | - | `docker-compose.yml` | `nextcloud-db` | - | default | `mariadb_data:/var/lib/mysql` | - | kein Host-Port |
-| Special Parser | `infra/docker/special-parser/` | `docker-compose.intelligence.yml` | `special-parser` | `8015 → 8015` | default | - | `http://localhost:8015/health` | **Port kollidiert mit `metadata-extractor`** |
+| Special Parser | `infra/docker/special-parser/` | `docker-compose.intelligence.yml` | `special-parser` | `8016 → 8015` | default | - | `http://localhost:8016/health` | Overlay-only Host-Port 8016 (kein Konflikt) |
 
 **Hinweise**
 - Profile `gpu`/`cpu` für Document Processor sind optional und hängen von deiner Hardware ab.

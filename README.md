@@ -61,8 +61,10 @@ docker compose up -d
 # Mit GPU-Profil (für OCR, Whisper)
 docker compose --profile gpu up -d
 
-# Intelligence-Grade (10 parallele Worker)
-docker compose --profile intelligence up -d
+# Intelligence-Grade (Worker-Overlay)
+docker compose -f docker-compose.yml -f docker-compose.intelligence.yml up -d
+# Mit GPU + Intelligence
+docker compose -f docker-compose.yml -f docker-compose.intelligence.yml --profile gpu up -d
 ```
 
 ### Validation

@@ -6,6 +6,8 @@
 
 ## Projektstatus: Core abgeschlossen, Roadmap offen ✅
 
+> Status-Regel: "✅ Done (Validated)" darf nur gesetzt werden, wenn ein reproduzierbarer Runtime-Run (Commands + Reports) als Evidence verlinkt ist.
+
 ## Feature Backlog (Quelle der Wahrheit)
 
 | ID | Feature | Status | PRP-Link | Abhängigkeiten | Validierung |
@@ -13,6 +15,8 @@
 | F-001 | Documentation Consolidation | planned | ../PRPs/2026-01-12_consolidate-docs.md | - | `scripts/validate.ps1` |
 | F-002 | Fix CI/CD Pipeline | planned | ../PRPs/2026-01-12_fix-ci-pipeline.md | - | `scripts/validate.ps1` + GitHub Actions |
 | F-003 | Smoke Test - Verify Context Engineering Setup | planned | ../PRPs/2026-01-12_smoke-test.md | - | `scripts/validate.ps1` |
+| F-004 | E2E Format Coverage Harness (PRP-FMT-001) | implemented / pending validation | ../PRPs/prp-fmt-001-e2e-format-coverage-harness.md | Docker Daemon + Base/Overlay running | `scripts/e2e_formats.py --mode base/overlay` + reports |
+| F-005 | Perplexica UI E2E Tests (PRP-UI-002) | planned | ../PRPs/prp-ui-002-perplexica-ui-e2e-tests.md | F-004 | `npm run test:e2e` |
 
 ### Abgeschlossene Komponenten
 
@@ -27,16 +31,17 @@
 | Audit Trail | ✅ 100% | Chain of Custody in PostgreSQL |
 | Startup Scripts | ✅ 100% | PowerShell + Bash Scripts |
 | Dokumentation | ✅ 100% | Technische Docs aktualisiert |
-| **E2E Format Test** | ✅ 100% | 8/8 Formate verifiziert (v2.1.6) |
+| **E2E Format Test (Harness)** | 🟡 Implemented / Pending Validation | Harness + PRP-FMT-001 implementiert; Runtime Evidence ausstehend |
+| E2E Format Test (Legacy) | ✅ (historisch) | 8/8 Formate verifiziert (v2.1.6); wird durch Harness-Evidence abgelöst |
 
 ### Verifizierte Formate
 
-| Format | Worker | Technologie | Status |
-|--------|--------|-------------|--------|
-| TXT, PDF, DOCX, XLSX | Documents | Tika | ✅ |
-| MP3, WAV, M4A | Audio | WhisperX | ✅ |
-| MP4, MKV, AVI | Video | FFmpeg+WhisperX | ✅ |
-| JPG, PNG, TIFF | Images | Surya OCR 0.17 | ✅ |
+| Format | Worker | Technologie | Status | Evidence |
+|--------|--------|-------------|--------|----------|
+| TXT, PDF, DOCX, XLSX | Documents | Tika | ✅ (Legacy) | v2.1.6 |
+| MP3, WAV, M4A | Audio | WhisperX | ✅ (Legacy) | v2.1.6 |
+| MP4, MKV, AVI | Video | FFmpeg+WhisperX | ✅ (Legacy) | v2.1.6 |
+| JPG, PNG, TIFF | Images | Surya OCR 0.17 | ✅ (Legacy) | v2.1.6 |
 
 ---
 
@@ -101,10 +106,18 @@ infra/docker/
 | Tika | 9998 | 9998 | Text Extraction |
 | Scientific Parser | 8050 | 8050 | Table/Text Parsing |
 | Metadata Extractor | 8015 | 8000 | ExifTool Wrapper |
+| Special Parser (Overlay) | 8016 | 8015 | 3D/CAD/GIS/Fonts (overlay only) |
 | Qdrant (REST) | 6335 | 6333 | Vector Store |
 | Qdrant (gRPC) | 6336 | 6334 | gRPC Endpoint |
 | Ollama | 11435 | 11434 | LLM |
 | Nextcloud | 8081 | 80 | Filesync UI |
+
+---
+
+## Overlay & WSL Hinweise
+
+- 3D/CAD/GIS/Fonts Processing ist nur im Intelligence-Overlay verfügbar (`docker-compose.intelligence.yml`).
+- WSL-Pfade: In WSL `CONDUCTOR_TESTSUITE=/mnt/f/_TestSuite` (Windows native: `F:\_TestSuite`).
 
 ---
 
@@ -285,5 +298,6 @@ Optional:
 
 ---
 
-*Letzte Aktualisierung: 2025-01-15*
-*Erstellt von: Claude Opus 4.5*
+*Letzte Aktualisierung: 2026-01-14*
+*Maintainer: Human + AI Agents (Codex/CLI)*
+*Evidence Logs: .agents/plans/*
