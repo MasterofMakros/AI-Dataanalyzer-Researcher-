@@ -21,13 +21,15 @@ import VideoSourceCard from './VideoSourceCard';
 import AudioSourceCard from './AudioSourceCard';
 import DocumentSourceCard from './DocumentSourceCard';
 import ImageSourceCard from './ImageSourceCard';
+import MediaPlayerModal from './MediaPlayerModal';
 
 interface LocalMessageSourcesProps {
     sources: LocalSource[];
+    query: string;
     onSourceClick?: (source: LocalSource) => void;
 }
 
-const LocalMessageSources = ({ sources, onSourceClick }: LocalMessageSourcesProps) => {
+const LocalMessageSources = ({ sources, query, onSourceClick }: LocalMessageSourcesProps) => {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [selectedSource, setSelectedSource] = useState<LocalSource | null>(null);
     const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
@@ -47,7 +49,12 @@ const LocalMessageSources = ({ sources, onSourceClick }: LocalMessageSourcesProp
     };
 
     const handleSourceClick = (source: LocalSource) => {
-        setSelectedSource(source);
+        if (source.sourceType === 'audio' || source.sourceType === 'video') {
+            setSelectedMediaSource(source);
+            setIsMediaModalOpen(true);
+            setIsDialogOpen(false);
+            document.body.classList.remove('overflow-hidden-scrollable');
+        }
         if (onSourceClick) {
             onSourceClick(source);
         }
@@ -459,6 +466,13 @@ const LocalMessageSources = ({ sources, onSourceClick }: LocalMessageSourcesProp
                     </div>
                 </Dialog>
             </Transition>
+
+            <MediaPlayerModal
+                isOpen={isMediaModalOpen}
+                onClose={() => setIsMediaModalOpen(false)}
+                source={selectedMediaSource}
+                query={query}
+            />
         </>
     );
 };

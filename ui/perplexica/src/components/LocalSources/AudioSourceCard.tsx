@@ -18,7 +18,6 @@ interface AudioSourceCardProps {
 const AudioSourceCard = ({ source, index, onClick }: AudioSourceCardProps) => {
     const handlePlayClick = () => {
         if (onClick) onClick();
-        console.log(`Play audio ${source.filename} from ${source.timecodeStart}`);
     };
 
     return (
