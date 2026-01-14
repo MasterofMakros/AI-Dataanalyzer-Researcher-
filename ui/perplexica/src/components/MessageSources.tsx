@@ -6,7 +6,7 @@ import {
   Transition,
   TransitionChild,
 } from '@headlessui/react';
-import { File } from 'lucide-react';
+import { FileText, Globe, Image as ImageIcon, Music, Video } from 'lucide-react';
 import { Fragment, useMemo, useState } from 'react';
 import { Chunk } from '@/lib/types';
 import {
@@ -15,11 +15,23 @@ import {
   PdfPreviewCard,
   VideoPreviewCard,
 } from './SourcePreviews';
+import PreviewCard from './SourcePreviews/PreviewCard';
+import SourcePreviewModal, {
+  SourcePreview,
+} from './SourcePreviews/SourcePreviewModal';
 import {
   formatTimestamp,
   getSourcePreviewType,
   SourcePreviewType,
 } from './SourcePreviews/previewUtils';
+
+const typeIconMap: Record<SourcePreviewType, JSX.Element> = {
+  pdf: <FileText size={12} />,
+  audio: <Music size={12} />,
+  video: <Video size={12} />,
+  image: <ImageIcon size={12} />,
+  web: <Globe size={12} />,
+};
 
 const getSourceLabel = (source: Chunk) => {
   const url = source.metadata?.url || '';
@@ -30,6 +42,10 @@ const getSourceLabel = (source: Chunk) => {
 
 const MessageSources = ({ sources }: { sources: Chunk[] }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [previewSource, setPreviewSource] = useState<SourcePreview | null>(
+    null,
+  );
 
   const previewSources = useMemo(
     () =>
@@ -50,39 +66,80 @@ const MessageSources = ({ sources }: { sources: Chunk[] }) => {
     document.body.classList.add('overflow-hidden-scrollable');
   };
 
-  const renderPreviewCard = (
+  const openPreview = (data: SourcePreview) => {
+    setPreviewSource(data);
+    setIsPreviewOpen(true);
+  };
+
+  const closePreview = () => {
+    setIsPreviewOpen(false);
+    setPreviewSource(null);
+  };
+
+  const buildPreviewSource = (
     source: Chunk,
     type: SourcePreviewType,
-    index: number,
-  ) => {
+  ): SourcePreview => {
     const title = source.metadata?.title || 'Untitled source';
     const href = source.metadata?.url;
     const snippet = source.content;
     const sourceLabel = getSourceLabel(source);
     const evidence = source.evidence?.[0];
     const pageNumber = source.metadata?.page ?? evidence?.page;
-    const totalPages = evidence?.totalPages ?? source.metadata?.totalPages;
+    const totalPages = source.metadata?.totalPages;
+    const timestampStart =
+      source.metadata?.timestampStart ??
+      evidence?.timestampStart ??
+      source.metadata?.timestamp ??
+      evidence?.timestamp;
+    const timestampEnd =
+      source.metadata?.timestampEnd ?? evidence?.timestampEnd ?? undefined;
     const timecodeStart =
       source.metadata?.timecodeStart ??
       evidence?.timecodeStart ??
-      formatTimestamp(
-        evidence?.timestampStart ??
-          source.metadata?.timestampStart ??
-          source.metadata?.timestamp,
-      );
-    const timecodeEnd = source.metadata?.timecodeEnd ?? evidence?.timecodeEnd;
+      formatTimestamp(timestampStart);
+    const timecodeEnd =
+      source.metadata?.timecodeEnd ??
+      evidence?.timecodeEnd ??
+      formatTimestamp(timestampEnd);
+
+    return {
+      title,
+      href,
+      snippet,
+      type,
+      pageNumber,
+      totalPages,
+      timecodeStart,
+      timecodeEnd,
+      timestampStart,
+      timestampEnd,
+      thumbnailUrl: source.metadata?.thumbnailUrl,
+      ocrText: source.metadata?.ocrText,
+      sourceLabel,
+    };
+  };
+
+  const renderPreviewCard = (
+    source: Chunk,
+    type: SourcePreviewType,
+    index: number,
+  ) => {
+    const preview = buildPreviewSource(source, type);
+    const handleClick = () => openPreview(preview);
 
     if (type === 'pdf') {
       return (
         <PdfPreviewCard
           key={index}
-          title={title}
-          href={href}
-          snippet={snippet}
-          pageNumber={pageNumber}
-          totalPages={totalPages}
-          sourceLabel={sourceLabel}
+          title={preview.title}
+          href={preview.href}
+          snippet={preview.snippet}
+          pageNumber={preview.pageNumber}
+          totalPages={preview.totalPages}
+          sourceLabel={preview.sourceLabel}
           index={index}
+          onClick={handleClick}
         />
       );
     }
@@ -91,13 +148,14 @@ const MessageSources = ({ sources }: { sources: Chunk[] }) => {
       return (
         <AudioPreviewCard
           key={index}
-          title={title}
-          href={href}
-          snippet={snippet}
-          timecodeStart={timecodeStart}
-          timecodeEnd={timecodeEnd}
-          sourceLabel={sourceLabel}
+          title={preview.title}
+          href={preview.href}
+          snippet={preview.snippet}
+          timecodeStart={preview.timecodeStart}
+          timecodeEnd={preview.timecodeEnd}
+          sourceLabel={preview.sourceLabel}
           index={index}
+          onClick={handleClick}
         />
       );
     }
@@ -106,14 +164,15 @@ const MessageSources = ({ sources }: { sources: Chunk[] }) => {
       return (
         <VideoPreviewCard
           key={index}
-          title={title}
-          href={href}
-          snippet={snippet}
-          timecodeStart={timecodeStart}
-          timecodeEnd={timecodeEnd}
-          thumbnailUrl={source.metadata?.thumbnailUrl}
-          sourceLabel={sourceLabel}
+          title={preview.title}
+          href={preview.href}
+          snippet={preview.snippet}
+          timecodeStart={preview.timecodeStart}
+          timecodeEnd={preview.timecodeEnd}
+          thumbnailUrl={preview.thumbnailUrl}
+          sourceLabel={preview.sourceLabel}
           index={index}
+          onClick={handleClick}
         />
       );
     }
@@ -122,106 +181,71 @@ const MessageSources = ({ sources }: { sources: Chunk[] }) => {
       return (
         <ImagePreviewCard
           key={index}
-          title={title}
-          href={href}
-          snippet={snippet}
-          ocrText={source.metadata?.ocrText}
-          thumbnailUrl={source.metadata?.thumbnailUrl}
-          sourceLabel={sourceLabel}
+          title={preview.title}
+          href={preview.href}
+          snippet={preview.snippet}
+          ocrText={preview.ocrText}
+          thumbnailUrl={preview.thumbnailUrl}
+          sourceLabel={preview.sourceLabel}
           index={index}
+          onClick={handleClick}
         />
       );
     }
 
-    const fallbackContent = (
-      <>
-        <p className="dark:text-white text-xs overflow-hidden whitespace-nowrap text-ellipsis">
-          {title}
-        </p>
-        <div className="flex flex-row items-center justify-between">
-          <div className="flex flex-row items-center space-x-1">
-            {href?.includes('file_id://') ? (
-              <div className="bg-dark-200 hover:bg-dark-100 transition duration-200 flex items-center justify-center w-6 h-6 rounded-full">
-                <File size={12} className="text-white/70" />
-              </div>
-            ) : (
-              <img
-                src={`https://s2.googleusercontent.com/s2/favicons?domain_url=${href}`}
-                width={16}
-                height={16}
-                alt="favicon"
-                className="rounded-lg h-4 w-4"
-              />
-            )}
-            <p className="text-xs text-black/50 dark:text-white/50 overflow-hidden whitespace-nowrap text-ellipsis">
-              {getSourceLabel(source)}
-            </p>
-          </div>
-          <div className="flex flex-row items-center space-x-1 text-black/50 dark:text-white/50 text-xs">
-            <div className="bg-black/50 dark:bg-white/50 h-[4px] w-[4px] rounded-full" />
-            <span>{index + 1}</span>
-          </div>
-        </div>
-      </>
-    );
-
-    if (!href) {
-      return (
-        <div
-          className="bg-light-100 dark:bg-dark-100 rounded-lg p-3 flex flex-col space-y-2 font-medium"
-          key={index}
-        >
-          {fallbackContent}
-        </div>
-      );
-    }
-
     return (
-      <a
-        className="bg-light-100 hover:bg-light-200 dark:bg-dark-100 dark:hover:bg-dark-200 transition duration-200 rounded-lg p-3 flex flex-col space-y-2 font-medium"
-        key={index}
-        href={href}
-        target="_blank"
-        rel="noreferrer"
-      >
-        {fallbackContent}
-      </a>
+      <PreviewCard key={index} onClick={handleClick}>
+        <div className="flex items-center justify-between text-xs text-black/50 dark:text-white/50">
+          <div className="flex items-center space-x-2">
+            <div className="bg-sky-500/10 text-sky-500 p-1 rounded-md">
+              <Globe size={12} />
+            </div>
+            <span className="uppercase tracking-wide">Web</span>
+          </div>
+          <span>#{index + 1}</span>
+        </div>
+        <p className="dark:text-white text-xs font-medium overflow-hidden whitespace-nowrap text-ellipsis">
+          {preview.title}
+        </p>
+        {preview.snippet && (
+          <p className="text-xs text-black/70 dark:text-white/70 line-clamp-2">
+            {preview.snippet}
+          </p>
+        )}
+        {preview.sourceLabel && (
+          <div className="text-[11px] text-black/40 dark:text-white/40">
+            {preview.sourceLabel}
+          </div>
+        )}
+      </PreviewCard>
     );
   };
 
+  const visibleSources = previewSources.slice(0, 4);
+  const remainingSources = previewSources.length - visibleSources.length;
+
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
-      {previewSources.slice(0, 3).map(({ source, type }, i) =>
+      {visibleSources.map(({ source, type }, i) =>
         renderPreviewCard(source, type, i),
       )}
-      {sources.length > 3 && (
+      {remainingSources > 0 && (
         <button
           onClick={openModal}
           className="bg-light-100 hover:bg-light-200 dark:bg-dark-100 dark:hover:bg-dark-200 transition duration-200 rounded-lg p-3 flex flex-col space-y-2 font-medium"
         >
           <div className="flex flex-row items-center space-x-1">
-            {previewSources.slice(3, 6).map(({ source }, i) => {
-              return source.metadata?.url?.includes('file_id://') ? (
-                <div
-                  key={i}
-                  className="bg-dark-200 hover:bg-dark-100 transition duration-200 flex items-center justify-center w-6 h-6 rounded-full"
-                >
-                  <File size={12} className="text-white/70" />
-                </div>
-              ) : (
-                <img
-                  key={i}
-                  src={`https://s2.googleusercontent.com/s2/favicons?domain_url=${source.metadata?.url}`}
-                  width={16}
-                  height={16}
-                  alt="favicon"
-                  className="rounded-lg h-4 w-4"
-                />
-              );
-            })}
+            {previewSources.slice(4, 7).map(({ type }, i) => (
+              <div
+                key={`${type}-${i}`}
+                className="bg-black/5 dark:bg-white/10 flex items-center justify-center w-6 h-6 rounded-full"
+              >
+                {typeIconMap[type]}
+              </div>
+            ))}
           </div>
           <p className="text-xs text-black/50 dark:text-white/50">
-            View {sources.length - 3} more
+            View {remainingSources} more
           </p>
         </button>
       )}
@@ -253,6 +277,11 @@ const MessageSources = ({ sources }: { sources: Chunk[] }) => {
           </div>
         </Dialog>
       </Transition>
+      <SourcePreviewModal
+        isOpen={isPreviewOpen}
+        onClose={closePreview}
+        source={previewSource}
+      />
     </div>
   );
 };

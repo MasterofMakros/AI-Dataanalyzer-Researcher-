@@ -2,7 +2,6 @@
 
 import { Message } from '@/components/ChatWindow';
 import { Block, Chunk, Claim } from '@/lib/types';
-import { Block, Chunk, ClaimItem } from '@/lib/types';
 import {
   createContext,
   useContext,
@@ -28,7 +27,6 @@ export type Section = {
   thinkingEnded: boolean;
   claims: Claim[];
   suggestions?: string[];
-  claims: ClaimItem[];
 };
 
 type ChatContext = {
@@ -323,7 +321,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
       let thinkingEnded = false;
       let suggestions: string[] = [];
       let claims: Claim[] = [];
-      const claimMap = new Map<string, ClaimItem>();
+      const claimMap = new Map<string, Claim>();
 
       const sourceBlocks = msg.responseBlocks.filter(
         (block): block is Block & { type: 'source' } => block.type === 'source',
@@ -354,7 +352,10 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
               .replace(/\s+/g, ' ')
               .trim();
 
-          const buildCitationAttributes = (source?: Chunk) => {
+          const buildCitationAttributes = (
+            source?: Chunk,
+            evidenceId?: number,
+          ) => {
             if (!source) {
               return '';
             }
@@ -369,19 +370,16 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
             const title = source.metadata?.title ?? '';
             const sourceType = source.metadata?.sourceType ?? 'web';
             const filePath = source.metadata?.url ?? '';
-            const page = evidence?.page ?? source.metadata?.page;
+            const pageValue = evidence?.page ?? source.metadata?.page;
             const totalPages = evidence?.totalPages ?? source.metadata?.totalPages;
             const timecodeStart =
               evidence?.timecodeStart ?? source.metadata?.timecodeStart ?? '';
             const timecodeEnd =
               evidence?.timecodeEnd ?? source.metadata?.timecodeEnd ?? '';
-            const timestampStart =
-              evidence?.timestampStart ??
-              source.metadata?.timestampStart ??
-              source.metadata?.timestamp;
-            const timestampEnd =
-              evidence?.timestampEnd ?? source.metadata?.timestampEnd;
-            const bbox = evidence?.bbox ?? source.metadata?.bbox;
+            const timestampStart = evidence?.timestampStart;
+            const timestampEnd = evidence?.timestampEnd;
+            const bbox = evidence?.bbox;
+            const page = pageValue ? String(pageValue) : '';
             const url = source.metadata?.url ?? '';
 
             const attributes: string[] = [];
@@ -446,6 +444,12 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
               attributes.push(`data-source-url="${escapeHtmlAttribute(url)}"`);
             }
 
+            if (evidenceId) {
+              attributes.push(
+                `data-evidence-id="${escapeHtmlAttribute(String(evidenceId))}"`,
+              );
+            }
+
             return attributes.join(' ');
           };
 
@@ -472,24 +476,6 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
                 .filter((num) => !isNaN(num) && num > 0);
 
               const uniqueIndices = Array.from(new Set(evidenceIndices));
-              const evidence = uniqueIndices
-                .map((index) => {
-                  const source = sources[index - 1];
-                  if (!source) {
-                    return null;
-                  }
-
-                  return {
-                    id: `E${index}`,
-                    index,
-                    title: source.metadata?.title ?? source.metadata?.url,
-                    url: source.metadata?.url,
-                  };
-                })
-                .filter(
-                  (entry): entry is NonNullable<typeof entry> => entry !== null,
-                );
-
               const claimText = segment.replace(citationRegex, '').trim();
               if (!claimText) {
                 return;
@@ -500,8 +486,8 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
                 claimMap.set(claimKey, {
                   id: crypto.randomUUID(),
                   text: claimText,
-                  evidence,
-                  verified: evidence.length > 0,
+                  evidenceIds: uniqueIndices,
+                  verified: uniqueIndices.length > 0,
                 });
               }
             });
@@ -540,14 +526,18 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
                     }
 
                     const source = sources[number - 1];
-                    const url = source?.metadata?.url;
-                    const attributes = buildCitationAttributes(source);
+                    const evidenceId = source?.metadata?.evidenceId ?? number;
+                    const attributes = buildCitationAttributes(
+                      source,
+                      evidenceId,
+                    );
+                    const anchor = `#evidence-${evidenceId}`;
 
-                    if (url) {
-                      return `<citation href="${url}" ${attributes}>${numStr}</citation>`;
-                    } else {
-                      return ``;
+                    if (source) {
+                      return `<citation href="${anchor}" ${attributes}>${numStr}</citation>`;
                     }
+
+                    return `[${numStr}]`;
                   })
                   .join('');
 
@@ -566,15 +556,17 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
         }
       });
 
+      const collectedClaims =
+        claims.length > 0 ? claims : Array.from(claimMap.values());
+
       return {
         message: msg,
         parsedTextBlocks: textBlocks,
         speechMessage,
         thinkingEnded,
-        claims,
+        claims: collectedClaims,
         suggestions,
         widgets: widgetBlocks,
-        claims: Array.from(claimMap.values()),
       };
     });
   }, [messages]);

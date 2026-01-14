@@ -48,26 +48,17 @@ const ClaimsList = ({
                   const label = source?.metadata?.title || url || `Source ${id}`;
                   const badgeClass =
                     'text-xs px-2 py-1 rounded-full border border-light-200 dark:border-dark-200 bg-light-200/60 dark:bg-dark-200/60 text-black/70 dark:text-white/70 hover:text-black dark:hover:text-white transition';
-
-                  if (url) {
-                    return (
-                      <a
-                        key={id}
-                        href={url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className={badgeClass}
-                        title={label}
-                      >
-                        Source {id}
-                      </a>
-                    );
-                  }
+                  const anchor = `#evidence-${id}`;
 
                   return (
-                    <span key={id} className={badgeClass} title={label}>
+                    <a
+                      key={id}
+                      href={anchor}
+                      className={badgeClass}
+                      title={label}
+                    >
                       Source {id}
-                    </span>
+                    </a>
                   );
                 })}
                 {!isVerified && (

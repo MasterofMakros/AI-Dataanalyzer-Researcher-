@@ -11,6 +11,7 @@ interface PdfPreviewCardProps {
   totalPages?: number;
   sourceLabel?: string;
   index: number;
+  onClick?: () => void;
 }
 
 const PdfPreviewCard = ({
@@ -21,13 +22,14 @@ const PdfPreviewCard = ({
   totalPages,
   sourceLabel,
   index,
+  onClick,
 }: PdfPreviewCardProps) => {
   const pageLabel = pageNumber
     ? `${pageNumber}${totalPages ? `/${totalPages}` : ''}`
     : undefined;
 
   return (
-    <PreviewCard href={href}>
+    <PreviewCard href={href} onClick={onClick}>
       <div className="flex items-center justify-between text-xs text-black/50 dark:text-white/50">
         <div className="flex items-center space-x-2">
           <div className="bg-red-500/10 text-red-500 p-1 rounded-md">

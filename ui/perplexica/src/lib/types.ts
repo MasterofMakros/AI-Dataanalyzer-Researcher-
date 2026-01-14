@@ -37,6 +37,7 @@ export type Evidence = {
   bbox?: [number, number, number, number];
   timecodeStart?: string;
   timecodeEnd?: string;
+  timestamp?: number;
   timestampStart?: number;
   timestampEnd?: number;
 };

@@ -12,6 +12,7 @@ interface VideoPreviewCardProps {
   thumbnailUrl?: string;
   sourceLabel?: string;
   index: number;
+  onClick?: () => void;
 }
 
 const VideoPreviewCard = ({
@@ -23,9 +24,10 @@ const VideoPreviewCard = ({
   thumbnailUrl,
   sourceLabel,
   index,
+  onClick,
 }: VideoPreviewCardProps) => {
   return (
-    <PreviewCard href={href}>
+    <PreviewCard href={href} onClick={onClick}>
       <div className="flex items-center justify-between text-xs text-black/50 dark:text-white/50">
         <div className="flex items-center space-x-2">
           <div className="bg-blue-500/10 text-blue-500 p-1 rounded-md">

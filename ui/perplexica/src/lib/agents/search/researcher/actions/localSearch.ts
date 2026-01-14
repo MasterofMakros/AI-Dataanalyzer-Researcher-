@@ -149,7 +149,7 @@ Use this when the user wants to search their own files and documents.`;
             }
 
             // Add thumbnail for images
-            if (source.thumbnailUrl) {
+            if (source.thumbnailUrl || source.ocrText) {
                 metadata.thumbnailUrl = source.thumbnailUrl;
                 metadata.ocrText = source.ocrText;
             }
@@ -157,7 +157,7 @@ Use this when the user wants to search their own files and documents.`;
             return {
                 content: source.textSnippet,
                 metadata,
-                evidence: Object.keys(evidence).length > 0 ? [evidence] : [],
+                evidence: Object.keys(evidence).length > 0 ? [evidence] : undefined,
             };
         });
 

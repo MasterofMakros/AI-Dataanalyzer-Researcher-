@@ -6,8 +6,9 @@
   "scripts": {
     "dev": "next dev --webpack",
     "build": "next build --webpack",
+    "prebuild": "node scripts/ensure-runtime-data.mjs",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx --config .eslintrc.json",
     "format:write": "prettier . --write"
   },
   "dependencies": {
@@ -68,7 +69,7 @@
     "postcss": "^8",
     "prettier": "^3.2.5",
     "tailwindcss": "^3.3.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.3.3"
   },
   "optionalDependencies": {
     "@napi-rs/canvas": "^0.1.87"

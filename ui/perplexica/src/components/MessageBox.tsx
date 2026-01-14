@@ -104,8 +104,7 @@ const MessageBox = ({
         confidence: s.metadata?.confidence || 0.5,
         timecodeStart: evidence?.timecodeStart ?? s.metadata?.timecodeStart,
         timecodeEnd: evidence?.timecodeEnd ?? s.metadata?.timecodeEnd,
-        timestampStart:
-          evidence?.timestampStart ?? s.metadata?.timestampStart,
+        timestampStart: evidence?.timestampStart ?? s.metadata?.timestampStart,
         timestampEnd: evidence?.timestampEnd ?? s.metadata?.timestampEnd,
         pageNumber: evidence?.page ?? s.metadata?.page,
         totalPages: evidence?.totalPages ?? s.metadata?.totalPages,
@@ -113,7 +112,6 @@ const MessageBox = ({
         thumbnailUrl: s.metadata?.thumbnailUrl,
         ocrText: s.metadata?.ocrText,
         filePath: s.metadata?.filePath || s.metadata?.url || '',
-        evidenceId: s.metadata?.evidenceId,
         folder: s.metadata?.folder,
         fileExtension: s.metadata?.fileExtension,
         fileCreated: s.metadata?.fileCreated,
@@ -269,7 +267,10 @@ const MessageBox = ({
                   {parsedMessage}
                 </Markdown>
 
-                <ClaimBadges claims={section.claims} />
+                <ClaimBadges
+                  claims={section.claims}
+                  sources={allSourcesWithIds}
+                />
 
                 {loading && isLast ? null : (
                   <div className="flex flex-row items-center justify-between w-full text-black dark:text-white py-4">
