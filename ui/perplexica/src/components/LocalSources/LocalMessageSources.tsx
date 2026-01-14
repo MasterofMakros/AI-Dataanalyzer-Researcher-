@@ -31,7 +31,8 @@ interface LocalMessageSourcesProps {
 
 const LocalMessageSources = ({ sources, query, onSourceClick }: LocalMessageSourcesProps) => {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const [selectedSource, setSelectedSource] = useState<LocalSource | null>(null);
+    const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
+    const [selectedMediaSource, setSelectedMediaSource] = useState<LocalSource | null>(null);
     const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
     const [selectedFolders, setSelectedFolders] = useState<string[]>([]);
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
