@@ -69,6 +69,11 @@ class Source(BaseModel):
     type: str  # pdf, audio, image, email, video, text
     filename: str
     path: str
+    folder: Optional[str] = None
+    fileExtension: Optional[str] = None
+    fileCreated: Optional[str] = None
+    fileModified: Optional[str] = None
+    tags: List[str] = []
     confidence: float
     excerpt: str
     highlightedText: Optional[str] = None
@@ -261,6 +266,7 @@ def convert_hit_to_source(hit: dict, index: int) -> Source:
     payload = hit.get('payload', hit)
     metadata = payload.get('metadata', payload)
     filename = payload.get('filename', payload.get('title', f'Document {index + 1}'))
+    file_path = payload.get('path', payload.get('file_path', ''))
 
     # Calculate confidence from payload or position
     confidence = payload.get('confidence')
@@ -273,7 +279,12 @@ def convert_hit_to_source(hit: dict, index: int) -> Source:
         id=str(hit.get('id', payload.get('id', str(index)))),
         type=source_type,
         filename=filename,
-        path=payload.get('path', payload.get('file_path', '')),
+        path=file_path,
+        folder=str(os.path.dirname(file_path)) if file_path else None,
+        fileExtension=payload.get('extension') or os.path.splitext(filename)[1].lower(),
+        fileCreated=payload.get('file_created'),
+        fileModified=payload.get('file_modified'),
+        tags=payload.get('tags', []) or [],
         confidence=confidence,
         excerpt=payload.get('content', payload.get('text', ''))[:500],
         extractedVia=detect_extractor(metadata),

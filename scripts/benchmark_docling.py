@@ -16,10 +16,15 @@ FILE_PATH = str(INBOX_DIR / "Einnahmen_Überschussrechnung_für_Dummies_Das_Pock
 HOST_URL = "http://localhost:8002"  # docling-service
 
 import sqlite3
-    row = conn.execute("SELECT original_path FROM files WHERE original_filename LIKE '%.pdf' LIMIT 1").fetchone()
-    conn.close()
 
-FILE_PATH = row[0]
+with sqlite3.connect(LEDGER_DB_PATH) as conn:
+    row = conn.execute(
+        "SELECT original_path FROM files WHERE original_filename LIKE '%.pdf' LIMIT 1"
+    ).fetchone()
+
+if row:
+    FILE_PATH = row[0]
+
 print(f"📄 Benchmarking on: {FILE_PATH}")
 
 def bench_pymupdf(path):

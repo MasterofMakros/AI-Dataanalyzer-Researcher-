@@ -72,7 +72,8 @@ class UploadStore {
                         metadata: {
                             ...record.metadata,
                             fileId: record.fileId,
-                        }
+                        },
+                        evidence: [],
                     },
                     score: computeSimilarity(query, record.embedding)
                 } as { chunk: Chunk; score: number; };

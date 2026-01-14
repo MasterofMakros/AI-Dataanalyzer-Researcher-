@@ -69,7 +69,7 @@ def run_topic_modeling():
     # Generate simple hierarchical visualization
     try:
         fig = topic_model.visualize_topics()
-    fig.write_html(str(DATA_DIR / "topics_viz.html"))
+        fig.write_html(str(DATA_DIR / "topics_viz.html"))
         print("🗺️  Saved Visualization to 'data/topics_viz.html'")
     except Exception as e:
         print(f"⚠️ Viz Error: {e}")

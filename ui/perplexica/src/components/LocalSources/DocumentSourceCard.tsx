@@ -47,6 +47,32 @@ const DocumentSourceCard = ({ source, index, onClick }: DocumentSourceCardProps)
                 </p>
             </div>
 
+            {/* Page preview for PDFs */}
+            {isPDF && (
+                <div className="rounded-md border border-dashed border-black/10 dark:border-white/10 bg-white/60 dark:bg-black/20 p-2">
+                    <div className="flex items-center justify-between text-xs text-black/50 dark:text-white/50">
+                        <span>Seitenvorschau</span>
+                        {source.pageNumber ? (
+                            <span className="font-mono">
+                                Seite {source.pageNumber}
+                                {source.totalPages ? ` / ${source.totalPages}` : ''}
+                            </span>
+                        ) : (
+                            <span className="font-mono">PDF</span>
+                        )}
+                    </div>
+                    <div className="mt-2 space-y-1">
+                        {[1, 2, 3].map((line) => (
+                            <div
+                                key={line}
+                                className="h-1 rounded-full bg-black/10 dark:bg-white/10"
+                                style={{ width: `${90 - line * 12}%` }}
+                            />
+                        ))}
+                    </div>
+                </div>
+            )}
+
             {/* Page indicator */}
             {source.pageNumber && (
                 <div className="flex items-center space-x-2">
