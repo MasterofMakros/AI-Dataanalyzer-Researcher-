@@ -37,6 +37,7 @@ export type Evidence = {
   bbox?: [number, number, number, number];
   timecodeStart?: string;
   timecodeEnd?: string;
+  timestamp?: number;
   timestampStart?: number;
   timestampEnd?: number;
 };
@@ -45,14 +46,6 @@ export type Chunk = {
   content: string;
   metadata: Record<string, any>;
   evidence?: Evidence[];
-};
-
-export type Evidence = {
-  page?: number;
-  bbox?: [number, number, number, number];
-  timecodeStart?: string;
-  timecodeEnd?: string;
-  timestamp?: number;
 };
 
 export type Claim = {

@@ -1,5 +1,6 @@
 import z from 'zod';
 import { ResearchAction } from '../../types';
+import UploadManager from '@/lib/uploads/manager';
 import UploadStore from '@/lib/uploads/store';
 import { mergeEvidence } from '@/lib/utils/evidence';
 
@@ -102,12 +103,38 @@ const uploadsSearchAction: ResearchAction<typeof schema> = {
       })
       .filter((r) => r !== undefined);
 
+    const enrichedSearchResults = filteredSearchResults.map((result) => {
+      const fileId = result.metadata?.fileId;
+      if (!fileId) {
+        return result;
+      }
+
+      const file = UploadManager.getFile(fileId);
+      if (!file) {
+        return result;
+      }
+
+      const nextTags = Array.isArray(result.metadata?.tags)
+        ? result.metadata?.tags
+        : file.tags ?? [];
+
+      return {
+        ...result,
+        metadata: {
+          ...result.metadata,
+          folder: result.metadata?.folder ?? file.folder ?? 'Uploads',
+          tags: nextTags,
+          uploadedAt: result.metadata?.uploadedAt ?? file.uploadedAt,
+        },
+      };
+    });
+
     if (researchBlock && researchBlock.type === 'research') {
       researchBlock.data.phase = 'reading';
       researchBlock.data.subSteps.push({
         id: crypto.randomUUID(),
         type: 'upload_search_results',
-        results: filteredSearchResults,
+        results: enrichedSearchResults,
       });
 
       additionalConfig.session.updateBlock(additionalConfig.researchBlockId, [
@@ -126,7 +153,7 @@ const uploadsSearchAction: ResearchAction<typeof schema> = {
 
     return {
       type: 'search_results',
-      results: filteredSearchResults,
+      results: enrichedSearchResults,
     };
   },
 };

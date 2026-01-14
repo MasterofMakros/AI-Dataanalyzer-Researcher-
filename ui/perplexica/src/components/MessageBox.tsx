@@ -90,11 +90,7 @@ const MessageBox = ({
   const sources = allSourcesWithIds.filter((s) => !s.metadata?.sourceType);
   const localSources = allSourcesWithIds
     .filter((s) => s.metadata?.sourceType)
-    .map((s) => ({
-  const sources = allSources.filter(s => !s.metadata?.sourceType);
-  const localSources = allSources
-    .filter(s => s.metadata?.sourceType)
-    .map(s => {
+    .map((s) => {
       const evidence = s.evidence?.[0];
       return {
         id: s.metadata?.id || crypto.randomUUID(),
@@ -108,42 +104,28 @@ const MessageBox = ({
         confidence: s.metadata?.confidence || 0.5,
         timecodeStart: evidence?.timecodeStart ?? s.metadata?.timecodeStart,
         timecodeEnd: evidence?.timecodeEnd ?? s.metadata?.timecodeEnd,
-        timestampStart: evidence?.timestampStart,
-        timestampEnd: evidence?.timestampEnd,
+        timestampStart: evidence?.timestampStart ?? s.metadata?.timestampStart,
+        timestampEnd: evidence?.timestampEnd ?? s.metadata?.timestampEnd,
         pageNumber: evidence?.page ?? s.metadata?.page,
         totalPages: evidence?.totalPages ?? s.metadata?.totalPages,
-        bbox: evidence?.bbox,
+        bbox: evidence?.bbox ?? s.metadata?.bbox,
         thumbnailUrl: s.metadata?.thumbnailUrl,
         ocrText: s.metadata?.ocrText,
-        filePath: s.metadata?.url || '',
+        filePath: s.metadata?.filePath || s.metadata?.url || '',
+        folder: s.metadata?.folder,
+        fileExtension: s.metadata?.fileExtension,
+        fileCreated: s.metadata?.fileCreated,
+        fileModified: s.metadata?.fileModified,
+        indexedAt: s.metadata?.indexedAt,
+        tags: Array.isArray(s.metadata?.tags)
+          ? s.metadata?.tags.map(String)
+          : s.metadata?.tags
+            ? String(s.metadata?.tags)
+                .split(',')
+                .map((tag: string) => tag.trim())
+            : [],
       };
     });
-    .map(s => ({
-      id: s.metadata?.id || crypto.randomUUID(),
-      filename: s.metadata?.title || 'Unknown',
-      sourceType: s.metadata?.sourceType as 'document' | 'audio' | 'video' | 'image',
-      textSnippet: s.content,
-      confidence: s.metadata?.confidence || 0.5,
-      timecodeStart: s.metadata?.timecodeStart,
-      timecodeEnd: s.metadata?.timecodeEnd,
-      pageNumber: s.metadata?.page,
-      totalPages: s.metadata?.totalPages,
-      thumbnailUrl: s.metadata?.thumbnailUrl,
-      ocrText: s.metadata?.ocrText,
-      filePath: s.metadata?.url || '',
-      evidenceId: s.metadata?.evidenceId,
-      filePath: s.metadata?.filePath || s.metadata?.url || '',
-      folder: s.metadata?.folder,
-      fileExtension: s.metadata?.fileExtension,
-      fileCreated: s.metadata?.fileCreated,
-      fileModified: s.metadata?.fileModified,
-      indexedAt: s.metadata?.indexedAt,
-      tags: Array.isArray(s.metadata?.tags)
-        ? s.metadata?.tags.map(String)
-        : s.metadata?.tags
-          ? String(s.metadata?.tags).split(',').map((tag: string) => tag.trim())
-          : [],
-    }));
 
   const hasContent = section.parsedTextBlocks.length > 0;
 
@@ -206,7 +188,6 @@ const MessageBox = ({
           {/* Local Sources from Neural Vault */}
           {localSources.length > 0 && (
             <div className="flex flex-col space-y-2">
-              <LocalMessageSources sources={localSources} query={section.message.query} />
               <LocalMessageSources
                 sources={localSources}
                 query={section.message.query}
@@ -216,6 +197,8 @@ const MessageBox = ({
 
           {section.claims.length > 0 && (
             <ClaimsList claims={section.claims} sources={allSourcesWithIds} />
+          )}
+
           {(sources.length > 0 || localSources.length > 0 || hasContent) && (
             <EvidenceBoard
               answer={parsedMessage}
