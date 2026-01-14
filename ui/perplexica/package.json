@@ -8,7 +8,7 @@
     "build": "next build --webpack",
     "prebuild": "node scripts/ensure-runtime-data.mjs",
     "start": "next start",
-    "lint": "eslint .",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx --config .eslintrc.json",
     "format:write": "prettier . --write"
   },
   "dependencies": {
