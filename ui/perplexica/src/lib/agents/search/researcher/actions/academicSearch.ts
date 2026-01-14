@@ -37,6 +37,7 @@ const academicSearchAction: ResearchAction<typeof schema> = {
     );
 
     if (researchBlock && researchBlock.type === 'research') {
+      researchBlock.data.phase = 'search';
       researchBlock.data.subSteps.push({
         type: 'searching',
         id: crypto.randomUUID(),
@@ -48,6 +49,11 @@ const academicSearchAction: ResearchAction<typeof schema> = {
           op: 'replace',
           path: '/data/subSteps',
           value: researchBlock.data.subSteps,
+        },
+        {
+          op: 'replace',
+          path: '/data/phase',
+          value: researchBlock.data.phase,
         },
       ]);
     }
@@ -78,6 +84,7 @@ const academicSearchAction: ResearchAction<typeof schema> = {
         researchBlock.type === 'research'
       ) {
         searchResultsEmitted = true;
+        researchBlock.data.phase = 'reading';
 
         researchBlock.data.subSteps.push({
           id: searchResultsBlockId,
@@ -90,6 +97,11 @@ const academicSearchAction: ResearchAction<typeof schema> = {
             op: 'replace',
             path: '/data/subSteps',
             value: researchBlock.data.subSteps,
+          },
+          {
+            op: 'replace',
+            path: '/data/phase',
+            value: researchBlock.data.phase,
           },
         ]);
       } else if (
@@ -106,12 +118,18 @@ const academicSearchAction: ResearchAction<typeof schema> = {
         ] as SearchResultsResearchBlock;
 
         subStep.reading.push(...resultChunks);
+        researchBlock.data.phase = 'reading';
 
         additionalConfig.session.updateBlock(additionalConfig.researchBlockId, [
           {
             op: 'replace',
             path: '/data/subSteps',
             value: researchBlock.data.subSteps,
+          },
+          {
+            op: 'replace',
+            path: '/data/phase',
+            value: researchBlock.data.phase,
           },
         ]);
       }

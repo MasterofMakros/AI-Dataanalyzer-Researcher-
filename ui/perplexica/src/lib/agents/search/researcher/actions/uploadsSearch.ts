@@ -34,6 +34,7 @@ const uploadsSearchAction: ResearchAction<typeof schema> = {
     );
 
     if (researchBlock && researchBlock.type === 'research') {
+      researchBlock.data.phase = 'search';
       researchBlock.data.subSteps.push({
         id: crypto.randomUUID(),
         type: 'upload_searching',
@@ -45,6 +46,11 @@ const uploadsSearchAction: ResearchAction<typeof schema> = {
           op: 'replace',
           path: '/data/subSteps',
           value: researchBlock.data.subSteps,
+        },
+        {
+          op: 'replace',
+          path: '/data/phase',
+          value: researchBlock.data.phase,
         },
       ]);
     }
@@ -77,6 +83,7 @@ const uploadsSearchAction: ResearchAction<typeof schema> = {
       .filter((r) => r !== undefined);
 
     if (researchBlock && researchBlock.type === 'research') {
+      researchBlock.data.phase = 'reading';
       researchBlock.data.subSteps.push({
         id: crypto.randomUUID(),
         type: 'upload_search_results',
@@ -88,6 +95,11 @@ const uploadsSearchAction: ResearchAction<typeof schema> = {
           op: 'replace',
           path: '/data/subSteps',
           value: researchBlock.data.subSteps,
+        },
+        {
+          op: 'replace',
+          path: '/data/phase',
+          value: researchBlock.data.phase,
         },
       ]);
     }

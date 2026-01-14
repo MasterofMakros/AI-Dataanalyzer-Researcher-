@@ -99,6 +99,8 @@ export type UploadSearchResultsResearchBlock = {
   results: Chunk[];
 };
 
+export type ResearchPhase = 'analysis' | 'search' | 'reading' | 'synthesis';
+
 export type ResearchBlockSubStep =
   | ReasoningResearchBlock
   | SearchingResearchBlock
@@ -111,6 +113,7 @@ export type ResearchBlock = {
   id: string;
   type: 'research';
   data: {
+    phase?: ResearchPhase;
     subSteps: ResearchBlockSubStep[];
   };
 };
@@ -159,4 +162,3 @@ export type HybridSearchResult = {
   localSources: LocalSource[];
   combinedAnswer?: string;
 };
-
