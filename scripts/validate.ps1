@@ -21,6 +21,31 @@ function Test-Step {
     }
 }
 
+function Initialize-PerplexicaRuntime {
+    if (-not (Test-Path "./ui/perplexica")) {
+        return
+    }
+
+    Push-Location ./ui/perplexica
+    try {
+        if (-not (Test-Path "./data")) {
+            New-Item -ItemType Directory -Path "./data" | Out-Null
+        }
+
+        $configPath = "./data/config.json"
+        if (-not (Test-Path $configPath)) {
+            '{"version":1,"setupComplete":false,"preferences":{},"personalization":{},"modelProviders":[],"search":{"searxngURL":""}}' |
+                Set-Content -Path $configPath -Encoding UTF8
+        }
+
+        if (-not (Test-Path "./data/db.sqlite")) {
+            New-Item -ItemType File -Path "./data/db.sqlite" | Out-Null
+        }
+    } finally {
+        Pop-Location
+    }
+}
+
 # 1. Doctor Check
 Test-Step "Doctor Check" {
     if (Test-Path "./scripts/doctor.ps1") {
@@ -53,6 +78,7 @@ if (-not $Quick) {
 if (-not $Quick) {
     Test-Step "Frontend Lint Check" {
         if (Test-Path "./ui/perplexica/package.json") {
+            Initialize-PerplexicaRuntime
             Push-Location ./ui/perplexica
             npm run lint --if-present
             if ($LASTEXITCODE -ne 0) { throw "npm lint failed" }
@@ -67,7 +93,10 @@ if (-not $Quick) {
 if (-not $Quick) {
     Test-Step "Frontend Build Check" {
         if (Test-Path "./ui/perplexica/package.json") {
+            Initialize-PerplexicaRuntime
             Push-Location ./ui/perplexica
+            $env:NEXT_PUBLIC_API_URL = "http://localhost:3001"
+            $env:NEXT_PUBLIC_WS_URL = "ws://localhost:3001"
             npm run build --if-present 2>&1 | Out-Null
             if ($LASTEXITCODE -ne 0) { throw "npm build failed" }
             Pop-Location
