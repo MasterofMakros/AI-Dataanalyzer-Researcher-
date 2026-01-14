@@ -37,6 +37,7 @@ const LocalMessageSources = ({ sources, query, onSourceClick }: LocalMessageSour
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const [dateFrom, setDateFrom] = useState('');
     const [dateTo, setDateTo] = useState('');
+    const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
 
     const closeModal = () => {
         setIsDialogOpen(false);
@@ -50,7 +51,7 @@ const LocalMessageSources = ({ sources, query, onSourceClick }: LocalMessageSour
 
     const handleSourceClick = (source: LocalSource) => {
         if (source.sourceType === 'audio' || source.sourceType === 'video') {
-            setSelectedMediaSource(source);
+            setSelectedSource(source);
             setIsMediaModalOpen(true);
             setIsDialogOpen(false);
             document.body.classList.remove('overflow-hidden-scrollable');
@@ -470,7 +471,7 @@ const LocalMessageSources = ({ sources, query, onSourceClick }: LocalMessageSour
             <MediaPlayerModal
                 isOpen={isMediaModalOpen}
                 onClose={() => setIsMediaModalOpen(false)}
-                source={selectedMediaSource}
+                source={selectedSource}
                 query={query}
             />
         </>
