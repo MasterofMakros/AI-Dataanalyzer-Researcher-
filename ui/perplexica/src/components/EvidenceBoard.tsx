@@ -11,7 +11,7 @@ import {
   Video,
 } from 'lucide-react';
 import Markdown from 'markdown-to-jsx';
-import { Chunk, LocalSource } from '@/lib/types';
+import { Chunk, ClaimItem, LocalSource } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 type EvidenceItem = {
@@ -37,6 +37,7 @@ type EvidenceBoardProps = {
   answer: string;
   sources: Chunk[];
   localSources: LocalSource[];
+  claims: ClaimItem[];
 };
 
 const typeIconMap: Record<EvidenceItem['sourceType'], React.ReactNode> = {
@@ -60,12 +61,6 @@ const stripInlineTags = (text: string) =>
     .replace(/<citation[^>]*>(.*?)<\/citation>/g, '$1')
     .replace(/<think>[\s\S]*?<\/think>/g, '');
 
-const normalizeText = (text: string) =>
-  stripInlineTags(text)
-    .replace(/[`*_>#-]/g, '')
-    .replace(/\s+/g, ' ')
-    .trim();
-
 const getDomain = (url?: string) => {
   if (!url) return undefined;
   try {
@@ -75,17 +70,12 @@ const getDomain = (url?: string) => {
   }
 };
 
-const extractClaims = (text: string) => {
-  const plain = normalizeText(text);
-  if (!plain) return [];
-  const sentences = plain
-    .split(/(?<=[.!?])\s+/)
-    .map((sentence) => sentence.trim())
-    .filter(Boolean);
-  return sentences.slice(0, 3);
-};
-
-const EvidenceBoard = ({ answer, sources, localSources }: EvidenceBoardProps) => {
+const EvidenceBoard = ({
+  answer,
+  sources,
+  localSources,
+  claims,
+}: EvidenceBoardProps) => {
   const evidenceItems = useMemo<EvidenceItem[]>(() => {
     const webItems = sources.map((source, index) => {
       const metadata = source.metadata ?? {};
@@ -249,7 +239,6 @@ const EvidenceBoard = ({ answer, sources, localSources }: EvidenceBoardProps) =>
     requirePage,
   ]);
 
-  const claims = useMemo(() => extractClaims(answer), [answer]);
   const displayAnswer = useMemo(() => stripInlineTags(answer), [answer]);
 
   if (evidenceItems.length === 0 && !answer.trim()) {
@@ -298,32 +287,49 @@ const EvidenceBoard = ({ answer, sources, localSources }: EvidenceBoardProps) =>
                   Keine markierbaren Aussagen vorhanden.
                 </p>
               )}
-              {claims.map((claim, index) => (
+              {claims.map((claim) => (
                 <div
-                  key={`${claim}-${index}`}
+                  key={claim.id}
                   className="rounded-md border border-light-200 dark:border-dark-200 bg-light-secondary dark:bg-dark-secondary p-3"
                 >
                   <p className="text-sm text-black dark:text-white">
-                    {claim}
+                    {claim.text}
                   </p>
                   <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-black/60 dark:text-white/60">
-                    {evidenceItems.length > 0 ? (
-                      <>
-                        <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-emerald-600 dark:text-emerald-300">
-                          Verifiziert durch {evidenceItems.length} Quellen
-                        </span>
-                        {evidenceItems.slice(0, 2).map((item) => (
-                          <span
-                            key={item.id}
-                            className="rounded-full bg-light-100 dark:bg-dark-100 border border-light-200 dark:border-dark-200 px-2 py-0.5"
+                    <span
+                      className={cn(
+                        'rounded-full px-2 py-0.5',
+                        claim.verified
+                          ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-300'
+                          : 'bg-amber-500/10 text-amber-600 dark:text-amber-300',
+                      )}
+                    >
+                      {claim.verified ? 'Verifiziert' : 'Unverifiziert'}
+                    </span>
+                    {claim.evidence.length > 0 ? (
+                      claim.evidence.map((evidence) =>
+                        evidence.url ? (
+                          <a
+                            key={evidence.id}
+                            href={evidence.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="rounded-full border border-blue-500/20 bg-light-100 dark:bg-dark-100 px-2 py-0.5 text-blue-600 dark:text-blue-300 hover:border-blue-500/40"
                           >
-                            {item.title}
+                            {evidence.id}
+                          </a>
+                        ) : (
+                          <span
+                            key={evidence.id}
+                            className="rounded-full border border-light-200 dark:border-dark-200 bg-light-100 dark:bg-dark-100 px-2 py-0.5"
+                          >
+                            {evidence.id}
                           </span>
-                        ))}
-                      </>
+                        ),
+                      )
                     ) : (
-                      <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-amber-600 dark:text-amber-300">
-                        Noch keine Quellen verknüpft
+                      <span className="text-xs text-black/50 dark:text-white/50">
+                        Unverifiziert
                       </span>
                     )}
                   </div>
