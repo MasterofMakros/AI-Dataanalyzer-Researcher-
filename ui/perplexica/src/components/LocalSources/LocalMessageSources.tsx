@@ -33,11 +33,15 @@ const LocalMessageSources = ({ sources, query, onSourceClick }: LocalMessageSour
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
     const [selectedMediaSource, setSelectedMediaSource] = useState<LocalSource | null>(null);
+    const [selectedMediaSource, setSelectedMediaSource] = useState<LocalSource | null>(
+        null,
+    );
     const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
     const [selectedFolders, setSelectedFolders] = useState<string[]>([]);
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const [dateFrom, setDateFrom] = useState('');
     const [dateTo, setDateTo] = useState('');
+    const [isMediaModalOpen, setIsMediaModalOpen] = useState(false);
 
     const closeModal = () => {
         setIsDialogOpen(false);
