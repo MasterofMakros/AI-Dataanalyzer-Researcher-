@@ -28,6 +28,7 @@ import AssistantSteps from './AssistantSteps';
 import { ResearchBlock } from '@/lib/types';
 import Renderer from './Widgets/Renderer';
 import CodeBlock from './MessageRenderer/CodeBlock';
+import EvidenceBoard from './EvidenceBoard';
 
 const ThinkTagProcessor = ({
   children,
@@ -156,8 +157,19 @@ const MessageBox = ({
           {/* Local Sources from Neural Vault */}
           {localSources.length > 0 && (
             <div className="flex flex-col space-y-2">
-              <LocalMessageSources sources={localSources} />
+              <LocalMessageSources
+                sources={localSources}
+                query={section.message.query}
+              />
             </div>
+          )}
+
+          {(sources.length > 0 || localSources.length > 0 || hasContent) && (
+            <EvidenceBoard
+              answer={parsedMessage}
+              sources={sources}
+              localSources={localSources}
+            />
           )}
 
           {section.message.responseBlocks

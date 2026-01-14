@@ -18,9 +18,7 @@ interface VideoSourceCardProps {
 
 const VideoSourceCard = ({ source, index, onClick }: VideoSourceCardProps) => {
     const handlePlayClick = () => {
-        // TODO: Implement video player modal with start at timecode
         if (onClick) onClick();
-        console.log(`Play video ${source.filename} from ${source.timecodeStart}`);
     };
 
     return (
