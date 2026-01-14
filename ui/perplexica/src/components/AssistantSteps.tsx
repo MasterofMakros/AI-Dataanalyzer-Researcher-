@@ -471,14 +471,15 @@ const AssistantSteps = ({
                           </div>
                         )}
 
-                      {step.type === 'upload_search_results' &&
-                        step.results.length > 0 && (
-                          <div className="mt-1.5 grid gap-3 lg:grid-cols-3">
-                            {step.results
-                              .slice(0, maxPreviewItems)
-                              .map((result, idx) => {
-                          <div className="mt-2">
-                            <UploadSearchResultsPanel results={step.results} />
+                        {step.type === 'upload_search_results' &&
+                          step.results.length > 0 && (
+                            <div className="mt-2 space-y-3">
+                              <UploadSearchResultsPanel
+                                results={step.results}
+                              />
+                            </div>
+                          )}
+
                         {phase.id === 'read' && uploadResults.length > 0 && (
                           <div className="mt-3 grid gap-3 lg:grid-cols-3">
                             {uploadResults.slice(0, 4).map((result, idx) => {
@@ -517,9 +518,9 @@ const AssistantSteps = ({
                                 </div>
                               );
                             })}
-                            {step.results.length > maxPreviewItems && (
+                            {uploadResults.length > maxPreviewItems && (
                               <div className="flex items-center justify-center rounded-lg border border-dashed border-light-200 dark:border-dark-200 bg-light-100/60 dark:bg-dark-100/60 p-2 text-xs text-black/60 dark:text-white/60">
-                                +{step.results.length - maxPreviewItems} more
+                                +{uploadResults.length - maxPreviewItems} more
                               </div>
                             )}
                           </div>

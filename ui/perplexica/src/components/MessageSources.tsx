@@ -193,6 +193,7 @@ const MessageSources = ({ sources }: { sources: Chunk[] }) => {
           <a
             className="bg-light-100 hover:bg-light-200 dark:bg-dark-100 dark:hover:bg-dark-200 transition duration-200 rounded-lg p-3 flex flex-col space-y-2 font-medium"
             key={i}
+            id={`evidence-${evidenceId}`}
             href={source.metadata.url}
             target="_blank"
           >
@@ -322,6 +323,7 @@ const MessageSources = ({ sources }: { sources: Chunk[] }) => {
                         </a>
                       );
                     })}
+                  </div>
                   <div className="grid grid-cols-2 gap-2 overflow-auto max-h-[70vh] mt-4 pr-2">
                     {previewSources.map(({ source, type }, i) =>
                       renderPreviewCard(source, type, i),
