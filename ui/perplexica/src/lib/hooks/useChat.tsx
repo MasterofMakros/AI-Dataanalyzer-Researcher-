@@ -357,9 +357,19 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
                 ? `${rawSnippet.slice(0, 277)}...`
                 : rawSnippet;
 
+            const evidence = source.evidence?.[0];
             const title = source.metadata?.title ?? '';
             const sourceType = source.metadata?.sourceType ?? 'web';
             const filePath = source.metadata?.url ?? '';
+            const page = evidence?.page ?? source.metadata?.page;
+            const totalPages = evidence?.totalPages ?? source.metadata?.totalPages;
+            const timecodeStart =
+              evidence?.timecodeStart ?? source.metadata?.timecodeStart ?? '';
+            const timecodeEnd =
+              evidence?.timecodeEnd ?? source.metadata?.timecodeEnd ?? '';
+            const timestampStart = evidence?.timestampStart;
+            const timestampEnd = evidence?.timestampEnd;
+            const bbox = evidence?.bbox;
             const primaryEvidence = source.evidence?.[0];
             const pageValue =
               primaryEvidence?.page ?? source.metadata?.page;
@@ -392,8 +402,11 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
               );
             }
 
-            if (page) {
-              attributes.push(`data-page="${escapeHtmlAttribute(page)}"`);
+            if (page !== undefined) {
+              const pageLabel = totalPages
+                ? `${page}/${totalPages}`
+                : `${page}`;
+              attributes.push(`data-page="${escapeHtmlAttribute(pageLabel)}"`);
             }
 
             if (timecodeStart) {
@@ -405,6 +418,23 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
             if (timecodeEnd) {
               attributes.push(
                 `data-timecode-end="${escapeHtmlAttribute(timecodeEnd)}"`,
+              );
+            }
+
+            if (timestampStart !== undefined) {
+              const timestampLabel =
+                timestampEnd !== undefined
+                  ? `${timestampStart}-${timestampEnd}`
+                  : `${timestampStart}`;
+              attributes.push(
+                `data-timestamp="${escapeHtmlAttribute(timestampLabel)}"`,
+              );
+            }
+
+            if (bbox) {
+              const bboxLabel = bbox.join(',');
+              attributes.push(
+                `data-bbox="${escapeHtmlAttribute(bboxLabel)}"`,
               );
             }
 

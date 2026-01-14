@@ -140,6 +140,8 @@ The response from the API includes both the final message and the sources used t
       },
       "evidence": [
         {
+          "page": 12,
+          "bbox": [120, 240, 480, 540]
           "page": 3,
           "bbox": [112.4, 220.1, 402.9, 268.7]
         }
@@ -171,7 +173,7 @@ Example of streamed response objects:
 
 ```
 {"type":"init","data":"Stream connected"}
-{"type":"sources","data":[{"content":"...","metadata":{"title":"...","url":"..."}},...]}
+{"type":"sources","data":[{"content":"...","metadata":{"title":"...","url":"..."},"evidence":[{"page":12,"bbox":[120,240,480,540]}]},...]}
 {"type":"response","data":"Perplexica is an "}
 {"type":"response","data":"innovative, open-source "}
 {"type":"response","data":"AI-powered search engine..."}
@@ -193,6 +195,11 @@ Clients should process each line as a separate JSON object. The different messag
   - `metadata`: Metadata about the source, including:
     - `title`: The title of the webpage.
     - `url`: The URL of the webpage.
+  - `evidence`: Optional evidence details to locate the cited chunk, such as:
+    - `page`: Page number for document sources.
+    - `bbox`: Bounding box coordinates (e.g., for images or PDF regions).
+    - `timecodeStart` / `timecodeEnd`: Human-readable timecodes for audio/video.
+    - `timestampStart` / `timestampEnd`: Numeric timestamps (seconds) for audio/video.
   - `evidence`: Evidence objects that help locate where the content came from (optional). Each evidence entry can include:
     - `page`: Page number for document sources.
     - `bbox`: Bounding box coordinates `[x1, y1, x2, y2]` for highlighted regions.

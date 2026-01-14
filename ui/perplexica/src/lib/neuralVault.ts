@@ -26,9 +26,12 @@ export interface LocalSource {
   // Audio/Video timecodes
   timecodeStart?: string;
   timecodeEnd?: string;
+  timestampStart?: number;
+  timestampEnd?: number;
   // Document page info
   pageNumber?: number;
   totalPages?: number;
+  bbox?: [number, number, number, number];
   // Image OCR
   thumbnailUrl?: string;
   ocrText?: string;
@@ -93,8 +96,11 @@ export const searchNeuralVault = async (
       confidence: s.confidence,
       timecodeStart: s.timecode_start,
       timecodeEnd: s.timecode_end,
+      timestampStart: s.timestamp_start,
+      timestampEnd: s.timestamp_end,
       pageNumber: s.page_number,
       totalPages: s.total_pages,
+      bbox: s.bbox,
       thumbnailUrl: s.thumbnail_url,
       ocrText: s.ocr_text,
       filePath: s.file_path,

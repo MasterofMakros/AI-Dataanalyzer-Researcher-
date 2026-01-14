@@ -134,6 +134,16 @@ Use this when the user wants to search their own files and documents.`;
                 metadata.page = source.pageNumber;
                 metadata.totalPages = source.totalPages;
                 evidence.page = source.pageNumber;
+                evidence.totalPages = source.totalPages;
+            }
+
+            if (source.timestampStart !== undefined) {
+                evidence.timestampStart = source.timestampStart;
+                evidence.timestampEnd = source.timestampEnd;
+            }
+
+            if (source.bbox) {
+                evidence.bbox = source.bbox;
             }
 
             // Add thumbnail for images
@@ -145,6 +155,7 @@ Use this when the user wants to search their own files and documents.`;
             return {
                 content: source.textSnippet,
                 metadata,
+                evidence: Object.keys(evidence).length > 0 ? [evidence] : undefined,
                 evidence: Object.keys(evidence).length > 0 ? [evidence] : [],
             };
         });

@@ -8,6 +8,8 @@ const Citation = ({
   'data-page': dataPage,
   'data-timecode-start': dataTimecodeStart,
   'data-timecode-end': dataTimecodeEnd,
+  'data-timestamp': dataTimestamp,
+  'data-bbox': dataBbox,
   'data-source-url': dataSourceUrl,
 }: {
   href: string;
@@ -19,6 +21,8 @@ const Citation = ({
   'data-page'?: string;
   'data-timecode-start'?: string;
   'data-timecode-end'?: string;
+  'data-timestamp'?: string;
+  'data-bbox'?: string;
   'data-source-url'?: string;
 }) => {
   const snippet = dataSnippet?.trim();
@@ -33,6 +37,8 @@ const Citation = ({
     dataPage ? `Seite ${dataPage}` : null,
     dataTimecodeStart ? `@ ${dataTimecodeStart}` : null,
     dataTimecodeEnd ? `→ ${dataTimecodeEnd}` : null,
+    dataTimestamp ? `t=${dataTimestamp}s` : null,
+    dataBbox ? `BBox ${dataBbox}` : null,
   ].filter(Boolean);
 
   const sourceTypeLabel = dataSourceType ? dataSourceType.toUpperCase() : null;
