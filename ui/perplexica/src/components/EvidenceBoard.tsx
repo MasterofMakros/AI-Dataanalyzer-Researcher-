@@ -11,7 +11,7 @@ import {
   Video,
 } from 'lucide-react';
 import Markdown from 'markdown-to-jsx';
-import { Chunk, ClaimItem, LocalSource } from '@/lib/types';
+import { Chunk, Claim, LocalSource } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 type EvidenceItem = {
@@ -24,6 +24,7 @@ type EvidenceItem = {
   domain?: string;
   tags?: string[];
   fileType?: string;
+  evidenceId?: number;
   page?: number;
   totalPages?: number;
   timecodeStart?: string;
@@ -38,7 +39,7 @@ type EvidenceBoardProps = {
   answer: string;
   sources: Chunk[];
   localSources: LocalSource[];
-  claims: ClaimItem[];
+  claims: Claim[];
 };
 
 const typeIconMap: Record<EvidenceItem['sourceType'], React.ReactNode> = {
@@ -93,7 +94,6 @@ const extractClaims = (text: string) => {
   return sentences.slice(0, 3);
 };
 
-const EvidenceBoard = ({ answer, sources, localSources }: EvidenceBoardProps) => {
 const EvidenceBoard = ({
   answer,
   sources,
@@ -118,11 +118,14 @@ const EvidenceBoard = ({
       const bbox = primaryEvidence.bbox ?? metadata.bbox;
       const bboxValue = bbox && Array.isArray(bbox) ? bbox.join(', ') : bbox;
 
+      const evidenceId = metadata.evidenceId ?? index + 1;
+
       return {
         id: `${metadata.url || 'web'}-${index}`,
         title,
         snippet,
         sourceType: 'web',
+        evidenceId,
         url: metadata.url,
         domain,
         tags,
@@ -144,6 +147,7 @@ const EvidenceBoard = ({
         title: source.filename,
         snippet: source.textSnippet,
         sourceType: source.sourceType,
+        evidenceId: source.evidenceId,
         filePath: source.filePath,
         fileType,
         page: source.pageNumber,
@@ -157,6 +161,13 @@ const EvidenceBoard = ({
 
     return [...webItems, ...localItems];
   }, [localSources, sources]);
+
+  const evidenceLookup = useMemo(() => {
+    const entries = evidenceItems
+      .filter((item) => item.evidenceId !== undefined)
+      .map((item) => [item.evidenceId as number, item]);
+    return new Map(entries);
+  }, [evidenceItems]);
 
   const typeOptions = useMemo(
     () =>
@@ -313,7 +324,12 @@ const EvidenceBoard = ({
                   Keine markierbaren Aussagen vorhanden.
                 </p>
               )}
-              {claims.map((claim) => (
+              {claims.map((claim) => {
+                const claimEvidence = claim.evidenceIds
+                  .map((id) => evidenceLookup.get(id))
+                  .filter(Boolean);
+
+                return (
                 <div
                   key={claim.id}
                   className="rounded-md border border-light-200 dark:border-dark-200 bg-light-secondary dark:bg-dark-secondary p-3"
@@ -325,34 +341,33 @@ const EvidenceBoard = ({
                     <span
                       className={cn(
                         'rounded-full px-2 py-0.5',
-                        claim.verified
+                        claim.verified && claimEvidence.length > 0
                           ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-300'
                           : 'bg-amber-500/10 text-amber-600 dark:text-amber-300',
                       )}
                     >
-                      {claim.verified ? 'Verifiziert' : 'Unverifiziert'}
+                      {claim.verified && claimEvidence.length > 0
+                        ? 'Verifiziert'
+                        : 'Unverifiziert'}
                     </span>
-                    {claim.evidence.length > 0 ? (
-                      claim.evidence.map((evidence) =>
-                        evidence.url ? (
+                    {claimEvidence.length > 0 ? (
+                      claimEvidence.map((evidence) => {
+                        const anchor = evidence?.evidenceId
+                          ? `#evidence-${evidence.evidenceId}`
+                          : evidence?.url;
+                        const label = evidence?.evidenceId
+                          ? `E${evidence.evidenceId}`
+                          : evidence?.title;
+                        return (
                           <a
-                            key={evidence.id}
-                            href={evidence.url}
-                            target="_blank"
-                            rel="noreferrer"
+                            key={evidence?.id ?? label}
+                            href={anchor}
                             className="rounded-full border border-blue-500/20 bg-light-100 dark:bg-dark-100 px-2 py-0.5 text-blue-600 dark:text-blue-300 hover:border-blue-500/40"
                           >
-                            {evidence.id}
+                            {label}
                           </a>
-                        ) : (
-                          <span
-                            key={evidence.id}
-                            className="rounded-full border border-light-200 dark:border-dark-200 bg-light-100 dark:bg-dark-100 px-2 py-0.5"
-                          >
-                            {evidence.id}
-                          </span>
-                        ),
-                      )
+                        );
+                      })
                     ) : (
                       <span className="text-xs text-black/50 dark:text-white/50">
                         Unverifiziert
@@ -360,7 +375,7 @@ const EvidenceBoard = ({
                     )}
                   </div>
                 </div>
-              ))}
+              )})}
             </div>
           </div>
         </div>
@@ -544,7 +559,8 @@ const EvidenceBoard = ({
             {filteredItems.map((item) => (
               <article
                 key={item.id}
-                className="rounded-lg border border-light-200 dark:border-dark-200 bg-light-100 dark:bg-dark-100 p-4"
+                id={item.evidenceId ? `evidence-${item.evidenceId}` : undefined}
+                className="rounded-lg border border-light-200 dark:border-dark-200 bg-light-100 dark:bg-dark-100 p-4 scroll-mt-24"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-start gap-3">
