@@ -47,11 +47,10 @@ CATEGORY_MIME_MAP = {
     "Dokumente": ["application/pdf", "application/msword", "application/vnd.", "text/"],
 }
 
-from config.paths import SHADOW_LEDGER_PATH, QUARANTINE_DIR, ARCHIVE_DIR, BASE_DIR
+from config.paths import ARCHIVE_DIR, BASE_DIR, LEDGER_DB_PATH, QUARANTINE_DIR
 
-# Shadow Ledger
-# Note: In config.paths we named it LEDGER_DB_PATH, alias it here if needed or import directly
-from config.paths import LEDGER_DB_PATH as SHADOW_LEDGER_PATH
+# Shadow Ledger alias for legacy naming.
+SHADOW_LEDGER_PATH = LEDGER_DB_PATH
 
 def gate_category_plausibility(data: Dict[str, Any]) -> GateResult:
     """

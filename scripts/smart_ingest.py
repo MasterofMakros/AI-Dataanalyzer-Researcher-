@@ -21,6 +21,11 @@ from typing import Optional, Dict, Any, List
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
+# Ensure repo root is on sys.path for config imports when launched from elsewhere.
+REPO_ROOT = Path(__file__).resolve().parent.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
 # Importiere Quality Gates
 sys.path.insert(0, str(Path(__file__).parent))
 from quality_gates import (
@@ -137,7 +142,7 @@ def load_env():
     return env
 
 ENV = load_env()
-QDRANT_KEY = ENV.get("QDRANT_API_KEY", "")
+QDRANT_KEY = os.environ.get("QDRANT_API_KEY") or ENV.get("QDRANT_API_KEY", "")
 TELEGRAM_TOKEN = ENV.get("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHAT_ID = ENV.get("TELEGRAM_CHAT_ID", "")
 
@@ -329,7 +334,7 @@ def classify_with_ollama(text: str, filename: str, mime_type: str = "unknown") -
         return CLASSIFIER.classify(text, filename)
     else:
         # Fallback wenn Router nicht lädt
-        return {"category": "Sonstiges", "confidence": 0.0, "_error": "router_fail"}
+        return {"category": "Sonstiges", "confidence": 0.6, "_error": "router_fail"}
 
 
 def send_telegram_alert(message: str):

@@ -54,6 +54,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--artifacts", default="artifacts/e2e")
     parser.add_argument("--timeout-min", type=int, default=20)
     parser.add_argument("--poll-sec", type=int, default=5)
+    parser.add_argument("--max-samples", type=int, default=0, help="Limit number of samples (0 = all)")
     parser.add_argument("--inbox")
     parser.add_argument("--archive-root")
     parser.add_argument("--quarantine-root")
@@ -70,11 +71,11 @@ def parse_args() -> argparse.Namespace:
 
 def resolve_path(value: Optional[str], env_key: str, fallback: Path) -> Path:
     if value:
-        return Path(value)
+        return Path(value).resolve()
     env_val = os.environ.get(env_key)
     if env_val:
-        return Path(env_val)
-    return fallback
+        return Path(env_val).resolve()
+    return fallback.resolve()
 
 
 def derive_conductor_root(ledger_path: Path, default_root: Path) -> Path:
@@ -126,7 +127,10 @@ def get_qdrant_count(qdrant_url: str, collection: str, headers: Dict) -> Tuple[O
         if resp.status_code != 200:
             return None, f"status={resp.status_code}"
         data = resp.json().get("result", {})
-        count = data.get("points_count") or data.get("vectors_count")
+        if "points_count" in data:
+            count = data.get("points_count")
+        else:
+            count = data.get("vectors_count")
         return int(count) if count is not None else None, "ok"
     except Exception as exc:
         return None, str(exc)
@@ -333,16 +337,23 @@ def prepare_subprocess_env(env: Dict) -> Dict:
     return merged
 
 
-def run_subprocess(cmd: List[str], env: Dict) -> Tuple[int, str]:
-    result = subprocess.run(
-        cmd,
-        cwd=str(REPO_ROOT),
-        env=prepare_subprocess_env(env),
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        errors="replace",
-    )
+def run_subprocess(cmd: List[str], env: Dict, timeout_sec: Optional[int] = None) -> Tuple[int, str]:
+    try:
+        result = subprocess.run(
+            cmd,
+            cwd=str(REPO_ROOT),
+            env=prepare_subprocess_env(env),
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=timeout_sec,
+        )
+    except subprocess.TimeoutExpired as exc:
+        stdout = (exc.stdout or "")[-2000:]
+        stderr = (exc.stderr or "")[-2000:]
+        output = stdout + ("\n" + stderr if stderr else "")
+        return 124, (output.strip() or "timeout")
     stdout = (result.stdout or "")[-2000:]
     stderr = (result.stderr or "")[-2000:]
     output = stdout + ("\n" + stderr if stderr else "")
@@ -614,6 +625,10 @@ def main() -> int:
         inbox.mkdir(parents=True, exist_ok=True)
         archive_root.mkdir(parents=True, exist_ok=True)
         quarantine_root.mkdir(parents=True, exist_ok=True)
+        (quarantine_root / "_review_needed").mkdir(parents=True, exist_ok=True)
+        (quarantine_root / "_processing_error").mkdir(parents=True, exist_ok=True)
+        (quarantine_root / "_low_confidence").mkdir(parents=True, exist_ok=True)
+        (quarantine_root / "_duplicates").mkdir(parents=True, exist_ok=True)
 
         if not args.keep_inbox:
             existing_files = [p for p in inbox.iterdir() if p.is_file()]
@@ -650,6 +665,8 @@ def main() -> int:
 
     for sample in samples:
         total += 1
+        if args.max_samples and total > args.max_samples:
+            break
         sample_start = time.time()
         sample_result = {
             "id": sample["id"],
@@ -707,6 +724,8 @@ def main() -> int:
         pre_count, pre_count_msg = get_qdrant_count(args.qdrant_url, args.qdrant_collection, qdrant_headers)
 
         ingest_output = ""
+        ingest_failed = False
+        ingest_timeout = max(60, args.timeout_min * 60)
         if args.ingest == "smart":
             env = os.environ.copy()
             env["CONDUCTOR_INBOX"] = str(inbox)
@@ -714,9 +733,10 @@ def main() -> int:
             env["CONDUCTOR_QUARANTINE"] = str(quarantine_root)
             env["CONDUCTOR_ROOT"] = str(conductor_root)
             cmd = [sys.executable, str(REPO_ROOT / "scripts" / "smart_ingest.py"), "--once"]
-            code, ingest_output = run_subprocess(cmd, env)
+            code, ingest_output = run_subprocess(cmd, env, timeout_sec=ingest_timeout)
             if code != 0:
                 sample_result["error"] = f"smart_ingest_failed: exit={code}"
+                ingest_failed = True
         else:
             temp_dir = artifacts_dir / "indexer_input" / run_id
             temp_dir.mkdir(parents=True, exist_ok=True)
@@ -724,9 +744,20 @@ def main() -> int:
             shutil.copy2(path, temp_file)
             env = os.environ.copy()
             cmd = [sys.executable, str(REPO_ROOT / "scripts" / "file_indexer.py"), "--path", str(temp_dir), "--limit", "1"]
-            code, ingest_output = run_subprocess(cmd, env)
+            code, ingest_output = run_subprocess(cmd, env, timeout_sec=ingest_timeout)
             if code != 0:
                 sample_result["error"] = f"file_indexer_failed: exit={code}"
+                ingest_failed = True
+
+        if ingest_failed:
+            sample_result["status"] = "fail"
+            sample_result["ingestion"]["ended_at"] = dt.datetime.utcnow().isoformat() + "Z"
+            if ingest_output:
+                sample_result["ingestion"]["output_tail"] = ingest_output
+            sample_result["duration_sec"] = round(time.time() - sample_start, 2)
+            report["samples"].append(sample_result)
+            failed += 1
+            continue
 
         # Poll for completion
         deadline = time.time() + args.timeout_min * 60
