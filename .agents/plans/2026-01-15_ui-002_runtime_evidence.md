@@ -60,3 +60,27 @@ UI E2E:
 - PowerShell 5.1 treats stderr output as an error when $ErrorActionPreference=Stop. Use cmd.exe with 2>&1 or relax error handling to avoid false negatives.
 - Clean seed requires an empty inbox (or pass --keep-inbox).
 - UI E2E needs a healthy UI at http://localhost:3100 and a container image matching the current testids.
+
+## Run 3 (Windows PowerShell manual run, 2026-01-15)
+Host: Windows PowerShell
+Node: v22.18.0
+npm: 10.9.3
+
+Seed (dedicated inbox):
+- python scripts\\e2e_formats.py --mode base --inbox artifacts\\inbox_ui_e2e --archive-root artifacts\\archive_ui_e2e --quarantine-root artifacts\\quarantine_ui_e2e --artifacts artifacts\\e2e\\base
+- report: artifacts/e2e/base/e2e_formats_report.json
+- summary: total=9 passed=0 failed=9
+- errors: smart_ingest_failed: exit=1 for all samples
+
+UI image build:
+- docker compose build perplexica failed (node:24.5.0-slim metadata lease error; transient)
+- docker compose up -d --force-recreate --build perplexica failed
+  - yarn install --frozen-lockfile: lockfile out of date
+
+UI E2E:
+- npm run test:e2e executed from repo root
+- failure: ENOENT for package.json (run should be from ui\\perplexica)
+
+## Follow-up actions
+- Update ui/perplexica/yarn.lock to match package.json (Playwright deps), then rebuild the UI image.
+- Re-run npm run test:e2e from ui\\perplexica with E2E_UI_BASE_URL=http://localhost:3100.
