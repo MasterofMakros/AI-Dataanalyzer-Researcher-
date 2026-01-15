@@ -159,6 +159,11 @@ ui/perplexica/node_modules/
 ui/perplexica/.next/
 ui/perplexica/uploads/
 ui/perplexica/data/
+ui/perplexica/playwright-report/
+ui/perplexica/test-results/
+
+# Runtime artifacts
+artifacts/
 
 # -----------------------------------------------------------------------------
 # Runtime Data (10TB+ Exclusions)

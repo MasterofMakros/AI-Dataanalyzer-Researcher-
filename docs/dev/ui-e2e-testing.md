@@ -7,7 +7,7 @@
 
 ## Recommended workflow
 ```bash
-docker compose --profile gpu up -d
+docker compose --profile gpu up -d --remove-orphans
 ./scripts/smoke.sh
 python scripts/e2e_formats.py --mode base --artifacts artifacts/e2e/base
 
@@ -23,3 +23,10 @@ npm run test:e2e
 - Tests rely on `data-testid` selectors for stability.
 - Media preview tests skip when no audio/video/image sources are available.
 - On failure, Playwright stores traces/screenshots/videos in `test-results/`.
+
+## Windows PowerShell notes
+- If `e2e_formats.py` reports “Inbox is not empty”, use a dedicated inbox path (e.g. `--inbox artifacts\\inbox_ui_e2e`) or clear the inbox before running.
+- If PowerShell is set to `$ErrorActionPreference="Stop"`, warnings written to stderr can appear as failures. Prefer running native commands via `cmd.exe /c` with `2>&1` when logging.
+- Ensure the UI container matches the current testids. If in doubt, rebuild the UI service:
+  - `docker compose build perplexica`
+  - `docker compose up -d --force-recreate --build perplexica`
