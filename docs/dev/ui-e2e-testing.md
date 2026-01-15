@@ -30,3 +30,4 @@ npm run test:e2e
 - Ensure the UI container matches the current testids. If in doubt, rebuild the UI service:
   - `docker compose build perplexica`
   - `docker compose up -d --force-recreate --build perplexica`
+- Avoid running Windows drive-letter paths inside WSL from the repo root; it can create a `F:` directory locally. If it appears, delete it from the repo root.
