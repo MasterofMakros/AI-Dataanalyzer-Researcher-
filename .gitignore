@@ -175,6 +175,7 @@ data/index/**
 data/cache/**
 data/logs/**
 data/tmp/**
+data/*e2e*
 !data/*/.gitkeep
 !data/samples/**
 **/embeddings/
