@@ -15,7 +15,7 @@
 | F-001 | Documentation Consolidation | planned | ../PRPs/2026-01-12_consolidate-docs.md | - | `scripts/validate.ps1` |
 | F-002 | Fix CI/CD Pipeline | planned | ../PRPs/2026-01-12_fix-ci-pipeline.md | - | `scripts/validate.ps1` + GitHub Actions |
 | F-003 | Smoke Test - Verify Context Engineering Setup | planned | ../PRPs/2026-01-12_smoke-test.md | - | `scripts/validate.ps1` |
-| F-004 | E2E Format Coverage Harness (PRP-FMT-001) | implemented / pending validation | ../PRPs/prp-fmt-001-e2e-format-coverage-harness.md | Docker Daemon + Base/Overlay running | `scripts/e2e_formats.py --mode base/overlay` + reports |
+| F-004 | E2E Format Coverage Harness (PRP-FMT-001) | Done (Validated) | ../PRPs/prp-fmt-001-e2e-format-coverage-harness.md | Docker Daemon + Base/Overlay running | Evidence: `artifacts/e2e/base/e2e_formats_report.json`; `artifacts/e2e/overlay/e2e_formats_report.json` |
 | F-005 | Perplexica UI E2E Tests (PRP-UI-002) | planned | ../PRPs/prp-ui-002-perplexica-ui-e2e-tests.md | F-004 | `npm run test:e2e` |
 
 ### Abgeschlossene Komponenten
@@ -31,7 +31,7 @@
 | Audit Trail | ✅ 100% | Chain of Custody in PostgreSQL |
 | Startup Scripts | ✅ 100% | PowerShell + Bash Scripts |
 | Dokumentation | ✅ 100% | Technische Docs aktualisiert |
-| **E2E Format Test (Harness)** | 🟡 Implemented / Pending Validation | Harness + PRP-FMT-001 implementiert; Runtime Evidence ausstehend |
+| **E2E Format Test (Harness)** | ✅ Done (Validated) | Evidence: `artifacts/e2e/base/e2e_formats_report.json`; `artifacts/e2e/overlay/e2e_formats_report.json`; `.agents/plans/2026-01-14_fmt-001_runtime_evidence.md` |
 | E2E Format Test (Legacy) | ✅ (historisch) | 8/8 Formate verifiziert (v2.1.6); wird durch Harness-Evidence abgelöst |
 
 ### Verifizierte Formate
