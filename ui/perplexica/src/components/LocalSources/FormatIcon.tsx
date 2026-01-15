@@ -213,7 +213,13 @@ const FormatIcon = ({ format, size = 16, className = '' }: FormatIconProps) => {
     const Icon = FORMAT_ICONS[normalizedFormat] || File;
     const colorClass = FORMAT_COLORS[normalizedFormat] || 'text-gray-400';
 
-    return <Icon size={size} className={`${colorClass} ${className}`} />;
+    return (
+        <Icon
+            size={size}
+            className={`${colorClass} ${className}`}
+            data-testid="format-icon"
+        />
+    );
 };
 
 // Get category for a format

@@ -41,6 +41,7 @@ const EmptyChatMessageInput = () => {
 
   return (
     <form
+      data-testid="search-form"
       onSubmit={(e) => {
         e.preventDefault();
         sendMessage(message);
@@ -61,6 +62,7 @@ const EmptyChatMessageInput = () => {
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           minRows={2}
+          data-testid="search-input"
           className="px-2 bg-transparent placeholder:text-[15px] placeholder:text-black/50 dark:placeholder:text-white/50 text-sm text-black dark:text-white resize-none focus:outline-none w-full max-h-24 lg:max-h-36 xl:max-h-48"
           placeholder="Ask anything..."
         />
@@ -74,6 +76,7 @@ const EmptyChatMessageInput = () => {
             </div>
             <button
               disabled={message.trim().length === 0}
+              data-testid="search-submit"
               className="bg-sky-500 text-white disabled:text-black/50 dark:disabled:text-white/50 disabled:bg-[#e0e0dc] dark:disabled:bg-[#ececec21] hover:bg-opacity-85 transition duration-100 rounded-full p-2"
             >
               <ArrowRight className="bg-background" size={17} />

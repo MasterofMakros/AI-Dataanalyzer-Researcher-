@@ -12,6 +12,7 @@ interface AudioPreviewCardProps {
   sourceLabel?: string;
   index: number;
   onClick?: () => void;
+  testId?: string;
 }
 
 const AudioPreviewCard = ({
@@ -23,9 +24,10 @@ const AudioPreviewCard = ({
   sourceLabel,
   index,
   onClick,
+  testId,
 }: AudioPreviewCardProps) => {
   return (
-    <PreviewCard href={href} onClick={onClick}>
+    <PreviewCard href={href} onClick={onClick} testId={testId}>
       <div className="flex items-center justify-between text-xs text-black/50 dark:text-white/50">
         <div className="flex items-center space-x-2">
           <div className="bg-purple-500/10 text-purple-500 p-1 rounded-md">

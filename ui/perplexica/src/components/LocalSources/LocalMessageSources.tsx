@@ -108,18 +108,40 @@ const LocalMessageSources = ({
       source,
       index,
       onClick: () => handleSourceClick(source),
+      testId: 'media-preview-open',
     };
+    const wrapperProps = {
+      'data-testid': 'local-source-item',
+      'data-source-type': source.sourceType,
+      className: 'contents',
+    } as const;
 
     switch (source.sourceType) {
       case 'video':
-        return <VideoSourceCard key={source.id} {...cardProps} />;
+        return (
+          <div {...wrapperProps} key={source.id}>
+            <VideoSourceCard {...cardProps} />
+          </div>
+        );
       case 'audio':
-        return <AudioSourceCard key={source.id} {...cardProps} />;
+        return (
+          <div {...wrapperProps} key={source.id}>
+            <AudioSourceCard {...cardProps} />
+          </div>
+        );
       case 'image':
-        return <ImageSourceCard key={source.id} {...cardProps} />;
+        return (
+          <div {...wrapperProps} key={source.id}>
+            <ImageSourceCard {...cardProps} />
+          </div>
+        );
       case 'document':
       default:
-        return <DocumentSourceCard key={source.id} {...cardProps} />;
+        return (
+          <div {...wrapperProps} key={source.id}>
+            <DocumentSourceCard {...cardProps} />
+          </div>
+        );
     }
   };
 

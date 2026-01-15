@@ -12,6 +12,7 @@ interface ImagePreviewCardProps {
   sourceLabel?: string;
   index: number;
   onClick?: () => void;
+  testId?: string;
 }
 
 const ImagePreviewCard = ({
@@ -23,9 +24,10 @@ const ImagePreviewCard = ({
   sourceLabel,
   index,
   onClick,
+  testId,
 }: ImagePreviewCardProps) => {
   return (
-    <PreviewCard href={href} onClick={onClick}>
+    <PreviewCard href={href} onClick={onClick} testId={testId}>
       <div className="flex items-center justify-between text-xs text-black/50 dark:text-white/50">
         <div className="flex items-center space-x-2">
           <div className="bg-emerald-500/10 text-emerald-500 p-1 rounded-md">

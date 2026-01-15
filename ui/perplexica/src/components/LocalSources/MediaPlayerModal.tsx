@@ -186,6 +186,7 @@ const MediaPlayerModal = ({ isOpen, onClose, source, query }: MediaPlayerModalPr
                                             onLoadedMetadata={handleLoadedMetadata}
                                             onPlay={() => setIsPlaying(true)}
                                             onPause={() => setIsPlaying(false)}
+                                            data-testid="media-preview-player"
                                         />
                                     ) : (
                                         <div className="flex flex-col items-center justify-center space-y-4 p-8">
@@ -199,6 +200,7 @@ const MediaPlayerModal = ({ isOpen, onClose, source, query }: MediaPlayerModalPr
                                                 onLoadedMetadata={handleLoadedMetadata}
                                                 onPlay={() => setIsPlaying(true)}
                                                 onPause={() => setIsPlaying(false)}
+                                                data-testid="media-preview-player"
                                             />
                                         </div>
                                     )}

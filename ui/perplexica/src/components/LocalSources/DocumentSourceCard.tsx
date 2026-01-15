@@ -6,16 +6,18 @@
 
 'use client';
 
-import { FileText, ExternalLink } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import { LocalSource } from '@/lib/types';
+import FormatIcon from './FormatIcon';
 
 interface DocumentSourceCardProps {
     source: LocalSource;
     index: number;
     onClick?: () => void;
+    testId?: string;
 }
 
-const DocumentSourceCard = ({ source, index, onClick }: DocumentSourceCardProps) => {
+const DocumentSourceCard = ({ source, index, onClick, testId }: DocumentSourceCardProps) => {
     const handleClick = () => {
         if (onClick) onClick();
         console.log(`Open document ${source.filename} at page ${source.pageNumber}`);
@@ -36,11 +38,12 @@ const DocumentSourceCard = ({ source, index, onClick }: DocumentSourceCardProps)
         <div
             className="bg-light-100 hover:bg-light-200 dark:bg-dark-100 dark:hover:bg-dark-200 transition duration-200 rounded-lg p-3 flex flex-col space-y-2 cursor-pointer"
             onClick={handleClick}
+            data-testid={testId}
         >
             {/* Header */}
             <div className="flex items-center space-x-2">
-                <div className={`${iconColor} p-1.5 rounded-lg`}>
-                    <FileText size={14} />
+                <div className={`${iconColor} p-1.5 rounded-lg flex items-center justify-center`}>
+                    <FormatIcon format={extension || 'file'} size={14} />
                 </div>
                 <p className="dark:text-white text-xs font-medium overflow-hidden whitespace-nowrap text-ellipsis flex-1">
                     {source.filename}

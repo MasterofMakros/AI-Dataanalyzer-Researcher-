@@ -13,9 +13,10 @@ interface ImageSourceCardProps {
     source: LocalSource;
     index: number;
     onClick?: () => void;
+    testId?: string;
 }
 
-const ImageSourceCard = ({ source, index, onClick }: ImageSourceCardProps) => {
+const ImageSourceCard = ({ source, index, onClick, testId }: ImageSourceCardProps) => {
     const handleClick = () => {
         if (onClick) onClick();
         console.log(`View image ${source.filename}`);
@@ -25,6 +26,7 @@ const ImageSourceCard = ({ source, index, onClick }: ImageSourceCardProps) => {
         <div
             className="bg-light-100 hover:bg-light-200 dark:bg-dark-100 dark:hover:bg-dark-200 transition duration-200 rounded-lg p-3 flex flex-col space-y-2 cursor-pointer"
             onClick={handleClick}
+            data-testid={testId}
         >
             {/* Header */}
             <div className="flex items-center space-x-2">

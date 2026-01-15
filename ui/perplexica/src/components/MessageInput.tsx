@@ -47,6 +47,7 @@ const MessageInput = () => {
 
   return (
     <form
+      data-testid="search-form"
       onSubmit={(e) => {
         if (loading) return;
         e.preventDefault();
@@ -73,12 +74,14 @@ const MessageInput = () => {
         onHeightChange={(height, props) => {
           setTextareaRows(Math.ceil(height / props.rowHeight));
         }}
+        data-testid="search-input"
         className="transition bg-transparent dark:placeholder:text-white/50 placeholder:text-sm text-sm dark:text-white resize-none focus:outline-none w-full px-2 max-h-24 lg:max-h-36 xl:max-h-48 flex-grow flex-shrink"
         placeholder="Ask a follow-up"
       />
       {mode === 'single' && (
         <button
           disabled={message.trim().length === 0 || loading}
+          data-testid="search-submit"
           className="bg-[#24A0ED] text-white disabled:text-black/50 dark:disabled:text-white/50 hover:bg-opacity-85 transition duration-100 disabled:bg-[#e0e0dc79] dark:disabled:bg-[#ececec21] rounded-full p-2"
         >
           <ArrowUp className="bg-background" size={17} />
@@ -89,6 +92,7 @@ const MessageInput = () => {
           <AttachSmall />
           <button
             disabled={message.trim().length === 0 || loading}
+            data-testid="search-submit"
             className="bg-[#24A0ED] text-white disabled:text-black/50 dark:disabled:text-white/50 hover:bg-opacity-85 transition duration-100 disabled:bg-[#e0e0dc79] dark:disabled:bg-[#ececec21] rounded-full p-2"
           >
             <ArrowUp className="bg-background" size={17} />

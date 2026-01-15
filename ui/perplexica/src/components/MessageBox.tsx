@@ -168,7 +168,7 @@ const MessageBox = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="result-item">
       <div className={'w-full pt-8 break-words'}>
         <h2 className="text-black dark:text-white font-medium text-3xl lg:w-9/12">
           {section.message.query}
@@ -181,7 +181,7 @@ const MessageBox = ({
           className="flex flex-col space-y-6 w-full lg:w-9/12"
         >
           {sources.length > 0 && (
-            <div className="flex flex-col space-y-2">
+            <div className="flex flex-col space-y-2" data-testid="sources-panel">
               <div className="flex flex-row items-center space-x-2">
                 <BookCopy className="text-black dark:text-white" size={20} />
                 <h3 className="text-black dark:text-white font-medium text-xl">
@@ -194,7 +194,10 @@ const MessageBox = ({
 
           {/* Local Sources from Neural Vault */}
           {localSources.length > 0 && (
-            <div className="flex flex-col space-y-2">
+            <div
+              className="flex flex-col space-y-2"
+              data-testid="local-sources-panel"
+            >
               <LocalMessageSources
                 sources={localSources}
                 query={section.message.query}

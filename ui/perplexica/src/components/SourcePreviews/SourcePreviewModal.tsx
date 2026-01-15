@@ -158,7 +158,10 @@ const SourcePreviewModal = ({
 
                 <div className="p-6 space-y-4">
                   {(source.thumbnailUrl || source.type === 'image') && (
-                    <div className="rounded-lg overflow-hidden bg-black/10 dark:bg-white/10">
+                    <div
+                      className="rounded-lg overflow-hidden bg-black/10 dark:bg-white/10"
+                      data-testid="media-preview-player"
+                    >
                       {source.thumbnailUrl ? (
                         <img
                           src={source.thumbnailUrl}

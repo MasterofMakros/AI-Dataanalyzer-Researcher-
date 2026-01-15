@@ -5,6 +5,7 @@ import React from 'react';
 interface PreviewCardProps {
   href?: string;
   onClick?: () => void;
+  testId?: string;
   children: React.ReactNode;
   className?: string;
 }
@@ -12,6 +13,7 @@ interface PreviewCardProps {
 const PreviewCard = ({
   href,
   onClick,
+  testId,
   children,
   className,
 }: PreviewCardProps) => {
@@ -24,6 +26,7 @@ const PreviewCard = ({
         type="button"
         className={`${baseClasses} ${className ?? ''}`}
         onClick={onClick}
+        data-testid={testId}
       >
         {children}
       </button>
@@ -37,13 +40,18 @@ const PreviewCard = ({
         href={href}
         target="_blank"
         rel="noreferrer"
+        data-testid={testId}
       >
         {children}
       </a>
     );
   }
 
-  return <div className={`${baseClasses} ${className ?? ''}`}>{children}</div>;
+  return (
+    <div className={`${baseClasses} ${className ?? ''}`} data-testid={testId}>
+      {children}
+    </div>
+  );
 };
 
 export default PreviewCard;

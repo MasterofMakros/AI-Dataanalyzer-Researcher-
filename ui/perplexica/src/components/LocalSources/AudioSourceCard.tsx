@@ -13,9 +13,10 @@ interface AudioSourceCardProps {
     source: LocalSource;
     index: number;
     onClick?: () => void;
+    testId?: string;
 }
 
-const AudioSourceCard = ({ source, index, onClick }: AudioSourceCardProps) => {
+const AudioSourceCard = ({ source, index, onClick, testId }: AudioSourceCardProps) => {
     const handlePlayClick = () => {
         if (onClick) onClick();
     };
@@ -24,6 +25,7 @@ const AudioSourceCard = ({ source, index, onClick }: AudioSourceCardProps) => {
         <div
             className="bg-light-100 hover:bg-light-200 dark:bg-dark-100 dark:hover:bg-dark-200 transition duration-200 rounded-lg p-3 flex flex-col space-y-2 cursor-pointer"
             onClick={handlePlayClick}
+            data-testid={testId}
         >
             {/* Header */}
             <div className="flex items-center space-x-2">

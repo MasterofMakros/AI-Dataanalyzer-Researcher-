@@ -127,97 +127,112 @@ const MessageSources = ({ sources }: { sources: Chunk[] }) => {
   ) => {
     const preview = buildPreviewSource(source, type);
     const handleClick = () => openPreview(preview);
+    const wrapperProps = {
+      'data-testid': 'source-item',
+      'data-source-type': type,
+      className: 'contents',
+    } as const;
 
     if (type === 'pdf') {
       return (
-        <PdfPreviewCard
-          key={index}
-          title={preview.title}
-          href={preview.href}
-          snippet={preview.snippet}
-          pageNumber={preview.pageNumber}
-          totalPages={preview.totalPages}
-          sourceLabel={preview.sourceLabel}
-          index={index}
-          onClick={handleClick}
-        />
+        <div {...wrapperProps} key={index}>
+          <PdfPreviewCard
+            title={preview.title}
+            href={preview.href}
+            snippet={preview.snippet}
+            pageNumber={preview.pageNumber}
+            totalPages={preview.totalPages}
+            sourceLabel={preview.sourceLabel}
+            index={index}
+            onClick={handleClick}
+            testId="media-preview-open"
+          />
+        </div>
       );
     }
 
     if (type === 'audio') {
       return (
-        <AudioPreviewCard
-          key={index}
-          title={preview.title}
-          href={preview.href}
-          snippet={preview.snippet}
-          timecodeStart={preview.timecodeStart}
-          timecodeEnd={preview.timecodeEnd}
-          sourceLabel={preview.sourceLabel}
-          index={index}
-          onClick={handleClick}
-        />
+        <div {...wrapperProps} key={index}>
+          <AudioPreviewCard
+            title={preview.title}
+            href={preview.href}
+            snippet={preview.snippet}
+            timecodeStart={preview.timecodeStart}
+            timecodeEnd={preview.timecodeEnd}
+            sourceLabel={preview.sourceLabel}
+            index={index}
+            onClick={handleClick}
+            testId="media-preview-open"
+          />
+        </div>
       );
     }
 
     if (type === 'video') {
       return (
-        <VideoPreviewCard
-          key={index}
-          title={preview.title}
-          href={preview.href}
-          snippet={preview.snippet}
-          timecodeStart={preview.timecodeStart}
-          timecodeEnd={preview.timecodeEnd}
-          thumbnailUrl={preview.thumbnailUrl}
-          sourceLabel={preview.sourceLabel}
-          index={index}
-          onClick={handleClick}
-        />
+        <div {...wrapperProps} key={index}>
+          <VideoPreviewCard
+            title={preview.title}
+            href={preview.href}
+            snippet={preview.snippet}
+            timecodeStart={preview.timecodeStart}
+            timecodeEnd={preview.timecodeEnd}
+            thumbnailUrl={preview.thumbnailUrl}
+            sourceLabel={preview.sourceLabel}
+            index={index}
+            onClick={handleClick}
+            testId="media-preview-open"
+          />
+        </div>
       );
     }
 
     if (type === 'image') {
       return (
-        <ImagePreviewCard
-          key={index}
-          title={preview.title}
-          href={preview.href}
-          snippet={preview.snippet}
-          ocrText={preview.ocrText}
-          thumbnailUrl={preview.thumbnailUrl}
-          sourceLabel={preview.sourceLabel}
-          index={index}
-          onClick={handleClick}
-        />
+        <div {...wrapperProps} key={index}>
+          <ImagePreviewCard
+            title={preview.title}
+            href={preview.href}
+            snippet={preview.snippet}
+            ocrText={preview.ocrText}
+            thumbnailUrl={preview.thumbnailUrl}
+            sourceLabel={preview.sourceLabel}
+            index={index}
+            onClick={handleClick}
+            testId="media-preview-open"
+          />
+        </div>
       );
     }
 
     return (
-      <PreviewCard key={index} onClick={handleClick}>
-        <div className="flex items-center justify-between text-xs text-black/50 dark:text-white/50">
-          <div className="flex items-center space-x-2">
-            <div className="bg-sky-500/10 text-sky-500 p-1 rounded-md">
-              <Globe size={12} />
+      <div {...wrapperProps} key={index}>
+        <PreviewCard onClick={handleClick} testId="media-preview-open">
+          <div className="flex items-center justify-between text-xs text-black/50 dark:text-white/50">
+            <div className="flex items-center space-x-2">
+              <div className="bg-sky-500/10 text-sky-500 p-1 rounded-md">
+                <Globe size={12} />
+              </div>
+              <span className="uppercase tracking-wide">Web</span>
             </div>
-            <span className="uppercase tracking-wide">Web</span>
+            <span>#{index + 1}</span>
           </div>
-          <span>#{index + 1}</span>
-        </div>
-        <p className="dark:text-white text-xs font-medium overflow-hidden whitespace-nowrap text-ellipsis">
-          {preview.title}
-        </p>
-        {preview.snippet && (
-          <p className="text-xs text-black/70 dark:text-white/70 line-clamp-2">
-            {preview.snippet}
+          <p className="dark:text-white text-xs font-medium overflow-hidden whitespace-nowrap text-ellipsis">
+            {preview.title}
           </p>
-        )}
-        {preview.sourceLabel && (
-          <div className="text-[11px] text-black/40 dark:text-white/40">
-            {preview.sourceLabel}
-          </div>
-        )}
-      </PreviewCard>
+          {preview.snippet && (
+            <p className="text-xs text-black/70 dark:text-white/70 line-clamp-2">
+              {preview.snippet}
+            </p>
+          )}
+          {preview.sourceLabel && (
+            <div className="text-[11px] text-black/40 dark:text-white/40">
+              {preview.sourceLabel}
+            </div>
+          )}
+        </PreviewCard>
+      </div>
     );
   };
 

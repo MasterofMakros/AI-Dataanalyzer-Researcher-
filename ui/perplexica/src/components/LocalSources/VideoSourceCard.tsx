@@ -14,9 +14,10 @@ interface VideoSourceCardProps {
     source: LocalSource;
     index: number;
     onClick?: () => void;
+    testId?: string;
 }
 
-const VideoSourceCard = ({ source, index, onClick }: VideoSourceCardProps) => {
+const VideoSourceCard = ({ source, index, onClick, testId }: VideoSourceCardProps) => {
     const handlePlayClick = () => {
         if (onClick) onClick();
     };
@@ -25,6 +26,7 @@ const VideoSourceCard = ({ source, index, onClick }: VideoSourceCardProps) => {
         <div
             className="bg-light-100 hover:bg-light-200 dark:bg-dark-100 dark:hover:bg-dark-200 transition duration-200 rounded-lg p-3 flex flex-col space-y-2 cursor-pointer"
             onClick={handlePlayClick}
+            data-testid={testId}
         >
             {/* Header with icon and filename */}
             <div className="flex items-center space-x-2">
