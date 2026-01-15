@@ -67,6 +67,8 @@ This PRP expects option A for at least 1 "real E2E" spec.
 ## Assumptions / Constraints
 - UI base URL defaults to `http://localhost:3100`.
 - Allow override via `E2E_UI_BASE_URL` environment variable.
+- Chat input exists in two states: empty chat (`EmptyChatMessageInput`) and active chat (`MessageInput`); both should carry consistent `data-testid` selectors.
+- Error state is driven by `/api/providers` failures (see `ChatWindow`), so the error-state test can stub that route.
 
 ## Implementation Plan (Ordered)
 1) Add Playwright dependencies in UI project:
@@ -76,9 +78,11 @@ This PRP expects option A for at least 1 "real E2E" spec.
    Required testids (minimum):
    - `search-input`
    - `search-submit`
+   - `search-form`
    - `results-list`
    - `result-item`
    - `sources-panel` (or equivalent)
+   - `local-sources-panel`
    - `source-item`
    - `format-icon`
    - `media-preview-open`
@@ -138,6 +142,7 @@ This PRP expects option A for at least 1 "real E2E" spec.
 - UI selectors are unstable -> mitigate via `data-testid`.
 - UI needs seeded data -> mitigate via PRP-FMT-001 harness.
 - Backend timing causes flakiness -> mitigate via waits for "results loaded" + timeouts + retries.
+- Streaming `/api/chat` means results appear progressively -> wait for `result-item` / `sources-panel` instead of raw text.
 
 ## Rollback Plan
 - Tests are additive. If flaky initially:
