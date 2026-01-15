@@ -16,7 +16,7 @@
 | F-002 | Fix CI/CD Pipeline | planned | ../PRPs/2026-01-12_fix-ci-pipeline.md | - | `scripts/validate.ps1` + GitHub Actions |
 | F-003 | Smoke Test - Verify Context Engineering Setup | planned | ../PRPs/2026-01-12_smoke-test.md | - | `scripts/validate.ps1` |
 | F-004 | E2E Format Coverage Harness (PRP-FMT-001) | Done (Validated) | ../PRPs/prp-fmt-001-e2e-format-coverage-harness.md | Docker Daemon + Base/Overlay running | Evidence: `artifacts/e2e/base/e2e_formats_report.json`; `artifacts/e2e/overlay/e2e_formats_report.json` |
-| F-005 | Perplexica UI E2E Tests (PRP-UI-002) | Implemented / Pending Validation | ../PRPs/prp-ui-002-perplexica-ui-e2e-tests.md | F-004 | `npm run test:e2e`; Evidence: `.agents/plans/2026-01-15_ui-002_runtime_evidence.md` (failed; UI not running) |
+| F-005 | Perplexica UI E2E Tests (PRP-UI-002) | Implemented / Pending Validation | ../PRPs/prp-ui-002-perplexica-ui-e2e-tests.md | F-004 | `npm run test:e2e`; Evidence: `.agents/plans/2026-01-15_ui-002_runtime_evidence.md` (failed; seed inbox not empty; UI testids not found) |
 
 ### Abgeschlossene Komponenten
 
