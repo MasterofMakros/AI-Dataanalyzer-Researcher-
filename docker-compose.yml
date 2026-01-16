@@ -194,13 +194,16 @@ services:
       - ollama_data:/root/.ollama
     networks:
       - conductor-net
-    # Für GPU: devices hinzufügen
-    # devices:
-    #   - /dev/dri:/dev/dri
+    # NVIDIA GPU Support für RTX 2070
     deploy:
       resources:
         limits:
           memory: 8G
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
 
   # ===========================================================================
   # BINARY FILE PROCESSING (NEU für Linux-Portabilität)
