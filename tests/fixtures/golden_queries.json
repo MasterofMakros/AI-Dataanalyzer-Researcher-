@@ -1,0 +1,129 @@
+{
+    "description": "Golden queries for RAG regression testing",
+    "version": "1.0.0",
+    "models": {
+        "chat": "qwen3:8b",
+        "embedding": "dengcao/Qwen3-Embedding-8B:Q5_K_M"
+    },
+    "queries": [
+        {
+            "id": "q001",
+            "query": "Was ist künstliche Intelligenz?",
+            "expectedMarkers": [
+                "KI",
+                "AI",
+                "Intelligenz",
+                "Algorithmus",
+                "maschinell"
+            ],
+            "minResponseLength": 100
+        },
+        {
+            "id": "q002",
+            "query": "Erkläre den Unterschied zwischen Machine Learning und Deep Learning",
+            "expectedMarkers": [
+                "Machine Learning",
+                "Deep Learning",
+                "neural",
+                "Schichten"
+            ],
+            "minResponseLength": 150
+        },
+        {
+            "id": "q003",
+            "query": "Was sind die Vorteile von Python für Data Science?",
+            "expectedMarkers": [
+                "Python",
+                "Bibliothek",
+                "pandas",
+                "numpy",
+                "einfach"
+            ],
+            "minResponseLength": 100
+        },
+        {
+            "id": "q004",
+            "query": "Beschreibe das Transformer-Modell in der NLP",
+            "expectedMarkers": [
+                "Transformer",
+                "Attention",
+                "Encoder",
+                "Decoder",
+                "BERT",
+                "GPT"
+            ],
+            "minResponseLength": 150
+        },
+        {
+            "id": "q005",
+            "query": "Was ist RAG (Retrieval-Augmented Generation)?",
+            "expectedMarkers": [
+                "RAG",
+                "Retrieval",
+                "Generation",
+                "Dokument",
+                "Kontext"
+            ],
+            "minResponseLength": 100
+        },
+        {
+            "id": "q006",
+            "query": "Wie funktioniert eine Vektordatenbank?",
+            "expectedMarkers": [
+                "Vektor",
+                "Embedding",
+                "Ähnlichkeit",
+                "Suche",
+                "Index"
+            ],
+            "minResponseLength": 100
+        },
+        {
+            "id": "q007",
+            "query": "Was ist der Unterschied zwischen SQL und NoSQL Datenbanken?",
+            "expectedMarkers": [
+                "SQL",
+                "NoSQL",
+                "relational",
+                "Schema",
+                "skalier"
+            ],
+            "minResponseLength": 100
+        },
+        {
+            "id": "q008",
+            "query": "Erkläre Docker Container in einem Satz",
+            "expectedMarkers": [
+                "Docker",
+                "Container",
+                "isoliert",
+                "Anwendung"
+            ],
+            "minResponseLength": 50
+        },
+        {
+            "id": "q009",
+            "query": "Was macht Git für Versionskontrolle?",
+            "expectedMarkers": [
+                "Git",
+                "Version",
+                "Branch",
+                "Commit",
+                "Repository"
+            ],
+            "minResponseLength": 80
+        },
+        {
+            "id": "q010",
+            "query": "Beschreibe den Unterschied zwischen CPU und GPU",
+            "expectedMarkers": [
+                "CPU",
+                "GPU",
+                "parallel",
+                "Grafik",
+                "Berechnung"
+            ],
+            "minResponseLength": 100
+        }
+    ]
+}
