@@ -11,4 +11,10 @@ pytest-asyncio==0.23.2
 pandas>=2.1.0
 sentence-transformers>=2.2.2
 
+# Qwen3-Embedding-8B & Qwen3-Reranker-8B Support
+transformers>=4.45.0
+accelerate>=0.25.0
+bitsandbytes>=0.42.0  # 4-bit quantization for VRAM savings
+torch>=2.0.0
+
 

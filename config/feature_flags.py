@@ -21,7 +21,8 @@ FEATURE_FLAGS = {
     # =========================================================================
     # SEARCH
     # =========================================================================
-    "ENABLE_RERANKING": (False, "REJECTED"),
+    "ENABLE_RERANKING": (True, "EXPERIMENTAL"),  # Aktiviert für A/B-Test
+    "USE_QWEN3_RERANKER": (False, "EXPERIMENTAL"),  # False=CrossEncoder, True=Qwen3-8B
     "USE_HYBRID_SEARCH": (True, "ACTIVE"),
 
     # =========================================================================
@@ -32,11 +33,14 @@ FEATURE_FLAGS = {
     "USE_PII_MASKING": (True, "ACTIVE"),
     "USE_ENHANCED_EXTRACTION": (True, "ACTIVE"),  # Magic Bytes + HTML→Markdown
 
+
     # =========================================================================
     # A/B TESTS (2025-12 Benchmark-basiert)
     # =========================================================================
     # Embedding: e5-large vs Qwen3-Embedding
     "USE_QWEN3_EMBEDDING": (True, "ACTIVE"),
+    # Embedding: Qwen3-0.6B vs Qwen3-8B (MTEB SOTA)
+    "USE_QWEN3_EMBEDDING_8B": (False, "EXPERIMENTAL"),  # False=0.6B, True=8B
 
     # =========================================================================
     # PROCESSOR SELECTION (Benchmark-driven)

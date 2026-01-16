@@ -25,6 +25,9 @@ class EmbeddingModel(Enum):
     # Empfohlen (2025 Benchmark Winner)
     QWEN3_EMBEDDING_0_6B = "Alibaba-NLP/gte-Qwen3-Embedding-0.6B"
     QWEN3_EMBEDDING_1_5B = "Alibaba-NLP/gte-Qwen3-Embedding-1.5B"
+    
+    # Qwen3-Embedding-8B (Höchste Qualität, MTEB SOTA)
+    QWEN3_EMBEDDING_8B = "Qwen/Qwen3-Embedding-8B"
 
     # Alternativen
     JINA_V3 = "jinaai/jina-embeddings-v3"
@@ -82,6 +85,15 @@ EMBEDDING_CONFIGS = {
         dimensions=1024,
         max_tokens=8192,
         batch_size=16,
+    ),
+
+    # Qwen3-Embedding-8B (MTEB SOTA, Highest Quality)
+    EmbeddingModel.QWEN3_EMBEDDING_8B: EmbeddingConfig(
+        model_id="Qwen/Qwen3-Embedding-8B",
+        dimensions=4096,
+        max_tokens=32768,
+        batch_size=4,  # Reduced for 8GB VRAM
+        device="cuda",
     ),
 }
 
