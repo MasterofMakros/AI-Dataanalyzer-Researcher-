@@ -26,7 +26,7 @@ engines:
   - name: duckduckgo
     engine: duckduckgo
     shortcut: ddg
-    disabled: false
+    disabled: true
 
   - name: wikipedia
     engine: wikipedia
@@ -36,4 +36,4 @@ engines:
   - name: bing
     engine: bing
     shortcut: bi
-    disabled: false
+    disabled: true
