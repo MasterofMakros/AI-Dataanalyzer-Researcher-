@@ -194,6 +194,10 @@ services:
       - ollama_data:/root/.ollama
     networks:
       - conductor-net
+    # VRAM Optimization für RTX 2070 (8GB)
+    environment:
+      - OLLAMA_MAX_LOADED_MODELS=1
+      - OLLAMA_NUM_PARALLEL=1
     # NVIDIA GPU Support für RTX 2070
     deploy:
       resources:
