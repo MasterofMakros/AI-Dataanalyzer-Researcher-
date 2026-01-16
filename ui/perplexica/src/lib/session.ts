@@ -1,6 +1,7 @@
 import { EventEmitter } from 'stream';
 import { applyPatch } from 'rfc6902';
 import { Block } from './types';
+import { randomUUID } from './utils/crypto';
 
 const sessions =
   (global as any)._sessionManagerSessions || new Map<string, SessionManager>();
@@ -17,7 +18,7 @@ class SessionManager {
   private TTL_MS = 30 * 60 * 1000;
 
   constructor(id?: string) {
-    this.id = id ?? crypto.randomUUID();
+    this.id = id ?? randomUUID();
 
     setTimeout(() => {
       SessionManager.sessions.delete(this.id);

@@ -10,6 +10,7 @@ import { and, eq, gt } from 'drizzle-orm';
 import { Claim, ClaimBlock, ResearchBlock, TextBlock } from '@/lib/types';
 import { getClaimsPrompt } from '@/lib/prompts/search/claims';
 import { z } from 'zod';
+import { randomUUID } from '@/lib/utils/crypto';
 
 class SearchAgent {
   async searchAsync(session: SessionManager, input: SearchAgentInput) {
@@ -68,7 +69,7 @@ class SearchAgent {
     }).then((widgetOutputs) => {
       widgetOutputs.forEach((o) => {
         session.emitBlock({
-          id: crypto.randomUUID(),
+          id: randomUUID(),
           type: 'widget',
           data: {
             widgetType: o.type,
@@ -114,7 +115,7 @@ class SearchAgent {
 
       if (!hasSynthesisStep) {
         latestResearchBlock.data.subSteps.push({
-          id: crypto.randomUUID(),
+          id: randomUUID(),
           type: 'synthesis',
         });
       }
@@ -175,7 +176,7 @@ class SearchAgent {
     for await (const chunk of answerStream) {
       if (!responseBlockId) {
         const block: TextBlock = {
-          id: crypto.randomUUID(),
+          id: randomUUID(),
           type: 'text',
           data: chunk.contentChunk,
         };
@@ -248,7 +249,7 @@ class SearchAgent {
             );
 
             return {
-              id: crypto.randomUUID(),
+              id: randomUUID(),
               text: claim.text.trim(),
               evidenceIds: uniqueEvidenceIds,
               verified: claim.verified && uniqueEvidenceIds.length > 0,
@@ -258,7 +259,7 @@ class SearchAgent {
 
         if (claims.length > 0) {
           const claimBlock: ClaimBlock = {
-            id: crypto.randomUUID(),
+            id: randomUUID(),
             type: 'claim',
             data: claims,
           };

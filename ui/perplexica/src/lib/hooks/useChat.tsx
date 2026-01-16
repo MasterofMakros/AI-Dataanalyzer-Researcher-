@@ -10,7 +10,6 @@ import {
   useRef,
   useState,
 } from 'react';
-import crypto from 'crypto';
 import { useParams, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { getSuggestions } from '../actions';
@@ -257,15 +256,15 @@ export const chatContext = createContext<ChatContext>({
   chatModelProvider: { key: '', providerId: '' },
   embeddingModelProvider: { key: '', providerId: '' },
   researchEnded: false,
-  rewrite: () => {},
-  sendMessage: async () => {},
-  setFileIds: () => {},
-  setFiles: () => {},
-  setSources: () => {},
-  setOptimizationMode: () => {},
-  setChatModelProvider: () => {},
-  setEmbeddingModelProvider: () => {},
-  setResearchEnded: () => {},
+  rewrite: () => { },
+  sendMessage: async () => { },
+  setFileIds: () => { },
+  setFiles: () => { },
+  setSources: () => { },
+  setOptimizationMode: () => { },
+  setChatModelProvider: () => { },
+  setEmbeddingModelProvider: () => { },
+  setResearchEnded: () => { },
 });
 
 export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
@@ -484,7 +483,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
               const claimKey = `${claimText}::${uniqueIndices.join(',')}`;
               if (!claimMap.has(claimKey)) {
                 claimMap.set(claimKey, {
-                  id: crypto.randomUUID(),
+                  id: window.crypto.randomUUID(),
                   text: claimText,
                   evidenceIds: uniqueIndices,
                   verified: uniqueIndices.length > 0,
@@ -672,7 +671,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     } else if (!chatId) {
       setNewChatCreated(true);
       setIsMessagesLoaded(true);
-      setChatId(crypto.randomBytes(20).toString('hex'));
+      setChatId(window.crypto.randomUUID());
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chatId, isMessagesLoaded, newChatCreated, messages.length]);
@@ -815,7 +814,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
           [
             'assistant',
             currentMsg?.responseBlocks.find((b) => b.type === 'text')?.data ||
-              '',
+            '',
           ],
         ];
 
@@ -859,7 +858,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
         if (hasSourceBlocks && !hasSuggestions) {
           const suggestions = await getSuggestions(newHistory);
           const suggestionBlock: Block = {
-            id: crypto.randomBytes(7).toString('hex'),
+            id: window.crypto.randomUUID(),
             type: 'suggestion',
             data: suggestions,
           };
@@ -894,8 +893,8 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
       window.history.replaceState(null, '', `/c/${chatId}`);
     }
 
-    messageId = messageId ?? crypto.randomBytes(7).toString('hex');
-    const backendId = crypto.randomBytes(20).toString('hex');
+    messageId = messageId ?? window.crypto.randomUUID();
+    const backendId = window.crypto.randomUUID();
 
     const newMessage: Message = {
       messageId,
@@ -929,9 +928,9 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
         optimizationMode: optimizationMode,
         history: rewrite
           ? chatHistory.current.slice(
-              0,
-              messageIndex === -1 ? undefined : messageIndex,
-            )
+            0,
+            messageIndex === -1 ? undefined : messageIndex,
+          )
           : chatHistory.current,
         chatModel: {
           key: chatModelProvider.key,

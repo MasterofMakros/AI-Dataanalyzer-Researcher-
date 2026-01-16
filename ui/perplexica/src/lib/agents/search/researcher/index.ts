@@ -1,4 +1,5 @@
 import { ActionOutput, ResearcherInput, ResearcherOutput } from '../types';
+import { randomUUID } from '@/lib/utils/crypto';
 import { ActionRegistry } from './actions';
 import { getResearcherPrompt } from '@/lib/prompts/search/researcher';
 import SessionManager from '@/lib/session';
@@ -35,7 +36,7 @@ class Researcher {
         sources: input.config.sources,
       });
 
-    const researchBlockId = crypto.randomUUID();
+    const researchBlockId = randomUUID();
 
     session.emitBlock({
       id: researchBlockId,
@@ -81,7 +82,7 @@ class Researcher {
       const block = session.getBlock(researchBlockId);
 
       let reasoningEmitted = false;
-      let reasoningId = crypto.randomUUID();
+      let reasoningId = randomUUID();
 
       let finalToolCalls: ToolCall[] = [];
 
@@ -257,7 +258,7 @@ class Researcher {
     }
 
     session.emitBlock({
-      id: crypto.randomUUID(),
+      id: randomUUID(),
       type: 'source',
       data: normalizedSearchResults,
     });

@@ -40,6 +40,7 @@ REDIS_PORT = int(os.getenv("REDIS_PORT", "6379"))
 REDIS_PASSWORD = os.getenv("REDIS_PASSWORD", "")
 QDRANT_URL = os.getenv("QDRANT_URL", "http://qdrant:6333")
 QDRANT_COLLECTION = os.getenv("QDRANT_COLLECTION", "neural_vault")
+QDRANT_API_KEY = os.getenv("QDRANT_API_KEY", "")
 
 # Search Configuration
 MAX_SOURCES = int(os.getenv("MAX_SOURCES", "8"))
@@ -176,8 +177,12 @@ async def lifespan(app: FastAPI):
         logger.warning(f"Redis connection failed: {e}")
         redis_client = None
 
-    # Initialize HTTP client for Ollama
-    http_client = httpx.AsyncClient(timeout=120.0)
+    # Initialize HTTP client for Ollama and Qdrant
+    headers = {}
+    if QDRANT_API_KEY:
+        headers["api-key"] = QDRANT_API_KEY
+
+    http_client = httpx.AsyncClient(headers=headers, timeout=120.0)
     logger.info("✓ HTTP client initialized")
 
     logger.info("Neural Search API ready!")

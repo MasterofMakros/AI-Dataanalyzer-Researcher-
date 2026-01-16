@@ -1,4 +1,5 @@
 import z from 'zod';
+import { randomUUID } from '@/lib/utils/crypto';
 import { ResearchAction } from '../../types';
 import { Chunk, ReadingResearchBlock } from '@/lib/types';
 import TurnDown from 'turndown';
@@ -27,7 +28,7 @@ const scrapeURLAction: ResearchAction<typeof schema> = {
   execute: async (params, additionalConfig) => {
     params.urls = params.urls.slice(0, 3);
 
-    let readingBlockId = crypto.randomUUID();
+    let readingBlockId = randomUUID();
     let readingEmitted = false;
 
     const researchBlock = additionalConfig.session.getBlock(

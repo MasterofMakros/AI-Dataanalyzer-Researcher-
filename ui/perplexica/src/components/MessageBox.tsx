@@ -99,7 +99,7 @@ const MessageBox = ({
     .map((s) => {
       const evidence = s.evidence?.[0];
       return {
-        id: s.metadata?.id || crypto.randomUUID(),
+        id: s.metadata?.id || window.crypto.randomUUID(),
         filename: s.metadata?.title || 'Unknown',
         sourceType: s.metadata?.sourceType as
           | 'document'
@@ -128,8 +128,8 @@ const MessageBox = ({
           ? s.metadata?.tags.map(String)
           : s.metadata?.tags
             ? String(s.metadata?.tags)
-                .split(',')
-                .map((tag: string) => tag.trim())
+              .split(',')
+              .map((tag: string) => tag.trim())
             : [],
       };
     });

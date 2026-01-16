@@ -1,4 +1,5 @@
 import z from 'zod';
+import { randomUUID } from '@/lib/utils/crypto';
 import { ResearchAction } from '../../types';
 import { searchSearxng } from '@/lib/searxng';
 import { Chunk, SearchResultsResearchBlock } from '@/lib/types';
@@ -94,7 +95,7 @@ const webSearchAction: ResearchAction<typeof actionSchema> = {
     if (researchBlock && researchBlock.type === 'research') {
       researchBlock.data.phase = 'search';
       researchBlock.data.subSteps.push({
-        id: crypto.randomUUID(),
+        id: randomUUID(),
         type: 'searching',
         searching: input.queries,
       });
@@ -113,7 +114,7 @@ const webSearchAction: ResearchAction<typeof actionSchema> = {
       ]);
     }
 
-    const searchResultsBlockId = crypto.randomUUID();
+    const searchResultsBlockId = randomUUID();
     let searchResultsEmitted = false;
 
     let results: Chunk[] = [];

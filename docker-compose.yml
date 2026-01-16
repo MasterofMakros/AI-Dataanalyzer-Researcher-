@@ -965,7 +965,8 @@ services:
       - conductor-net
     environment:
       - OLLAMA_BASE_URL=http://ollama:11434          # For Perplexica auto-config
-      - NEURAL_VAULT_API_URL=http://conductor-api:8010
+      - NEURAL_VAULT_API_URL=http://conductor-api:8000 # Fix crash (default is 8010)
+
       - QDRANT_URL=http://qdrant:6333
       - QDRANT_API_KEY=${QDRANT_API_KEY}
       - SEARXNG_API_URL=http://localhost:8080        # Internal SearxNG

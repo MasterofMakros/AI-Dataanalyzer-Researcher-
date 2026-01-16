@@ -1,4 +1,5 @@
 import z from 'zod';
+import { randomUUID } from '@/lib/utils/crypto';
 import { ResearchAction } from '../../types';
 import UploadManager from '@/lib/uploads/manager';
 import UploadStore from '@/lib/uploads/store';
@@ -38,7 +39,7 @@ const uploadsSearchAction: ResearchAction<typeof schema> = {
     if (researchBlock && researchBlock.type === 'research') {
       researchBlock.data.phase = 'search';
       researchBlock.data.subSteps.push({
-        id: crypto.randomUUID(),
+        id: randomUUID(),
         type: 'upload_searching',
         queries: input.queries,
       });
@@ -132,7 +133,7 @@ const uploadsSearchAction: ResearchAction<typeof schema> = {
     if (researchBlock && researchBlock.type === 'research') {
       researchBlock.data.phase = 'reading';
       researchBlock.data.subSteps.push({
-        id: crypto.randomUUID(),
+        id: randomUUID(),
         type: 'upload_search_results',
         results: enrichedSearchResults,
       });

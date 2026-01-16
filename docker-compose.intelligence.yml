@@ -648,7 +648,7 @@ services:
     ports:
       - "8010:8000"
     volumes:
-      - F:/:/mnt/data:ro
+      # - F:/:/mnt/data:ro
       - conductor_api_data:/data
     networks:
       - conductor-net

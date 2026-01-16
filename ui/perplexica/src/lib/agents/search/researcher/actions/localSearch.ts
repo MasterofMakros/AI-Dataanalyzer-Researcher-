@@ -6,6 +6,7 @@
  */
 
 import { z } from 'zod';
+import { randomUUID } from '@/lib/utils/crypto';
 import { ResearchAction, ActionOutput, AdditionalConfig, SearchSources } from '../../types';
 import { searchNeuralVault, LocalSource } from '@/lib/neuralVault';
 import { Chunk, Evidence } from '@/lib/types';
@@ -67,7 +68,7 @@ Use this when the user wants to search their own files and documents.`;
         if (block && block.type === 'research') {
             block.data.phase = 'search';
             block.data.subSteps.push({
-                id: crypto.randomUUID(),
+                id: randomUUID(),
                 type: 'searching',
                 searching: queries.map(q => `[Local] ${q}`),
             });
@@ -165,7 +166,7 @@ Use this when the user wants to search their own files and documents.`;
         if (block && block.type === 'research') {
             block.data.phase = 'reading';
             block.data.subSteps.push({
-                id: crypto.randomUUID(),
+                id: randomUUID(),
                 type: 'reading',
                 reading: chunks.slice(0, 5),
             });

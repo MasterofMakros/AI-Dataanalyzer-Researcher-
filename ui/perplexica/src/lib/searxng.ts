@@ -39,6 +39,7 @@ export const searchSearxng = async (
   }
 
   const res = await fetch(url);
+
   const data = await res.json();
 
   const results: SearxngSearchResult[] = data.results;
