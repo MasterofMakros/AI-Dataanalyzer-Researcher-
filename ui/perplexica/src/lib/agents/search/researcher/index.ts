@@ -244,7 +244,7 @@ class Researcher {
 
         return result;
       })
-      .filter((r) => r !== undefined);
+      .filter((r): r is NonNullable<typeof r> => r !== undefined);
 
     const normalizedSearchResults = normalizeChunksEvidence(
       filteredSearchResults,
