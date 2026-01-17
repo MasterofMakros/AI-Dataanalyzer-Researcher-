@@ -111,7 +111,7 @@ const KeyboardShortcutsHelp = ({ isOpen, onClose }: KeyboardShortcutsHelpProps) 
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <DialogPanel className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-light-primary dark:bg-dark-primary border border-light-200 dark:border-dark-200 shadow-xl transition-all">
+              <DialogPanel data-testid="keyboard-shortcuts-modal" className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-light-primary dark:bg-dark-primary border border-light-200 dark:border-dark-200 shadow-xl transition-all">
                 <div className="flex items-center justify-between p-4 border-b border-light-200 dark:border-dark-200">
                   <div className="flex items-center gap-2">
                     <Keyboard className="w-5 h-5 text-sky-500" />

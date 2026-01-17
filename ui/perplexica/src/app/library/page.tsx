@@ -200,6 +200,7 @@ const Page = () => {
               <>
                 <button
                   onClick={selectAllChats}
+                  data-testid="select-all-button"
                   className="inline-flex items-center gap-1 rounded-full border border-black/20 dark:border-white/20 px-2 py-0.5 hover:bg-light-200 dark:hover:bg-dark-200 transition-colors"
                 >
                   {selectedChats.size === chats.length ? (
@@ -213,6 +214,7 @@ const Page = () => {
                   <button
                     onClick={handleBulkDelete}
                     disabled={isDeleting}
+                    data-testid="bulk-delete-button"
                     className="inline-flex items-center gap-1 rounded-full border border-red-400/50 text-red-500 px-2 py-0.5 hover:bg-red-500/10 transition-colors disabled:opacity-50"
                   >
                     <Trash2 size={14} />
@@ -226,6 +228,7 @@ const Page = () => {
             {chats.length > 0 && (
               <button
                 onClick={toggleSelectionMode}
+                data-testid="selection-mode-button"
                 className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 transition-colors ${
                   isSelectionMode
                     ? 'border-sky-400/50 text-sky-500 bg-sky-500/10'
@@ -248,7 +251,7 @@ const Page = () => {
       </div>
 
       {loading ? (
-        <div className="flex flex-row items-center justify-center min-h-[60vh]">
+        <div data-testid="library-loading" className="flex flex-row items-center justify-center min-h-[60vh]">
           <svg
             aria-hidden="true"
             className="w-8 h-8 text-light-200 fill-light-secondary dark:text-[#202020] animate-spin dark:fill-[#ffffff3b]"
@@ -267,7 +270,7 @@ const Page = () => {
           </svg>
         </div>
       ) : chats.length === 0 ? (
-        <div className="flex flex-col items-center justify-center min-h-[70vh] px-2 text-center">
+        <div data-testid="library-empty" className="flex flex-col items-center justify-center min-h-[70vh] px-2 text-center">
           <div className="flex items-center justify-center w-12 h-12 rounded-2xl border border-light-200 dark:border-dark-200 bg-light-secondary dark:bg-dark-secondary">
             <BookOpenText className="text-black/70 dark:text-white/70" />
           </div>
@@ -283,7 +286,7 @@ const Page = () => {
         </div>
       ) : (
         <div className="pt-6 pb-28 px-2">
-          <div className="rounded-2xl border border-light-200 dark:border-dark-200 overflow-hidden bg-light-primary dark:bg-dark-primary">
+          <div data-testid="chat-list" className="rounded-2xl border border-light-200 dark:border-dark-200 overflow-hidden bg-light-primary dark:bg-dark-primary">
             {chats.map((chat, index) => {
               const sourcesLabel =
                 chat.sources.length === 0
@@ -303,6 +306,7 @@ const Page = () => {
               return (
                 <div
                   key={chat.id}
+                  data-testid="chat-item"
                   className={`group flex flex-col gap-2 p-4 transition-colors duration-200 ${
                     isSelected
                       ? 'bg-sky-500/10'
@@ -318,6 +322,8 @@ const Page = () => {
                     {isSelectionMode && (
                       <button
                         onClick={() => toggleChatSelection(chat.id)}
+                        data-testid="chat-checkbox"
+                        data-checked={isSelected}
                         className="pt-1 shrink-0"
                       >
                         {isSelected ? (
@@ -340,6 +346,7 @@ const Page = () => {
                         <input
                           ref={editInputRef}
                           type="text"
+                          data-testid="rename-input"
                           value={editingTitle}
                           onChange={(e) => setEditingTitle(e.target.value)}
                           onKeyDown={handleEditKeyDown}
@@ -348,12 +355,14 @@ const Page = () => {
                         />
                         <button
                           onClick={saveTitle}
+                          data-testid="rename-save"
                           className="p-1 text-green-500 hover:bg-green-500/10 rounded"
                         >
                           <Check size={16} />
                         </button>
                         <button
                           onClick={cancelEditing}
+                          data-testid="rename-cancel"
                           className="p-1 text-red-500 hover:bg-red-500/10 rounded"
                         >
                           <X size={16} />
@@ -362,10 +371,11 @@ const Page = () => {
                     ) : (
                       <Link
                         href={`/c/${chat.id}`}
+                        data-testid="chat-link"
                         className="flex-1 text-black dark:text-white text-base lg:text-lg font-medium leading-snug line-clamp-2 group-hover:text-[#24A0ED] transition duration-200"
                         title={chat.title}
                       >
-                        {chat.title}
+                        <span data-testid="chat-title">{chat.title}</span>
                       </Link>
                     )}
 
@@ -374,6 +384,7 @@ const Page = () => {
                       <div className="flex items-center gap-1 pt-0.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
                           onClick={() => startEditing(chat)}
+                          data-testid="rename-button"
                           className="p-1 text-black/50 dark:text-white/50 hover:text-black/80 dark:hover:text-white/80 hover:bg-light-200 dark:hover:bg-dark-200 rounded transition-colors"
                           title="Rename chat"
                         >
@@ -389,7 +400,7 @@ const Page = () => {
                   </div>
 
                   <div className="flex flex-wrap items-center gap-2 text-black/70 dark:text-white/70">
-                    <span className="inline-flex items-center gap-1 text-xs">
+                    <span data-testid="chat-timestamp" className="inline-flex items-center gap-1 text-xs">
                       <ClockIcon size={14} />
                       {formatTimeDifference(new Date(), chat.createdAt)} Ago
                     </span>

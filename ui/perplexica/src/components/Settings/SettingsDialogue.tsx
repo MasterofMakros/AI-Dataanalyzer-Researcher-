@@ -109,7 +109,7 @@ const SettingsDialogue = ({
         transition={{ duration: 0.1 }}
         className="fixed inset-0 flex w-screen items-center justify-center p-4 bg-black/30 backdrop-blur-sm h-screen"
       >
-        <DialogPanel className="space-y-4 border border-light-200 dark:border-dark-200 bg-light-primary dark:bg-dark-primary backdrop-blur-lg rounded-xl h-[calc(100vh-2%)] w-[calc(100vw-2%)] md:h-[calc(100vh-7%)] md:w-[calc(100vw-7%)] lg:h-[calc(100vh-20%)] lg:w-[calc(100vw-30%)] overflow-hidden flex flex-col">
+        <DialogPanel data-testid="settings-dialog" className="space-y-4 border border-light-200 dark:border-dark-200 bg-light-primary dark:bg-dark-primary backdrop-blur-lg rounded-xl h-[calc(100vh-2%)] w-[calc(100vw-2%)] md:h-[calc(100vh-7%)] md:w-[calc(100vw-7%)] lg:h-[calc(100vh-20%)] lg:w-[calc(100vw-30%)] overflow-hidden flex flex-col">
           {isLoading ? (
             <div className="flex items-center justify-center h-full w-full">
               <Loader />
@@ -120,6 +120,7 @@ const SettingsDialogue = ({
                 <div className="flex flex-col">
                   <button
                     onClick={() => setIsOpen(false)}
+                    data-testid="settings-close"
                     className="group flex flex-row items-center hover:bg-light-200 hover:dark:bg-dark-200 p-2 rounded-lg"
                   >
                     <ChevronLeft
@@ -135,6 +136,7 @@ const SettingsDialogue = ({
                     {sections.map((section) => (
                       <button
                         key={section.dataAdd}
+                        data-testid={`settings-tab-${section.key}`}
                         className={cn(
                           `flex flex-row items-center space-x-2 px-2 py-1.5 rounded-lg w-full text-sm hover:bg-light-200 hover:dark:bg-dark-200 transition duration-200 active:scale-95`,
                           activeSection === section.key

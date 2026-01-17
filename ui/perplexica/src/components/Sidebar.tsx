@@ -126,6 +126,7 @@ const Sidebar = ({ children }: { children: React.ReactNode }) => {
             {mounted && (
               <button
                 onClick={toggleTheme}
+                data-testid="theme-toggle"
                 className="p-2 rounded-full hover:bg-light-200 dark:hover:bg-dark-200 text-black/60 dark:text-white/60 hover:text-black/80 dark:hover:text-white/80 transition duration-200"
                 title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
               >
