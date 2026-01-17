@@ -2,9 +2,21 @@
 
 import DeleteChat from '@/components/DeleteChat';
 import { formatTimeDifference } from '@/lib/utils';
-import { BookOpenText, ClockIcon, FileText, Globe2Icon } from 'lucide-react';
+import {
+  BookOpenText,
+  ClockIcon,
+  FileText,
+  Globe2Icon,
+  Trash2,
+  Check,
+  X,
+  Pencil,
+  CheckSquare,
+  Square,
+} from 'lucide-react';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import { toast } from 'sonner';
 
 export interface Chat {
   id: string;
@@ -17,6 +29,12 @@ export interface Chat {
 const Page = () => {
   const [chats, setChats] = useState<Chat[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedChats, setSelectedChats] = useState<Set<string>>(new Set());
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [editingChatId, setEditingChatId] = useState<string | null>(null);
+  const [editingTitle, setEditingTitle] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+  const editInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const fetchChats = async () => {
@@ -38,6 +56,125 @@ const Page = () => {
     fetchChats();
   }, []);
 
+  // Focus edit input when editing starts
+  useEffect(() => {
+    if (editingChatId && editInputRef.current) {
+      editInputRef.current.focus();
+      editInputRef.current.select();
+    }
+  }, [editingChatId]);
+
+  // Toggle selection mode
+  const toggleSelectionMode = () => {
+    setIsSelectionMode(!isSelectionMode);
+    if (isSelectionMode) {
+      setSelectedChats(new Set());
+    }
+  };
+
+  // Toggle chat selection
+  const toggleChatSelection = (chatId: string) => {
+    const newSelection = new Set(selectedChats);
+    if (newSelection.has(chatId)) {
+      newSelection.delete(chatId);
+    } else {
+      newSelection.add(chatId);
+    }
+    setSelectedChats(newSelection);
+  };
+
+  // Select all chats
+  const selectAllChats = () => {
+    if (selectedChats.size === chats.length) {
+      setSelectedChats(new Set());
+    } else {
+      setSelectedChats(new Set(chats.map((c) => c.id)));
+    }
+  };
+
+  // Bulk delete selected chats
+  const handleBulkDelete = async () => {
+    if (selectedChats.size === 0) return;
+
+    const confirmDelete = window.confirm(
+      `Are you sure you want to delete ${selectedChats.size} chat${selectedChats.size > 1 ? 's' : ''}?`
+    );
+
+    if (!confirmDelete) return;
+
+    setIsDeleting(true);
+    const deletePromises = Array.from(selectedChats).map((chatId) =>
+      fetch(`/api/chats/${chatId}`, { method: 'DELETE' })
+    );
+
+    try {
+      await Promise.all(deletePromises);
+      setChats(chats.filter((chat) => !selectedChats.has(chat.id)));
+      toast.success(`Deleted ${selectedChats.size} chat${selectedChats.size > 1 ? 's' : ''}`);
+      setSelectedChats(new Set());
+      setIsSelectionMode(false);
+    } catch (error) {
+      toast.error('Failed to delete some chats');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  // Start editing chat title
+  const startEditing = (chat: Chat) => {
+    setEditingChatId(chat.id);
+    setEditingTitle(chat.title);
+  };
+
+  // Save edited title
+  const saveTitle = async () => {
+    if (!editingChatId || !editingTitle.trim()) {
+      setEditingChatId(null);
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/chats/${editingChatId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: editingTitle.trim() }),
+      });
+
+      if (res.ok) {
+        setChats(
+          chats.map((chat) =>
+            chat.id === editingChatId
+              ? { ...chat, title: editingTitle.trim() }
+              : chat
+          )
+        );
+        toast.success('Chat renamed');
+      } else {
+        toast.error('Failed to rename chat');
+      }
+    } catch (error) {
+      toast.error('Failed to rename chat');
+    } finally {
+      setEditingChatId(null);
+    }
+  };
+
+  // Cancel editing
+  const cancelEditing = () => {
+    setEditingChatId(null);
+    setEditingTitle('');
+  };
+
+  // Handle key press in edit input
+  const handleEditKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      saveTitle();
+    } else if (e.key === 'Escape') {
+      cancelEditing();
+    }
+  };
+
   return (
     <div>
       <div className="flex flex-col pt-10 border-b border-light-200/20 dark:border-dark-200/20 pb-6 px-2">
@@ -58,6 +195,48 @@ const Page = () => {
           </div>
 
           <div className="flex items-center justify-center lg:justify-end gap-2 text-xs text-black/60 dark:text-white/60">
+            {/* Selection mode controls */}
+            {isSelectionMode && chats.length > 0 && (
+              <>
+                <button
+                  onClick={selectAllChats}
+                  className="inline-flex items-center gap-1 rounded-full border border-black/20 dark:border-white/20 px-2 py-0.5 hover:bg-light-200 dark:hover:bg-dark-200 transition-colors"
+                >
+                  {selectedChats.size === chats.length ? (
+                    <CheckSquare size={14} />
+                  ) : (
+                    <Square size={14} />
+                  )}
+                  {selectedChats.size === chats.length ? 'Deselect all' : 'Select all'}
+                </button>
+                {selectedChats.size > 0 && (
+                  <button
+                    onClick={handleBulkDelete}
+                    disabled={isDeleting}
+                    className="inline-flex items-center gap-1 rounded-full border border-red-400/50 text-red-500 px-2 py-0.5 hover:bg-red-500/10 transition-colors disabled:opacity-50"
+                  >
+                    <Trash2 size={14} />
+                    Delete {selectedChats.size}
+                  </button>
+                )}
+              </>
+            )}
+
+            {/* Toggle selection mode button */}
+            {chats.length > 0 && (
+              <button
+                onClick={toggleSelectionMode}
+                className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 transition-colors ${
+                  isSelectionMode
+                    ? 'border-sky-400/50 text-sky-500 bg-sky-500/10'
+                    : 'border-black/20 dark:border-white/20 hover:bg-light-200 dark:hover:bg-dark-200'
+                }`}
+              >
+                {isSelectionMode ? <X size={14} /> : <CheckSquare size={14} />}
+                {isSelectionMode ? 'Cancel' : 'Select'}
+              </button>
+            )}
+
             <span className="inline-flex items-center gap-1 rounded-full border border-black/20 dark:border-white/20 px-2 py-0.5">
               <BookOpenText size={14} />
               {loading
@@ -118,31 +297,95 @@ const Page = () => {
                         .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
                         .join(', ')} + ${chat.sources.length - 2}`;
 
+              const isSelected = selectedChats.has(chat.id);
+              const isEditing = editingChatId === chat.id;
+
               return (
                 <div
                   key={chat.id}
-                  className={
-                    'group flex flex-col gap-2 p-4 hover:bg-light-secondary dark:hover:bg-dark-secondary transition-colors duration-200 ' +
-                    (index !== chats.length - 1
+                  className={`group flex flex-col gap-2 p-4 transition-colors duration-200 ${
+                    isSelected
+                      ? 'bg-sky-500/10'
+                      : 'hover:bg-light-secondary dark:hover:bg-dark-secondary'
+                  } ${
+                    index !== chats.length - 1
                       ? 'border-b border-light-200 dark:border-dark-200'
-                      : '')
-                  }
+                      : ''
+                  }`}
                 >
                   <div className="flex items-start justify-between gap-3">
-                    <Link
-                      href={`/c/${chat.id}`}
-                      className="flex-1 text-black dark:text-white text-base lg:text-lg font-medium leading-snug line-clamp-2 group-hover:text-[#24A0ED] transition duration-200"
-                      title={chat.title}
-                    >
-                      {chat.title}
-                    </Link>
-                    <div className="pt-0.5 shrink-0">
-                      <DeleteChat
-                        chatId={chat.id}
-                        chats={chats}
-                        setChats={setChats}
-                      />
-                    </div>
+                    {/* Selection checkbox */}
+                    {isSelectionMode && (
+                      <button
+                        onClick={() => toggleChatSelection(chat.id)}
+                        className="pt-1 shrink-0"
+                      >
+                        {isSelected ? (
+                          <CheckSquare
+                            size={18}
+                            className="text-sky-500"
+                          />
+                        ) : (
+                          <Square
+                            size={18}
+                            className="text-black/40 dark:text-white/40 hover:text-black/60 dark:hover:text-white/60"
+                          />
+                        )}
+                      </button>
+                    )}
+
+                    {/* Chat title - editable or link */}
+                    {isEditing ? (
+                      <div className="flex-1 flex items-center gap-2">
+                        <input
+                          ref={editInputRef}
+                          type="text"
+                          value={editingTitle}
+                          onChange={(e) => setEditingTitle(e.target.value)}
+                          onKeyDown={handleEditKeyDown}
+                          onBlur={saveTitle}
+                          className="flex-1 px-2 py-1 text-base lg:text-lg font-medium bg-light-secondary dark:bg-dark-secondary border border-light-300 dark:border-dark-300 rounded focus:outline-none focus:border-sky-500 text-black dark:text-white"
+                        />
+                        <button
+                          onClick={saveTitle}
+                          className="p-1 text-green-500 hover:bg-green-500/10 rounded"
+                        >
+                          <Check size={16} />
+                        </button>
+                        <button
+                          onClick={cancelEditing}
+                          className="p-1 text-red-500 hover:bg-red-500/10 rounded"
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
+                    ) : (
+                      <Link
+                        href={`/c/${chat.id}`}
+                        className="flex-1 text-black dark:text-white text-base lg:text-lg font-medium leading-snug line-clamp-2 group-hover:text-[#24A0ED] transition duration-200"
+                        title={chat.title}
+                      >
+                        {chat.title}
+                      </Link>
+                    )}
+
+                    {/* Action buttons */}
+                    {!isSelectionMode && !isEditing && (
+                      <div className="flex items-center gap-1 pt-0.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          onClick={() => startEditing(chat)}
+                          className="p-1 text-black/50 dark:text-white/50 hover:text-black/80 dark:hover:text-white/80 hover:bg-light-200 dark:hover:bg-dark-200 rounded transition-colors"
+                          title="Rename chat"
+                        >
+                          <Pencil size={14} />
+                        </button>
+                        <DeleteChat
+                          chatId={chat.id}
+                          chats={chats}
+                          setChats={setChats}
+                        />
+                      </div>
+                    )}
                   </div>
 
                   <div className="flex flex-wrap items-center gap-2 text-black/70 dark:text-white/70">

@@ -21,8 +21,8 @@ def test_parse_3d_obj():
     result = special_parser_core.parse_file(SAMPLES_DIR / "sample.obj", "3d")
     _assert_result(result)
     assert result.metadata.get("vertex_count") == 4
-    # The parser triangulates the quad into two faces.
-    assert result.metadata.get("face_count") == 2
+    # The sample has 1 quad face (4 vertices per face).
+    assert result.metadata.get("face_count") == 1
 
 
 def test_parse_cad_step():

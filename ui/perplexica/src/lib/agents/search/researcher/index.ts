@@ -1,4 +1,9 @@
-import { ActionOutput, ResearcherInput, ResearcherOutput } from '../types';
+import {
+  ActionOutput,
+  ResearcherInput,
+  ResearcherOutput,
+  SearchActionOutput,
+} from '../types';
 import { randomUUID } from '@/lib/utils/crypto';
 import { ActionRegistry } from './actions';
 import { getResearcherPrompt } from '@/lib/prompts/search/researcher';
@@ -239,7 +244,7 @@ class Researcher {
     }
 
     const searchResults = actionOutput
-      .filter((a) => a.type === 'search_results')
+      .filter((a): a is SearchActionOutput => a.type === 'search_results')
       .flatMap((a) => a.results);
 
     const seenUrls = new Map<string, number>();
@@ -280,7 +285,7 @@ class Researcher {
 
         return result;
       })
-      .filter((r) => r !== undefined);
+      .filter((r): r is NonNullable<typeof r> => r !== undefined);
 
     const normalizedSearchResults = normalizeChunksEvidence(
       filteredSearchResults,

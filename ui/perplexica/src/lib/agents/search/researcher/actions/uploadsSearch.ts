@@ -4,6 +4,7 @@ import { ResearchAction } from '../../types';
 import UploadManager from '@/lib/uploads/manager';
 import UploadStore from '@/lib/uploads/store';
 import { mergeEvidence } from '@/lib/utils/evidence';
+import type { Chunk } from '@/lib/types';
 
 const schema = z.object({
   queries: z
@@ -102,7 +103,7 @@ const uploadsSearchAction: ResearchAction<typeof schema> = {
 
         return result;
       })
-      .filter((r) => r !== undefined);
+      .filter((r): r is NonNullable<typeof r> => r !== undefined);
 
     const enrichedSearchResults = filteredSearchResults.map((result) => {
       const fileId = result.metadata?.fileId;
@@ -153,8 +154,8 @@ const uploadsSearchAction: ResearchAction<typeof schema> = {
     }
 
     return {
-      type: 'search_results',
-      results: enrichedSearchResults,
+      type: 'search_results' as const,
+      results: enrichedSearchResults as Chunk[],
     };
   },
 };
