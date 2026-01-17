@@ -31,6 +31,7 @@ import { Chunk, ResearchBlock } from '@/lib/types';
 import Renderer from './Widgets/Renderer';
 import CodeBlock from './MessageRenderer/CodeBlock';
 import EvidenceBoard from './EvidenceBoard';
+import CollapsibleSection from './CollapsibleSection';
 
 const ThinkTagProcessor = ({
   children,
@@ -180,58 +181,66 @@ const MessageBox = ({
           ref={dividerRef}
           className="flex flex-col space-y-6 w-full lg:w-9/12"
         >
-          {sources.length > 0 && (
-            <div className="flex flex-col space-y-2" data-testid="sources-panel">
-              <div className="flex flex-row items-center space-x-2">
-                <BookCopy className="text-black dark:text-white" size={20} />
-                <h3 className="text-black dark:text-white font-medium text-xl">
-                  Sources
-                </h3>
+          {/* Sources & Evidence - Collapsible */}
+          {(sources.length > 0 || localSources.length > 0 || section.claims.length > 0) && (
+            <CollapsibleSection title="Sources & Evidence" className="mb-6">
+              <div className="flex flex-col gap-4">
+                {sources.length > 0 && (
+                  <div className="flex flex-col space-y-2" data-testid="sources-panel">
+                    <MessageSources sources={sources} />
+                  </div>
+                )}
+
+                {/* Local Sources from Neural Vault */}
+                {localSources.length > 0 && (
+                  <div
+                    className="flex flex-col space-y-2"
+                    data-testid="local-sources-panel"
+                  >
+                    <LocalMessageSources
+                      sources={localSources}
+                      query={section.message.query}
+                    />
+                  </div>
+                )}
+
+                {section.claims.length > 0 && (
+                  <ClaimsList claims={section.claims} sources={allSourcesWithIds} />
+                )}
+
+                {(sources.length > 0 || localSources.length > 0 || hasContent) && (
+                  <EvidenceBoard
+                    answer={parsedMessage}
+                    sources={sources}
+                    localSources={localSources}
+                    claims={section.claims}
+                  />
+                )}
               </div>
-              <MessageSources sources={sources} />
-            </div>
+            </CollapsibleSection>
           )}
 
-          {/* Local Sources from Neural Vault */}
-          {localSources.length > 0 && (
-            <div
-              className="flex flex-col space-y-2"
-              data-testid="local-sources-panel"
-            >
-              <LocalMessageSources
-                sources={localSources}
-                query={section.message.query}
-              />
-            </div>
-          )}
-
-          {section.claims.length > 0 && (
-            <ClaimsList claims={section.claims} sources={allSourcesWithIds} />
-          )}
-
-          {(sources.length > 0 || localSources.length > 0 || hasContent) && (
-            <EvidenceBoard
-              answer={parsedMessage}
-              sources={sources}
-              localSources={localSources}
-              claims={section.claims}
-            />
-          )}
-
-          {section.message.responseBlocks
-            .filter(
-              (block): block is ResearchBlock =>
-                block.type === 'research' && block.data.subSteps.length > 0,
-            )
-            .map((researchBlock) => (
-              <div key={researchBlock.id} className="flex flex-col space-y-2">
-                <AssistantSteps
-                  block={researchBlock}
-                  status={section.message.status}
-                  isLast={isLast}
-                />
-              </div>
-            ))}
+          {/* Reasoning/Thinking Section - Collapsible */}
+          {section.message.responseBlocks.some(
+            (b) => b.type === 'research' && b.data.subSteps.length > 0
+          ) && (
+              <CollapsibleSection title="Reasoning Process" defaultOpen={loading && !hasContent && isLast} className="mb-6">
+                {section.message.responseBlocks
+                  .filter(
+                    (block): block is ResearchBlock =>
+                      block.type === 'research' && block.data.subSteps.length > 0,
+                  )
+                  .map((researchBlock) => (
+                    <div key={researchBlock.id} className="flex flex-col space-y-2">
+                      <AssistantSteps
+                        block={researchBlock}
+                        status={section.message.status}
+                        isLast={isLast}
+                      />
+                    </div>
+                  ))}
+              </CollapsibleSection>
+            )}
 
           {isLast &&
             loading &&

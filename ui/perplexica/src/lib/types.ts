@@ -106,12 +106,14 @@ export type ReasoningResearchBlock = {
   id: string;
   type: 'reasoning';
   reasoning: string;
+  durationMs?: number;
 };
 
 export type SearchingResearchBlock = {
   id: string;
   type: 'searching';
   searching: string[];
+  durationMs?: number;
 };
 
 export type SearchResultsResearchBlock = {
@@ -124,12 +126,14 @@ export type ReadingResearchBlock = {
   id: string;
   type: 'reading';
   reading: Chunk[];
+  durationMs?: number;
 };
 
 export type UploadSearchingResearchBlock = {
   id: string;
   type: 'upload_searching';
   queries: string[];
+  durationMs?: number;
 };
 
 export type UploadSearchResultsResearchBlock = {

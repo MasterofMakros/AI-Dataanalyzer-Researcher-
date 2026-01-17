@@ -94,27 +94,27 @@ const AssistantSteps = ({
     label: string;
     description: string;
   }[] = [
-    {
-      id: 'analysis',
-      label: 'Analyse',
-      description: 'Analysiere Anfrage',
-    },
-    {
-      id: 'search',
-      label: 'Suche',
-      description: 'Durchsuche Quellen',
-    },
-    {
-      id: 'reading',
-      label: 'Lesen',
-      description: 'Lese relevante Quellen',
-    },
-    {
-      id: 'synthesis',
-      label: 'Synthese',
-      description: 'Synthetisiere Antwort',
-    },
-  ];
+      {
+        id: 'analysis',
+        label: 'Analyse',
+        description: 'Analysiere Anfrage',
+      },
+      {
+        id: 'search',
+        label: 'Suche',
+        description: 'Durchsuche Quellen',
+      },
+      {
+        id: 'reading',
+        label: 'Lesen',
+        description: 'Lese relevante Quellen',
+      },
+      {
+        id: 'synthesis',
+        label: 'Synthese',
+        description: 'Synthetisiere Antwort',
+      },
+    ];
 
   const subSteps = block.data.subSteps;
   const lastStep = subSteps[subSteps.length - 1];
@@ -263,13 +263,12 @@ const AssistantSteps = ({
                     <div key={phase.id} className="flex gap-3">
                       <div className="flex flex-col items-center -mt-0.5">
                         <div
-                          className={`rounded-full p-1.5 border transition ${
-                            isDone
-                              ? 'bg-emerald-500 border-emerald-500 text-white'
-                              : isActive
-                                ? 'bg-cyan-500/10 border-cyan-400 text-cyan-600 dark:text-cyan-200 animate-pulse'
-                                : 'bg-light-100 dark:bg-dark-100 border-light-200 dark:border-dark-200 text-black/40 dark:text-white/40'
-                          }`}
+                          className={`rounded-full p-1.5 border transition ${isDone
+                            ? 'bg-emerald-500 border-emerald-500 text-white'
+                            : isActive
+                              ? 'bg-cyan-500/10 border-cyan-400 text-cyan-600 dark:text-cyan-200 animate-pulse'
+                              : 'bg-light-100 dark:bg-dark-100 border-light-200 dark:border-dark-200 text-black/40 dark:text-white/40'
+                            }`}
                         >
                           {isDone ? (
                             <Check className="w-4 h-4" />
@@ -307,6 +306,13 @@ const AssistantSteps = ({
                                 (searchQueries.length + uploadQueries.length > 0 ||
                                   searchResults.length > 0) &&
                                 `${searchQueries.length + uploadQueries.length} Queries · ${searchResults.length} Ergebnisse`}
+                              {phase.id === 'search' &&
+                                phaseSteps.search.some(s => 'durationMs' in s) && (
+                                  <span className="ml-1 text-[10px] text-black/40 dark:text-white/40 font-mono">
+                                    ({(phaseSteps.search.reduce((acc, s) => acc + ((s as any).durationMs || 0), 0) / 1000).toFixed(2)}s)
+                                  </span>
+                                )
+                              }
                               {phase.id === 'reading' &&
                                 (readingSources.length > 0 ||
                                   uploadResults.length > 0) &&

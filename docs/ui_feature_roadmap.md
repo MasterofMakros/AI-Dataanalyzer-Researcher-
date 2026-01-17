@@ -7,7 +7,28 @@ Diese Roadmap leitet aus der bestehenden Dokumentation ab, **welche UI-Features 
 
 ## 1) Empfohlene UI-Erweiterungen (priorisiert)
 
-### 1. Evidence Board (React)
+### 🚨 P0: Critical Usability (Startup & Visibility)
+
+#### 1. Setup-Wizard (Onboarding)
+**Status:** COMPLETED (v3.37.0) · **Priorität:** Kritisch (P0)
+**Warum:** Aktuell ist Perplexica ohne manuelle Config kaum nutzbar.
+**Umsetzung:** 3-Schritt-Wizard (Connect Provider -> Auto-Detect Models -> Test Request).
+
+#### 2. System Status Dashboard
+**Status:** COMPLETED (v3.37.0) · **Priorität:** Kritisch (P0)
+**Warum:** "200 OK" reicht nicht; Nutzer müssen wissen, ob Qdrant/Ollama läuft.
+**Umsetzung:** Ampel-System für alle Microservices (UI, API, Neural Search, Vector DB).
+
+#### 3. Request Execution Trace (Reasoning Steps)
+**Status:** COMPLETED (v3.37.0) · **Priorität:** Hoch (P1) -> Upgrade zu P0
+**Warum:** Nutzer vertrauen dem System nicht ("Halluziniert es gerade?").
+**Umsetzung:** Sichtbare Schritte "Router -> Search -> Rerank -> Synthesis" mit Zeitstempel.
+
+---
+
+### 🎨 Visual & Functional Polish (P1/Standard)
+
+#### 4. Evidence Board (React)
 **Status:** PROPOSED (ADR-022) · **Priorität:** Hoch
 
 **Warum:** Quellenvalidierung soll in <30s möglich sein, weniger Klicks, bessere Multi-Modal-Unterstützung (PDF, Audio, Video, Bilder). Das Evidence Board ist als Ziel-UX definiert und explizit als wesentliche Verbesserung beschrieben. 

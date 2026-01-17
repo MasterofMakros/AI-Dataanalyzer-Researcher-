@@ -13,6 +13,8 @@ import {
   getShowWeatherWidget,
 } from '@/lib/config/clientRegistry';
 
+
+
 const EmptyChat = () => {
   const [showWeather, setShowWeather] = useState(() =>
     typeof window !== 'undefined' ? getShowWeatherWidget() : true,
@@ -28,15 +30,11 @@ const EmptyChat = () => {
     };
 
     updateWidgetVisibility();
-
     window.addEventListener('client-config-changed', updateWidgetVisibility);
     window.addEventListener('storage', updateWidgetVisibility);
 
     return () => {
-      window.removeEventListener(
-        'client-config-changed',
-        updateWidgetVisibility,
-      );
+      window.removeEventListener('client-config-changed', updateWidgetVisibility);
       window.removeEventListener('storage', updateWidgetVisibility);
     };
   }, []);
@@ -71,5 +69,6 @@ const EmptyChat = () => {
     </div>
   );
 };
+
 
 export default EmptyChat;

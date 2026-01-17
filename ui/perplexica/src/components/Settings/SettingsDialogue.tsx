@@ -7,6 +7,7 @@ import {
   Search,
   Sliders,
   ToggleRight,
+  Activity,
 } from 'lucide-react';
 import Preferences from './Sections/Preferences';
 import { motion } from 'framer-motion';
@@ -18,6 +19,7 @@ import Models from './Sections/Models/Section';
 import SearchSection from './Sections/Search';
 import Select from '@/components/ui/Select';
 import Personalization from './Sections/Personalization';
+import SystemMonitor from './Sections/Status';
 
 const sections = [
   {
@@ -43,6 +45,14 @@ const sections = [
     icon: BrainCog,
     component: Models,
     dataAdd: 'modelProviders',
+  },
+  {
+    key: 'system',
+    name: 'System Status',
+    description: 'Monitor service health and connectivity.',
+    icon: Activity,
+    component: SystemMonitor,
+    dataAdd: 'system',
   },
   {
     key: 'search',

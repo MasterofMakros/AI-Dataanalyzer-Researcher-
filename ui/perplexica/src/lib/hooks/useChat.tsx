@@ -37,6 +37,8 @@ type ChatContext = {
   sources: string[];
   chatId: string | undefined;
   optimizationMode: string;
+  focusMode: string;
+  setFocusMode: (mode: string) => void;
   isMessagesLoaded: boolean;
   loading: boolean;
   notFound: boolean;
@@ -262,6 +264,8 @@ export const chatContext = createContext<ChatContext>({
   setFiles: () => { },
   setSources: () => { },
   setOptimizationMode: () => { },
+  focusMode: 'webSearch',
+  setFocusMode: () => { },
   setChatModelProvider: () => { },
   setEmbeddingModelProvider: () => { },
   setResearchEnded: () => { },
@@ -289,6 +293,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
 
   const [sources, setSources] = useState<string[]>(['web']);
   const [optimizationMode, setOptimizationMode] = useState('speed');
+  const [focusMode, setFocusMode] = useState('webSearch');
 
   const [isMessagesLoaded, setIsMessagesLoaded] = useState(false);
 
@@ -994,6 +999,8 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
         setFiles,
         setSources,
         setOptimizationMode,
+        focusMode,
+        setFocusMode,
         rewrite,
         sendMessage,
         setChatModelProvider,
