@@ -53,15 +53,15 @@ class OpenAILLM extends BaseLLM<OpenAIConfig> {
           content: msg.content,
           ...(msg.tool_calls &&
             msg.tool_calls.length > 0 && {
-              tool_calls: msg.tool_calls?.map((tc) => ({
-                id: tc.id,
-                type: 'function',
-                function: {
-                  name: tc.name,
-                  arguments: JSON.stringify(tc.arguments),
-                },
-              })),
-            }),
+            tool_calls: msg.tool_calls?.map((tc) => ({
+              id: tc.id,
+              type: 'function',
+              function: {
+                name: tc.name,
+                arguments: JSON.stringify(tc.arguments),
+              },
+            })),
+          }),
         } as ChatCompletionAssistantMessageParam;
       }
 
@@ -113,8 +113,9 @@ class OpenAILLM extends BaseLLM<OpenAIConfig> {
                   arguments: JSON.parse(tc.function.arguments),
                 };
               }
+              return undefined;
             })
-            .filter((tc) => tc !== undefined) || [],
+            .filter((tc): tc is ToolCall => tc !== undefined) || [],
         additionalInfo: {
           finishReason: response.choices[0].finish_reason,
         },

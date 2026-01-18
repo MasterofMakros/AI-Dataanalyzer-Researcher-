@@ -844,12 +844,12 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
 
         const newHistory: [string, string][] = [
           ...chatHistory.current,
-          ['human', message.query],
+          ['human', message.query] as [string, string],
           [
             'assistant',
             currentMsg?.responseBlocks.find((b) => b.type === 'text')?.data ||
             '',
-          ],
+          ] as [string, string],
         ];
 
         chatHistory.current = newHistory;
