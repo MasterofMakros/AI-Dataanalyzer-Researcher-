@@ -183,7 +183,7 @@ const MessageBox = ({
         >
           {/* Sources & Evidence - Collapsible */}
           {(sources.length > 0 || localSources.length > 0 || section.claims.length > 0) && (
-            <CollapsibleSection title="Sources & Evidence" className="mb-6">
+            <CollapsibleSection title="Sources & Evidence" className="mb-6" defaultOpen={false}>
               <div className="flex flex-col gap-4">
                 {sources.length > 0 && (
                   <div className="flex flex-col space-y-2" data-testid="sources-panel">

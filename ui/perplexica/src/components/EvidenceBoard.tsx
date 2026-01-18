@@ -449,20 +449,7 @@ const EvidenceBoard = ({
 
       <div className="grid gap-4 lg:grid-cols-[1.2fr_1fr] p-4">
         <div className="space-y-4">
-          <div className="rounded-lg border border-light-200 dark:border-dark-200 bg-light-100 dark:bg-dark-100 p-4">
-            <h4 className="text-xs font-semibold uppercase text-black/50 dark:text-white/50 mb-2">
-              Antwort & Kernaussagen
-            </h4>
-            {displayAnswer.trim() ? (
-              <Markdown className="prose prose-sm dark:prose-invert max-w-none text-black dark:text-white">
-                {displayAnswer}
-              </Markdown>
-            ) : (
-              <p className="text-sm text-black/60 dark:text-white/60">
-                Noch keine Antwort vorhanden.
-              </p>
-            )}
-          </div>
+          {/* "Antwort & Kernaussagen" block removed per user feedback (redundant) */}
 
           <div className="rounded-lg border border-light-200 dark:border-dark-200 bg-light-100 dark:bg-dark-100 p-4">
             <h4 className="text-xs font-semibold uppercase text-black/50 dark:text-white/50 mb-3">
@@ -511,9 +498,9 @@ const EvidenceBoard = ({
                           const label = evidence.evidenceId
                             ? `E${evidence.evidenceId}`
                             : evidence.title ??
-                              evidence.url ??
-                              evidence.filePath ??
-                              'Quelle';
+                            evidence.url ??
+                            evidence.filePath ??
+                            'Quelle';
 
                           if (!anchor) {
                             return (
@@ -583,129 +570,129 @@ const EvidenceBoard = ({
             {(tagOptions.length > 0 ||
               domainOptions.length > 0 ||
               fileTypeOptions.length > 0) && (
-              <div className="mt-4 space-y-3">
-                {tagOptions.length > 0 && (
-                  <div>
-                    <p className="text-[11px] font-semibold uppercase text-black/40 dark:text-white/40">
-                      Tags
-                    </p>
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {tagOptions.map((tag) => {
-                        const isActive = selectedTags.includes(tag);
-                        return (
-                          <button
-                            key={tag}
-                            onClick={() =>
-                              setSelectedTags((prev) =>
-                                prev.includes(tag)
-                                  ? prev.filter((item) => item !== tag)
-                                  : [...prev, tag],
-                              )
-                            }
-                            className={cn(
-                              'rounded-full border px-2.5 py-0.5 text-xs transition',
-                              isActive
-                                ? 'border-emerald-500/60 bg-emerald-500/10 text-emerald-600 dark:text-emerald-300'
-                                : 'border-light-200 dark:border-dark-200 bg-light-secondary dark:bg-dark-secondary text-black/60 dark:text-white/60',
-                            )}
-                          >
-                            {tag}
-                          </button>
-                        );
-                      })}
+                <div className="mt-4 space-y-3">
+                  {tagOptions.length > 0 && (
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase text-black/40 dark:text-white/40">
+                        Tags
+                      </p>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {tagOptions.map((tag) => {
+                          const isActive = selectedTags.includes(tag);
+                          return (
+                            <button
+                              key={tag}
+                              onClick={() =>
+                                setSelectedTags((prev) =>
+                                  prev.includes(tag)
+                                    ? prev.filter((item) => item !== tag)
+                                    : [...prev, tag],
+                                )
+                              }
+                              className={cn(
+                                'rounded-full border px-2.5 py-0.5 text-xs transition',
+                                isActive
+                                  ? 'border-emerald-500/60 bg-emerald-500/10 text-emerald-600 dark:text-emerald-300'
+                                  : 'border-light-200 dark:border-dark-200 bg-light-secondary dark:bg-dark-secondary text-black/60 dark:text-white/60',
+                              )}
+                            >
+                              {tag}
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                )}
-                {domainOptions.length > 0 && (
-                  <div>
-                    <p className="text-[11px] font-semibold uppercase text-black/40 dark:text-white/40">
-                      Quellen
-                    </p>
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {domainOptions.map((domain) => {
-                        const isActive = selectedDomains.includes(domain);
-                        return (
-                          <button
-                            key={domain}
-                            onClick={() =>
-                              setSelectedDomains((prev) =>
-                                prev.includes(domain)
-                                  ? prev.filter((item) => item !== domain)
-                                  : [...prev, domain],
-                              )
-                            }
-                            className={cn(
-                              'rounded-full border px-2.5 py-0.5 text-xs transition',
-                              isActive
-                                ? 'border-emerald-500/60 bg-emerald-500/10 text-emerald-600 dark:text-emerald-300'
-                                : 'border-light-200 dark:border-dark-200 bg-light-secondary dark:bg-dark-secondary text-black/60 dark:text-white/60',
-                            )}
-                          >
-                            {domain}
-                          </button>
-                        );
-                      })}
+                  )}
+                  {domainOptions.length > 0 && (
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase text-black/40 dark:text-white/40">
+                        Quellen
+                      </p>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {domainOptions.map((domain) => {
+                          const isActive = selectedDomains.includes(domain);
+                          return (
+                            <button
+                              key={domain}
+                              onClick={() =>
+                                setSelectedDomains((prev) =>
+                                  prev.includes(domain)
+                                    ? prev.filter((item) => item !== domain)
+                                    : [...prev, domain],
+                                )
+                              }
+                              className={cn(
+                                'rounded-full border px-2.5 py-0.5 text-xs transition',
+                                isActive
+                                  ? 'border-emerald-500/60 bg-emerald-500/10 text-emerald-600 dark:text-emerald-300'
+                                  : 'border-light-200 dark:border-dark-200 bg-light-secondary dark:bg-dark-secondary text-black/60 dark:text-white/60',
+                              )}
+                            >
+                              {domain}
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                )}
-                {fileTypeOptions.length > 0 && (
-                  <div>
-                    <p className="text-[11px] font-semibold uppercase text-black/40 dark:text-white/40">
-                      Dateityp
-                    </p>
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {fileTypeOptions.map((fileType) => {
-                        const isActive = selectedFileTypes.includes(fileType);
-                        return (
-                          <button
-                            key={fileType}
-                            onClick={() =>
-                              setSelectedFileTypes((prev) =>
-                                prev.includes(fileType)
-                                  ? prev.filter((item) => item !== fileType)
-                                  : [...prev, fileType],
-                              )
-                            }
-                            className={cn(
-                              'rounded-full border px-2.5 py-0.5 text-xs transition',
-                              isActive
-                                ? 'border-emerald-500/60 bg-emerald-500/10 text-emerald-600 dark:text-emerald-300'
-                                : 'border-light-200 dark:border-dark-200 bg-light-secondary dark:bg-dark-secondary text-black/60 dark:text-white/60',
-                            )}
-                          >
-                            {fileType.toUpperCase()}
-                          </button>
-                        );
-                      })}
+                  )}
+                  {fileTypeOptions.length > 0 && (
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase text-black/40 dark:text-white/40">
+                        Dateityp
+                      </p>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {fileTypeOptions.map((fileType) => {
+                          const isActive = selectedFileTypes.includes(fileType);
+                          return (
+                            <button
+                              key={fileType}
+                              onClick={() =>
+                                setSelectedFileTypes((prev) =>
+                                  prev.includes(fileType)
+                                    ? prev.filter((item) => item !== fileType)
+                                    : [...prev, fileType],
+                                )
+                              }
+                              className={cn(
+                                'rounded-full border px-2.5 py-0.5 text-xs transition',
+                                isActive
+                                  ? 'border-emerald-500/60 bg-emerald-500/10 text-emerald-600 dark:text-emerald-300'
+                                  : 'border-light-200 dark:border-dark-200 bg-light-secondary dark:bg-dark-secondary text-black/60 dark:text-white/60',
+                              )}
+                            >
+                              {fileType.toUpperCase()}
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
+                  )}
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      onClick={() => setRequireTimecode((prev) => !prev)}
+                      className={cn(
+                        'rounded-full border px-2.5 py-0.5 text-xs transition',
+                        requireTimecode
+                          ? 'border-emerald-500/60 bg-emerald-500/10 text-emerald-600 dark:text-emerald-300'
+                          : 'border-light-200 dark:border-dark-200 bg-light-secondary dark:bg-dark-secondary text-black/60 dark:text-white/60',
+                      )}
+                    >
+                      Mit Timecode
+                    </button>
+                    <button
+                      onClick={() => setRequirePage((prev) => !prev)}
+                      className={cn(
+                        'rounded-full border px-2.5 py-0.5 text-xs transition',
+                        requirePage
+                          ? 'border-emerald-500/60 bg-emerald-500/10 text-emerald-600 dark:text-emerald-300'
+                          : 'border-light-200 dark:border-dark-200 bg-light-secondary dark:bg-dark-secondary text-black/60 dark:text-white/60',
+                      )}
+                    >
+                      Mit Seitenzahl
+                    </button>
                   </div>
-                )}
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    onClick={() => setRequireTimecode((prev) => !prev)}
-                    className={cn(
-                      'rounded-full border px-2.5 py-0.5 text-xs transition',
-                      requireTimecode
-                        ? 'border-emerald-500/60 bg-emerald-500/10 text-emerald-600 dark:text-emerald-300'
-                        : 'border-light-200 dark:border-dark-200 bg-light-secondary dark:bg-dark-secondary text-black/60 dark:text-white/60',
-                    )}
-                  >
-                    Mit Timecode
-                  </button>
-                  <button
-                    onClick={() => setRequirePage((prev) => !prev)}
-                    className={cn(
-                      'rounded-full border px-2.5 py-0.5 text-xs transition',
-                      requirePage
-                        ? 'border-emerald-500/60 bg-emerald-500/10 text-emerald-600 dark:text-emerald-300'
-                        : 'border-light-200 dark:border-dark-200 bg-light-secondary dark:bg-dark-secondary text-black/60 dark:text-white/60',
-                    )}
-                  >
-                    Mit Seitenzahl
-                  </button>
                 </div>
-              </div>
-            )}
+              )}
           </div>
 
           <div className="rounded-lg border border-light-200 dark:border-dark-200 bg-light-100 dark:bg-dark-100 p-4">
