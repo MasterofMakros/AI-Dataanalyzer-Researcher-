@@ -108,10 +108,7 @@ Nach dem Start sind folgende Services verfügbar (Host-Ports):
 | WhisperX | http://localhost:9000 | 9000 | Audio Transcription |
 | Surya OCR | http://localhost:9999 | 8000 | OCR Service |
 | Tika | http://localhost:9998 | 9998 | Text Extraction |
-| Scientific Parser | http://localhost:8050 | 8050 | Table/Text Parsing |
-| Metadata Extractor | http://localhost:8015 | 8000 | ExifTool Wrapper |
 | Qdrant (REST) | http://localhost:6335 | 6333 | Vektor-Datenbank |
-| Qdrant (gRPC) | http://localhost:6336 | 6334 | gRPC Endpoint |
 | Ollama | http://localhost:11435 | 11434 | LLM Backend |
 | Nextcloud | http://localhost:8081 | 80 | Filesync UI |
 

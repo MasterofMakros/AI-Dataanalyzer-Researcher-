@@ -36,6 +36,12 @@ class OllamaLLM extends BaseLLM<OllamaConfig> {
 
     this.ollamaClient = new Ollama({
       host: this.config.baseURL || 'http://localhost:11434',
+      fetch: (url, options) => {
+        return fetch(url, {
+          ...options,
+          signal: AbortSignal.timeout(600000), // 10 minutes
+        });
+      },
     });
   }
 

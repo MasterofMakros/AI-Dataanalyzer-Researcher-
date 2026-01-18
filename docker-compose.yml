@@ -124,7 +124,7 @@ services:
       - "5680:5678"
     volumes:
       - n8n_data:/home/node/.n8n
-      - F:/:/mnt/data:ro  # Read-only Zugriff auf Datenpool
+      - ${CONDUCTOR_ROOT}:/mnt/data:ro  # Read-only Zugriff auf Datenpool
     networks:
       - conductor-net
     depends_on:
@@ -261,7 +261,7 @@ services:
       - HF_TOKEN=${HF_TOKEN:-}  # Für Speaker Diarization
     volumes:
       - whisper_models:/root/.cache/huggingface
-      - F:/:/mnt/data:ro
+      - ${CONDUCTOR_ROOT}:/mnt/data:ro
     networks:
       - conductor-net
     deploy:
@@ -287,7 +287,7 @@ services:
     restart: unless-stopped
     entrypoint: ["tail", "-f", "/dev/null"]  # Hält Container am Laufen
     volumes:
-      - F:/:/mnt/data:ro
+      - ${CONDUCTOR_ROOT}:/mnt/data:ro
       - ffmpeg_temp:/tmp/ffmpeg
     networks:
       - conductor-net
@@ -304,7 +304,7 @@ services:
     restart: unless-stopped
     entrypoint: ["tail", "-f", "/dev/null"]
     volumes:
-      - F:/:/mnt/data:ro
+      - ${CONDUCTOR_ROOT}:/mnt/data:ro
     networks:
       - conductor-net
     profiles:
@@ -335,7 +335,7 @@ services:
       - SURYA_LANGS=de,en
     volumes:
       - huggingface_cache:/root/.cache/huggingface
-      - F:/:/mnt/data:ro
+      - ${CONDUCTOR_ROOT}:/mnt/data:ro
     networks:
       - conductor-net
     deploy:
@@ -389,7 +389,7 @@ services:
     ports:
       - "8050:8050"
     volumes:
-      - F:/:/mnt/data:ro
+      - ${CONDUCTOR_ROOT}:/mnt/data:ro
     networks:
       - conductor-net
     deploy:
@@ -409,7 +409,7 @@ services:
     restart: unless-stopped
     entrypoint: ["tail", "-f", "/dev/null"]
     volumes:
-      - F:/:/mnt/data:ro
+      - ${CONDUCTOR_ROOT}:/mnt/data:ro
     networks:
       - conductor-net
     deploy:
@@ -428,7 +428,7 @@ services:
     ports:
       - "8015:8000"
     volumes:
-      - F:/:/mnt/data:ro
+      - ${CONDUCTOR_ROOT}:/mnt/data:ro
     networks:
       - conductor-net
     deploy:
@@ -461,7 +461,7 @@ services:
     ports:
       - "8005:8000"
     volumes:
-      - F:/:/mnt/data:ro
+      - ${CONDUCTOR_ROOT}:/mnt/data:ro
       - huggingface_cache:/root/.cache/huggingface
       - lancedb_data:/data/lancedb
     networks:
@@ -507,7 +507,7 @@ services:
     ports:
       - "8005:8000"
     volumes:
-      - F:/:/mnt/data:ro
+      - ${CONDUCTOR_ROOT}:/mnt/data:ro
       - huggingface_cache:/root/.cache/huggingface
       - lancedb_data:/data/lancedb
     networks:
@@ -548,7 +548,7 @@ services:
     ports:
       - "8006:8000"  # Anderer Port um Konflikt zu vermeiden
     volumes:
-      - F:/:/mnt/data:ro
+      - ${CONDUCTOR_ROOT}:/mnt/data:ro
       - huggingface_cache:/root/.cache/huggingface
       - lancedb_data:/lancedb_storage
     networks:
@@ -584,7 +584,7 @@ services:
     ports:
       - "8030:8030"
     volumes:
-      - F:/:/mnt/data:ro
+      - ${CONDUCTOR_ROOT}:/mnt/data:ro
     networks:
       - conductor-net
     environment:
@@ -614,7 +614,7 @@ services:
     ports:
       - "8020:8020"
     volumes:
-      - F:/:/mnt/data:ro
+      - ${CONDUCTOR_ROOT}:/mnt/data:ro
     networks:
       - conductor-net
     environment:
@@ -646,7 +646,7 @@ services:
     image: conductor-extraction-worker:latest
     restart: unless-stopped
     volumes:
-      - F:/:/mnt/data:ro
+      - ${CONDUCTOR_ROOT}:/mnt/data:ro
     networks:
       - conductor-net
     environment:
@@ -676,7 +676,7 @@ services:
     image: conductor-extraction-worker:latest
     restart: unless-stopped
     volumes:
-      - F:/:/mnt/data:ro
+      - ${CONDUCTOR_ROOT}:/mnt/data:ro
     networks:
       - conductor-net
     environment:
@@ -705,7 +705,7 @@ services:
     image: conductor-extraction-worker:latest
     restart: unless-stopped
     volumes:
-      - F:/:/mnt/data:ro
+      - ${CONDUCTOR_ROOT}:/mnt/data:ro
     networks:
       - conductor-net
     environment:
@@ -734,7 +734,7 @@ services:
     image: conductor-extraction-worker:latest
     restart: unless-stopped
     volumes:
-      - F:/:/mnt/data:ro
+      - ${CONDUCTOR_ROOT}:/mnt/data:ro
     networks:
       - conductor-net
     environment:
@@ -763,7 +763,7 @@ services:
     image: conductor-extraction-worker:latest
     restart: unless-stopped
     volumes:
-      - F:/:/mnt/data:ro
+      - ${CONDUCTOR_ROOT}:/mnt/data:ro
     networks:
       - conductor-net
     environment:
@@ -791,7 +791,7 @@ services:
     image: conductor-extraction-worker:latest
     restart: unless-stopped
     volumes:
-      - F:/:/mnt/data:ro
+      - ${CONDUCTOR_ROOT}:/mnt/data:ro
     networks:
       - conductor-net
     environment:
@@ -820,7 +820,7 @@ services:
     image: conductor-extraction-worker:latest
     restart: unless-stopped
     volumes:
-      - F:/:/mnt/data:ro
+      - ${CONDUCTOR_ROOT}:/mnt/data:ro
     networks:
       - conductor-net
     environment:
@@ -847,7 +847,7 @@ services:
     image: conductor-extraction-worker:latest
     restart: unless-stopped
     volumes:
-      - F:/:/mnt/data:ro
+      - ${CONDUCTOR_ROOT}:/mnt/data:ro
     networks:
       - conductor-net
     environment:
@@ -874,7 +874,7 @@ services:
     image: conductor-extraction-worker:latest
     restart: unless-stopped
     volumes:
-      - F:/:/mnt/data:ro
+      - ${CONDUCTOR_ROOT}:/mnt/data:ro
     networks:
       - conductor-net
     environment:
@@ -1045,7 +1045,7 @@ services:
       - OVERWRITEPROTOCOL=http
     volumes:
       - nextcloud_data:/var/www/html
-      - F:/:/mnt/datapool  # External Storage
+      - ${CONDUCTOR_ROOT}:/mnt/datapool  # External Storage
     ports:
       - "8081:80"
     networks:

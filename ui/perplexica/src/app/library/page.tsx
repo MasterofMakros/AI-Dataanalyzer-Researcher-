@@ -226,11 +226,10 @@ const Page = () => {
             {chats.length > 0 && (
               <button
                 onClick={toggleSelectionMode}
-                className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 transition-colors ${
-                  isSelectionMode
+                className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 transition-colors ${isSelectionMode
                     ? 'border-sky-400/50 text-sky-500 bg-sky-500/10'
                     : 'border-black/20 dark:border-white/20 hover:bg-light-200 dark:hover:bg-dark-200'
-                }`}
+                  }`}
               >
                 {isSelectionMode ? <X size={14} /> : <CheckSquare size={14} />}
                 {isSelectionMode ? 'Cancel' : 'Select'}
@@ -282,7 +281,7 @@ const Page = () => {
           </p>
         </div>
       ) : (
-        <div className="pt-6 pb-28 px-2">
+        <div className="pt-6 pb-28 px-2" data-testid="chat-list">
           <div className="rounded-2xl border border-light-200 dark:border-dark-200 overflow-hidden bg-light-primary dark:bg-dark-primary">
             {chats.map((chat, index) => {
               const sourcesLabel =
@@ -290,12 +289,12 @@ const Page = () => {
                   ? null
                   : chat.sources.length <= 2
                     ? chat.sources
-                        .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
-                        .join(', ')
+                      .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+                      .join(', ')
                     : `${chat.sources
-                        .slice(0, 2)
-                        .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
-                        .join(', ')} + ${chat.sources.length - 2}`;
+                      .slice(0, 2)
+                      .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+                      .join(', ')} + ${chat.sources.length - 2}`;
 
               const isSelected = selectedChats.has(chat.id);
               const isEditing = editingChatId === chat.id;
@@ -303,15 +302,14 @@ const Page = () => {
               return (
                 <div
                   key={chat.id}
-                  className={`group flex flex-col gap-2 p-4 transition-colors duration-200 ${
-                    isSelected
+                  data-testid="chat-item"
+                  className={`group flex flex-col gap-2 p-4 transition-colors duration-200 ${isSelected
                       ? 'bg-sky-500/10'
                       : 'hover:bg-light-secondary dark:hover:bg-dark-secondary'
-                  } ${
-                    index !== chats.length - 1
+                    } ${index !== chats.length - 1
                       ? 'border-b border-light-200 dark:border-dark-200'
                       : ''
-                  }`}
+                    }`}
                 >
                   <div className="flex items-start justify-between gap-3">
                     {/* Selection checkbox */}

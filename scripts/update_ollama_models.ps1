@@ -10,6 +10,8 @@
     Aktiviert den woechentlichen Scheduled Task
 .PARAMETER Disable
     Deaktiviert den Scheduled Task (ohne zu loeschen)
+.PARAMETER Setup
+    Installiert fehlende Standard-Modelle (Qwen3, Llama3, etc.)
 .PARAMETER Status
     Zeigt den aktuellen Status des Scheduled Tasks
 .EXAMPLE
@@ -23,6 +25,7 @@ param(
     [switch]$TestNotification,
     [switch]$Enable,
     [switch]$Disable,
+    [switch]$Setup,
     [switch]$Status,
     [switch]$Force,
     [string]$Container = "conductor-ollama"
@@ -368,6 +371,30 @@ foreach ($model in $models) {
             if ($result.Updated) { $updated++ }
         } else {
             $failed++
+        }
+    }
+    }
+}
+
+# SETUP MODE: Installiere Standard-Modelle
+if ($Setup) {
+    Write-Log "----------------------------------------------"
+    Write-Log "SETUP MODE: Pruefe Standard-Modelle..."
+    
+    $defaults = @(
+        "qwen2.5:14b",
+        "qwen3-embedding:8b",
+        "llama3.2:3b",
+        "nomic-embed-text"
+    )
+
+    foreach ($model in $defaults) {
+        if ($models -notcontains $model) {
+            Write-Log "Standard-Modell fehlt: $model - Starte Download..." "WARN"
+            $result = Update-Model -ModelName $model
+            if ($result.Success) { $success++; $updated++ } else { $failed++ }
+        } else {
+            Write-Log "Standard-Modell vorhanden: $model" "OK"
         }
     }
 }

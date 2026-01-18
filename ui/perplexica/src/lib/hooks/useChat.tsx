@@ -114,39 +114,68 @@ const checkConfig = async (
       );
     }
 
-    const chatModelProvider =
-      providers.find((p) => p.id === chatModelProviderId) ??
-      providers.find((p) => p.chatModels.length > 0);
+    // Priority Logic for Chat Model
+    let chatModelProvider = providers.find((p) => p.id === chatModelProviderId);
+    let chatModel;
+
+    if (!chatModelProvider) {
+      // 1. Try to find Ollama + Qwen/Llama
+      const ollama = providers.find((p) => p.id === 'ollama');
+      if (ollama && ollama.chatModels.length > 0) {
+        chatModelProvider = ollama;
+        chatModel = ollama.chatModels.find(m => m.name.toLowerCase().includes('qwen')) ??
+          ollama.chatModels.find(m => m.name.toLowerCase().includes('llama')) ??
+          ollama.chatModels[0];
+      } else {
+        // 2. Fallback to any provider
+        chatModelProvider = providers.find((p) => p.chatModels.length > 0);
+      }
+    }
 
     if (!chatModelProvider) {
       throw new Error(
-        'No chat models found, pleae configure them in the settings page.',
+        'No chat models found, please configure them in the settings page.',
       );
     }
-
     chatModelProviderId = chatModelProvider.id;
 
-    const chatModel =
-      chatModelProvider.chatModels.find((m) => m.key === chatModelKey) ??
-      chatModelProvider.chatModels[0];
+    if (!chatModel) {
+      chatModel = chatModelProvider.chatModels.find((m) => m.key === chatModelKey) ??
+        chatModelProvider.chatModels[0];
+    }
     chatModelKey = chatModel.key;
 
-    const embeddingModelProvider =
-      providers.find((p) => p.id === embeddingModelProviderId) ??
-      providers.find((p) => p.embeddingModels.length > 0);
+
+    // Priority Logic for Embedding Model
+    let embeddingModelProvider = providers.find((p) => p.id === embeddingModelProviderId);
+    let embeddingModel;
+
+    if (!embeddingModelProvider) {
+      // 1. Try to find Ollama + Qwen/Nomic
+      const ollama = providers.find((p) => p.id === 'ollama');
+      if (ollama && ollama.embeddingModels.length > 0) {
+        embeddingModelProvider = ollama;
+        embeddingModel = ollama.embeddingModels.find(m => m.name.toLowerCase().includes('qwen')) ??
+          ollama.embeddingModels.find(m => m.name.toLowerCase().includes('nomic')) ??
+          ollama.embeddingModels[0];
+      } else {
+        // 2. Fallback
+        embeddingModelProvider = providers.find((p) => p.embeddingModels.length > 0);
+      }
+    }
 
     if (!embeddingModelProvider) {
       throw new Error(
-        'No embedding models found, pleae configure them in the settings page.',
+        'No embedding models found, please configure them in the settings page.',
       );
     }
-
     embeddingModelProviderId = embeddingModelProvider.id;
 
-    const embeddingModel =
-      embeddingModelProvider.embeddingModels.find(
+    if (!embeddingModel) {
+      embeddingModel = embeddingModelProvider.embeddingModels.find(
         (m) => m.key === embeddingModelKey,
       ) ?? embeddingModelProvider.embeddingModels[0];
+    }
     embeddingModelKey = embeddingModel.key;
 
     localStorage.setItem('chatModelKey', chatModelKey);

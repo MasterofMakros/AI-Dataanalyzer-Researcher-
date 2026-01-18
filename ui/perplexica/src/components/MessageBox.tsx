@@ -248,7 +248,10 @@ const MessageBox = ({
             !section.message.responseBlocks.some(
               (b) => b.type === 'research' && b.data.subSteps.length > 0,
             ) && (
-              <div className="flex items-center gap-2 p-3 rounded-lg bg-light-secondary dark:bg-dark-secondary border border-light-200 dark:border-dark-200">
+              <div
+                className="flex items-center gap-2 p-3 rounded-lg bg-light-secondary dark:bg-dark-secondary border border-light-200 dark:border-dark-200"
+                data-testid="streaming-indicator"
+              >
                 <Disc3 className="w-4 h-4 text-black dark:text-white animate-spin" />
                 <span className="text-sm text-black/70 dark:text-white/70">
                   Brainstorming...

@@ -1,296 +1,126 @@
 # Docker Architecture
 
-> Neural Vault Docker-basierte Architektur
-> Stand: 09.01.2026
+> Neural Vault Docker-based Architecture
+> Status: v3.38.0 (Production Ready) - 2026-01-18
 
 ---
 
-## Service-Übersicht
+## Service Overview
 
-Neural Vault besteht aus **16+ Docker-Containern**, die über ein internes Netzwerk kommunizieren:
+Neural Vault consists of **18+ Docker containers** communicating via an internal bridge network (`conductor-net`).
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                         CONDUCTOR DOCKER STACK                               │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐        │
-│  │   Traefik   │  │   Postgres  │  │    Redis    │  │  Nextcloud  │        │
-│  │   :8888     │  │   :5432     │  │   :6379     │  │   :8081     │        │
-│  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘        │
-│                                                                              │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐                       │
-│  │     n8n     │  │   Qdrant    │  │   Ollama    │                       │
-│  │   :5680     │  │   :6335     │  │  :11435     │                       │
-│  └─────────────┘  └─────────────┘  └─────────────┘                       │
-│                                                                              │
-│  ┌─────────────────────────────────────────────────────────────────┐        │
-│  │                    BINARY PROCESSING LAYER                       │        │
-│  ├─────────────┬─────────────┬─────────────┬─────────────┬─────────┤        │
-│  │   Whisper   │   FFmpeg    │  Tesseract  │    Tika     │  7-Zip  │        │
-│  │   :9001     │   (exec)    │   (exec)    │   :9998     │  (exec) │        │
-│  └─────────────┴─────────────┴─────────────┴─────────────┴─────────┘        │
-│                                                                              │
-│  ┌─────────────────────────────────────────────────────────────────┐        │
-│  │                     AI PROCESSING LAYER                          │        │
-│  ├─────────────────────────────────────────────────────────────────┤        │
-│  │                   Document Processor                            │        │
-│  │                        :8005                                    │        │
-│  │              (Docling + GLiNER + Surya)                         │        │
-│  └─────────────────────────────────────────────────────────────────┘        │
-│                                                                              │
-│  ┌─────────────────────────────────────────────────────────────────┐        │
-│  │                    CONDUCTOR API (NEU)                           │        │
-│  │                         :8010                                    │        │
-│  │  - RAG-Suche (Qdrant)                                            │        │
-│  │  - Pattern-of-Life Analyse                                       │        │
-│  │  - Context Headers für RAG                                       │        │
-│  │  - Feedback Tracking                                             │        │
-│  │  - Tika HTML→Markdown                                            │        │
-│  └─────────────────────────────────────────────────────────────────┘        │
-│                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
+```mermaid
+graph TD
+    subgraph "Core Interface Layer"
+        P[Perplexica UI :3100] --> NA[Neural Search API :8040]
+        NA --> CA[Conductor API :8010]
+        N8N[n8n Workflow :5680] --> CA
+        NC[Nextcloud :8081] --> FileSystem
+    end
+
+    subgraph "Intelligence Pipeline"
+        CA --> UR[Universal Router :8030]
+        UR --> OR[Orchestrator :8020]
+        OR --> REDIS[(Redis :6379)]
+        OR --> W_DOC[Worker: Documents]
+    end
+
+    subgraph "Processing Layer"
+        W_DOC --> TIKA[Tika :9998]
+        W_DOC --> DP[Doc Processor :8005]
+        W_DOC --> WX[WhisperX :9000]
+        W_DOC --> OCR[Surya OCR :9999]
+    end
+
+    subgraph "Knowledge & Storage"
+        CA --> QDTO[(Qdrant :6335)]
+        NA --> QDTO
+        CA --> OLLAMA[Ollama :11435]
+        NA --> OLLAMA
+        CA --> PG[(Postgres :5432)]
+    end
 ```
 
 ---
 
-## Container-Details
+## Container Details
 
-| Service | Image | External Port | Internal Port | Memory | Funktion |
-|:--------|:------|:--------------|:--------------|:-------|:---------|
-| **conductor-api** | conductor-api:latest | 8010 | 8000 | 512M | Zentrale API |
-| **perplexica** | perplexica-neural-vault:latest | 3100 | 3000 | 1G | Perplexica UI |
-| **neural-search** | neural-search-api:latest | 8040 | 8040 | 512M | RAG & LLM API |
-| traefik | traefik:v3.2 | 8888 | 8888 | 128M | Reverse Proxy |
-| postgres | postgres:16-alpine | - | 5432 | 256M | n8n Database |
-| redis | redis:7.4-alpine | 6379 | 6379 | 128M | Cache + State |
-| n8n | n8nio/n8n:latest | 5680 | 5678 | 768M | Workflow Engine |
-| qdrant | qdrant/qdrant:latest | 6335 | 6333 | 1G | Vector DB (GRPC: 6336 -> 6334) |
-| ollama | ollama/ollama:latest | 11435 | 11434 | 8G | Local LLM |
-| tika | apache/tika:latest | 9998 | 9998 | 1G | Document Parser |
-| whisperx | conductor-whisperx:latest | 9000 | 9000 | 8G | Audio Transkription |
-| ffmpeg-api | jrottenberg/ffmpeg:7-ubuntu | - | - | 1G | Video Metadaten |
-| surya-ocr | conductor-surya-ocr:latest | 9999 | 8000 | 6G | OCR (GPU) |
-| document-processor | conductor-document-processor:latest | 8005 | 8000 | 8G | Docling + GLiNER |
-
-**Gesamt-Memory:** ~23 GB (mit GPU-Offload auf Ollama weniger)
+| Service | Image | Ext. Port | Int. Port | Memory | Function |
+|:--------|:------|:----------|:----------|:-------|:---------|
+| **conductor-api** | `conductor-api` | 8010 | 8000 | 512M | Central REST API |
+| **perplexica** | `perplexica-neural-vault` | 3100 | 3000 | 1G | **Search UI** (RAG Frontend) |
+| **neural-search** | `neural-search-api` | 8040 | 8040 | 512M | RAG Logic & LLM Synthesis |
+| **universal-router** | `conductor-universal-router` | 8030 | 8030 | 256M | Magic Byte Detection / Routing |
+| **orchestrator** | `conductor-orchestrator` | 8020 | 8020 | 256M | Job Queue Management (Redis) |
+| **document-processor** | `conductor-document-processor` | 8005 | 8000 | 4G | Docling / GLiNER / Layout Analysis |
+| **whisperx** | `conductor-whisperx` | 9000 | 9000 | 4G | Audio Transcription (CPU/GPU) |
+| **surya-ocr** | `conductor-surya-ocr` | 9999 | 8000 | 4G | High-Res OCR |
+| **tika** | `apache/tika` | 9998 | 9998 | 1G | Standard Text Extraction |
+| **nextcloud** | `nextcloud:30` | 8081 | 80 | 512M | File Synchronization |
+| **n8n** | `n8nio/n8n` | 5680 | 5678 | 768M | Workflow Automation |
+| **qdrant** | `qdrant/qdrant` | 6335 | 6333 | 1G | Vector Database |
+| **ollama** | `ollama/ollama` | 11435 | 11434 | 8G | Local LLM Inference |
+| **redis** | `redis:7.4` | 6379 | 6379 | 128M | Message Broker / State |
+| **postgres** | `postgres:16` | - | 5432 | 256M | Relational DB (n8n) |
+| **traefik** | `traefik:v3` | 8888 | 8888 | 128M | Reverse Proxy / Dashboard |
 
 ---
 
-## Conductor API Endpoints
+## Volume Mappings
 
-Die neue **conductor-api** fasst alle Funktionen in einer REST-API zusammen:
+Configuration is handled via `.env` using the `CONDUCTOR_ROOT` variable.
 
-### Extraktion
+| Volume | Host Path | Internal Path | Purpose |
+|:-------|:----------|:--------------|:--------|
+| **Primary Data** | `${CONDUCTOR_ROOT}` | `/mnt/data:ro` | Main Data Pool (Read-Only to services) |
+| **Inbox** | `${CONDUCTOR_INBOX}` | `/mnt/inbox` | New file intake |
+| **Perplexica** | `perplexica_data` | `/home/perplexica/data` | Chat History & Settings |
+| **Qdrant** | `qdrant_data` | `/qdrant/storage` | Vector Index |
+| **Ollama** | `ollama_data` | `/root/.ollama` | LLM Models |
 
+---
+
+## Quickstart
+
+### 1. Prerequisites
+*   Docker Desktop (Windows/Mac) or Docker Engine (Linux)
+*   16GB+ RAM recommmended
+
+### 2. Configuration
+Navigate to the project directory:
 ```bash
-# Dokument extrahieren (HTML→Markdown)
-curl -X POST http://localhost:8010/extract \
-  -H "Content-Type: application/json" \
-  -d '{"file_path": "/mnt/data/dokument.pdf", "prefer_markdown": true}'
-
-# Mit Context Header für RAG
-curl -X POST http://localhost:8010/extract/with-context \
-  -d "file_path=/mnt/data/rechnung.pdf&category=Finanzen&confidence=0.92"
+cd C:\Users\Admin\Desktop\AI-Dataanalyzer-Researcher-
 ```
 
-### Feedback
-
+Create environment file:
 ```bash
-# Korrektur loggen
-curl -X POST http://localhost:8010/feedback \
-  -H "Content-Type: application/json" \
-  -d '{
-    "file_hash": "abc123",
-    "filename": "Rechnung.pdf",
-    "predicted_category": "Privat",
-    "actual_category": "Geschäftlich"
-  }'
-
-# Statistiken abrufen
-curl http://localhost:8010/feedback/stats
-
-# Confusion Matrix
-curl http://localhost:8010/feedback/confusion-matrix
+# Windows
+Copy-Item .env.example .env
+# Edit .env and set CONDUCTOR_ROOT to your data path
 ```
 
-### Index-Management
-
+### 3. Start Services
 ```bash
-# Index konfigurieren (einmalig)
-curl -X POST http://localhost:8010/index/setup
+# CPU Mode (Default)
+docker compose --profile cpu up -d
 
-# Index-Statistiken
-curl http://localhost:8010/index/stats
-
-# Dokumente indexieren
-curl -X POST http://localhost:8010/index/documents \
-  -H "Content-Type: application/json" \
-  -d '{"documents": [{"id": "1", "original_filename": "test.pdf", ...}]}'
+# GPU Mode (NVIDIA Only)
+docker compose --profile gpu up -d
 ```
 
-### Health Check
-
+### 4. Verification
+Run the validation suite:
 ```bash
-curl http://localhost:8010/health
-# {
-#   "status": "healthy",
-#   "services": {
-#     "tika": true,
-#     "redis": true,
-#     "qdrant": true,
-#     "ollama": true
-#   },
-#   "timestamp": "2025-12-28T15:30:00"
-# }
+./scripts/validate.ps1
 ```
 
 ---
 
-## Schnellstart
+## Network Architecture
 
-### Windows
+All services reside in `conductor-net` (bridge).
 
-```batch
-cd F:\conductor
+*   **Internal Communication:** Uses service names (e.g., `http://ollama:11434`).
+*   **External Access:** Mapped to localhost ports (e.g., `http://localhost:3100`).
 
-REM Alle Services starten
-scripts\docker_start.bat
-
-REM Nur API + Dependencies
-scripts\docker_start.bat api
-
-REM Logs anzeigen
-scripts\docker_start.bat logs
-
-REM Index konfigurieren
-scripts\docker_start.bat setup-index
-
-REM Stoppen
-scripts\docker_start.bat stop
-```
-
-### Linux/Mac
-
-```bash
-cd /path/to/conductor
-
-# Alle Services starten
-./scripts/docker_start.sh
-
-# Nur API + Dependencies
-./scripts/docker_start.sh api
-
-# Logs anzeigen
-./scripts/docker_start.sh logs
-
-# Index konfigurieren
-./scripts/docker_start.sh setup-index
-
-# Stoppen
-./scripts/docker_start.sh stop
-```
-
----
-
-## Environment Variables
-
-Alle Secrets werden über `.env` konfiguriert:
-
-```env
-# Required
-POSTGRES_PASSWORD=sicheres_passwort
-REDIS_PASSWORD=sicheres_passwort
-N8N_ENCRYPTION_KEY=min_32_zeichen_key
-NC_DB_PASSWORD=sicheres_passwort
-NC_DB_ROOT_PASSWORD=sicheres_passwort
-NC_ADMIN_PASSWORD=sicheres_passwort
-
-# Optional
-QDRANT_API_KEY=
-WEBHOOK_URL=http://localhost:5678/
-GENERIC_TIMEZONE=Europe/Berlin
-```
-
----
-
-## Netzwerk-Architektur
-
-Alle Services kommunizieren über das interne `conductor-net` Bridge-Netzwerk:
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                     conductor-net (bridge)                       │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│   conductor-api ──► tika (http://tika:9998)                     │
-│         │                                                        │
-│         ├──────► redis (redis://redis:6379)                     │
-│         │                                                        │
-│         ├──────► qdrant (http://qdrant:6333)                    │
-│         │                                                        │
-│         └──────► ollama (http://ollama:11434)                   │
-│                                                                  │
-│   n8n ──────────► conductor-api (http://conductor-api:8000)     │
-│                                                                  │
-└─────────────────────────────────────────────────────────────────┘
-```
-
----
-
-## Volume-Mappings
-
-| Volume | Mount | Zweck |
-|:-------|:------|:------|
-| `F:/` | `/mnt/data:ro` | Datenpool (Read-Only) |
-| `conductor_api_data` | `/data` | Feedback DB, Cache |
-| `qdrant_data` | `/qdrant/storage` | Vektoren |
-| `ollama_data` | `/root/.ollama` | LLM-Modelle |
-
----
-
-## Rebuild einzelner Services
-
-```bash
-# Conductor API neu bauen
-docker compose build conductor-api
-docker compose up -d conductor-api
-
-# Parser Service neu bauen
-docker compose build parser-service
-docker compose up -d parser-service
-
-# Alle Custom-Images neu bauen
-docker compose build
-```
-
----
-
-## Troubleshooting
-
-### Service startet nicht
-
-```bash
-# Logs prüfen
-docker compose logs conductor-api
-
-# Container-Status
-docker compose ps
-
-# In Container einloggen
-docker exec -it conductor-api bash
-```
-
-### Memory-Probleme
-
-```bash
-# Memory-Verbrauch prüfen
-docker stats
-
-# Einzelne Services neustarten
-docker compose restart conductor-api
-```
-
----
-
-*Dokumentation aktualisiert: 28.12.2025*
+For detailed architectural decisions, see `docs/ADR/`.
