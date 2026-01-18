@@ -456,9 +456,9 @@ const EvidenceBoard = ({
               Trust-but-Verify
             </h4>
             <div className="space-y-3">
-              {claims.length === 0 && (
+              {claims.filter(c => c.verified && c.evidenceIds.length > 0).length === 0 && (
                 <p className="text-sm text-black/60 dark:text-white/60">
-                  Keine markierbaren Aussagen vorhanden.
+                  Keine verifizierten Aussagen verfügbar.
                 </p>
               )}
               {claims.map((claim) => {
@@ -468,6 +468,11 @@ const EvidenceBoard = ({
                     (item): item is EvidenceItem & { evidenceId: number } =>
                       Boolean(item),
                   );
+
+                // Hide unverified claims completely (User Feedback)
+                if (!claim.verified || claimEvidence.length === 0) {
+                  return null;
+                }
 
                 return (
                   <div
